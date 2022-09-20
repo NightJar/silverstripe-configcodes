@@ -1,0 +1,5 @@
+Nightjar\ConfigCodes\Test\Fixture\Data\Reference:
+  one:
+    Title: 'first'
+  two:
+    Title: 'second'

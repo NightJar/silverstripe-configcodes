@@ -1,0 +1,130 @@
+// Core variables
+@import "bootstrap-variables";
+@import "variables";
+
+.shortcode {
+  outline: solid $brand-secondary 1px;
+  margin: 0 2px;
+  padding: 0 3px;
+  box-shadow: $brand-secondary inset 0 0 2px 0;
+  border-radius: 1px;
+  display: inline-flex;
+  vertical-align: middle;
+  align-items: stretch;
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &::before {
+    position: relative;
+    left: -3px;
+    margin-right: -1px;
+    background-color: $brand-secondary;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    content: attr(data-shortcode);
+    color: white;
+    font-size: 0.8em;
+    padding: 0 3px;
+    border-top-left-radius: 1px;
+    border-bottom-left-radius: 1px;
+  }
+
+  &::after {
+    position: relative;
+    right: -3px;
+    margin-left: -1px;
+    background-color: $brand-secondary;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    color: white;
+    // font-size: 0.8em;
+    padding: 0 3px;
+    border-top-right-radius: 1px;
+    border-bottom-right-radius: 1px;
+  }
+
+  &--selfclosing {
+    cursor: default;
+    padding: 0;
+
+    &::before {
+      left: 0;
+      margin-right: 0;
+      border-top-right-radius: 1px;
+      border-bottom-right-radius: 1px;
+    }
+  }
+
+  &--selected {
+    outline: 1px solid $brand-secondary;
+    outline-offset: 1px;
+  }
+}
+
+.shortcodable-input {
+  &:not([aria-multiline]) {
+    overflow-x: scroll;
+    overflow-y: visible;
+    scrollbar-width: 0;
+    -ms-overflow-style: none;
+    white-space: pre !important;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    & + .input-group-append {
+      .btn-toolbar {
+        margin: 0;
+      }
+      .btn-group {
+        margin-right: 0;
+      }
+    }
+  }
+
+  &--disabled.form-control,
+  &--readonly.form-control {
+    background-color: $input-disabled-bg;
+    opacity: 1;
+  }
+
+//   & + input[type="text"].text {
+//     display: none;
+//   }
+}
+
+.shortcode-editor {
+  &__selected-content {
+    display: block;
+    border-left: 3px solid $gray-300;
+    padding-left: 0.5em;
+    margin-top: 0.5em;
+  }
+
+  &__field--required label::after {
+    color: $red;
+    content: "required";
+    font-size: 0.8em;
+    margin-left: 1em;
+  }
+
+  .btn-subdued:hover {
+    background: $gray-100;
+  }
+}
+
+// Fix CMS site title (top left) where extra span elements aren't expected.
+// E.g. we apply a `lang` shortcode to a section in SiteConfig.Title
+.cms-sitename .cms-sitename__title span {
+  display: inline;
+  padding-left: 0;
+}

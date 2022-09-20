@@ -1,0 +1,35 @@
+---
+Name: configurableshortcodes
+---
+SilverStripe\Admin\LeftAndMain:
+  extra_requirements_javascript:
+    - nightjar/silverstripe-configcodes:client/dist/bundle.js
+  extra_requirements_css:
+    - nightjar/silverstripe-configcodes:client/dist/bundle.css
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\View\Parsers\ShortcodeParser: Nightjar\ConfigCodes\InstanceIdentifiableShortcodeParser
+  Nightjar\ConfigCodes\Registry: Nightjar\ConfigCodes\Registry\ConfigReader
+  ShortcodeText: Nightjar\ConfigCodes\DBField\ShortcodeText
+  ShortcodeVarchar: Nightjar\ConfigCodes\DBField\ShortcodeVarchar
+  ShortcodeHTMLText: Nightjar\ConfigCodes\DBField\ShortcodeHTMLText
+  ShortcodeHTMLVarchar: Nightjar\ConfigCodes\DBField\ShortcodeHTMLVarchar
+  ShortcodeText.Parse:
+    class: Nightjar\ConfigCodes\DBField\ShortcodeText
+    properties:
+      ProcessShortcodes: true
+  ShortcodeVarchar.Parse:
+    class: Nightjar\ConfigCodes\DBField\ShortcodeVarchar
+    properties:
+      ProcessShortcodes: true
+  ShortcodeHTMLText.Parse:
+    class: Nightjar\ConfigCodes\DBField\ShortcodeHTMLText
+    properties:
+      ProcessShortcodes: true
+  ShortcodeHTMLVarchar.Parse:
+    class: Nightjar\ConfigCodes\DBField\ShortcodeHTMLVarchar
+    properties:
+      ProcessShortcodes: true
+Nightjar\ConfigCodes\Registry\ConfigReader:
+  shortcodes:
+    default:
+      # e.g. mycode: App\Shortcode\MyCodeHandler
