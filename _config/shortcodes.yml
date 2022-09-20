@@ -1,0 +1,10 @@
+---
+Name: configurableshortcodes
+---
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\View\Parsers\ShortcodeParser: NZTA\ConfigCodes\InstanceIdentifiableShortcodeParser
+  NZTA\ConfigCodes\Registry: NZTA\ConfigCodes\Registry\ConfigReader
+NZTA\ConfigCodes\Registry\ConfigReader:
+  shortcodes:
+    default:
+      # e.g. mycode: App\Shortcode\MyCodeHandler
