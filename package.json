@@ -1,8 +1,8 @@
 {
-  "name": "silverstripe-module-skeleton",
-  "description": "Description of your module",
+  "name": "silverstripe-semirich-text-shortcode-editor",
+  "description": "Like a text field, but with some rich text type functions specifically for managing shortcodes",
   "main": "./client/src/boot/index.js",
-  "author": "You",
+  "author": "Dylan Wagstaff",
   "engines": {
     "node": ">=10.x"
   },
@@ -21,7 +21,10 @@
   },
   "dependencies": {
     "babel-polyfill": "6.7.4",
-    "react": "^16.8.3"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "slate": "^0.82.1",
+    "slate-react": "^0.83.0"
   },
   "devDependencies": {
     "@silverstripe/eslint-config": "^0.0.5",
