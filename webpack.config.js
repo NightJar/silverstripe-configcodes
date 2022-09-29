@@ -25,7 +25,7 @@ const config = [
   {
     name: 'js',
     entry: {
-      bundle: `${PATHS.SRC}/bundles/bundle.js`,
+      bundle: `${PATHS.SRC}/boot/index.js`,
     },
     output: {
       path: PATHS.DIST,
@@ -37,19 +37,19 @@ const config = [
     module: moduleJS(ENV, PATHS),
     plugins: pluginJS(ENV, PATHS),
   },
-  {
-    name: 'css',
-    entry: {
-      bundle: `${PATHS.SRC}/bundles/bundle.scss`,
-    },
-    output: {
-      path: PATHS.DIST,
-      filename: 'styles/[name].css',
-    },
-    devtool: (ENV !== 'production') ? 'source-map' : '',
-    module: moduleCSS(ENV, PATHS),
-    plugins: pluginCSS(ENV, PATHS),
-  },
+  // {
+  //   name: 'css',
+  //   entry: {
+  //     bundle: `${PATHS.SRC}/bundles/bundle.scss`,
+  //   },
+  //   output: {
+  //     path: PATHS.DIST,
+  //     filename: 'styles/[name].css',
+  //   },
+  //   devtool: (ENV !== 'production') ? 'source-map' : '',
+  //   module: moduleCSS(ENV, PATHS),
+  //   plugins: pluginCSS(ENV, PATHS),
+  // },
 ];
 
 // Use WEBPACK_CHILD=js or WEBPACK_CHILD=css env var to run a single config
