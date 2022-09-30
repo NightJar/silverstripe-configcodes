@@ -1,8 +1,6 @@
-/* global window */
-
 import jQuery from 'jquery';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { render, unmountComponentAtNode } from 'react-dom';
 import { loadComponent } from 'lib/Injector';
 
 jQuery.entwine('ss', ($) => {
@@ -10,10 +8,10 @@ jQuery.entwine('ss', ($) => {
     onmatch() {
       const ShortcodableTextField = loadComponent('ShortcodableTextField');
       const props = { linkedInput: this[0].previousElementSibling };
-      ReactDOM.render(<ShortcodableTextField {...props}></ShortcodableTextField>, this[0])
+      render(<ShortcodableTextField {...props} />, this[0]);
     },
     onunmatch() {
-      ReactDOM.unmountComponentAtNode(this[0]);
+      unmountComponentAtNode(this[0]);
     }
   });
 });
