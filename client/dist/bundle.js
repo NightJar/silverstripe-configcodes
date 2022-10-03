@@ -92,7 +92,7 @@ _jquery2.default.entwine('ss', function ($) {
   $('.js-injector-boot input.extrashortcodes + span').entwine({
     onmatch: function onmatch() {
       var ShortcodableTextField = (0, _Injector.loadComponent)('ShortcodableTextField');
-      var props = { linkedInput: this[0].previousElementSibling };
+      var props = { linkedInput: this[0].previousElementSibling, validCodes: ['maori'] };
       (0, _reactDom.render)(_react2.default.createElement(ShortcodableTextField, props), this[0]);
     },
     onunmatch: function onunmatch() {
@@ -226,7 +226,8 @@ var DefaultElement = function DefaultElement(_ref2) {
 };
 
 exports.default = function (_ref3) {
-  var linkedInput = _ref3.linkedInput;
+  var linkedInput = _ref3.linkedInput,
+      validCodes = _ref3.validCodes;
 
   var _useState = (0, _react.useState)(function () {
     return (0, _slateReact.withReact)((0, _slate.createEditor)());
@@ -242,11 +243,11 @@ exports.default = function (_ref3) {
       return op.type !== 'set_selection';
     });
     if (astChanged) {
-      linkedInput.setRangeText((0, _SlateShortcodeSerialiser.toStorableValue)(updatedContent), 0, linkedInput.value.length);
+      linkedInput.setRangeText((0, _SlateShortcodeSerialiser.toStorableValue)(updatedContent, validCodes), 0, linkedInput.value.length);
     }
   };
   var initialValue = (0, _react.useMemo)(function () {
-    return (0, _SlateShortcodeSerialiser.toTree)(linkedInput.value);
+    return (0, _SlateShortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes);
   });
   return _react2.default.createElement(
     _slateReact.Slate,
@@ -266,7 +267,7 @@ exports.default = function (_ref3) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.toStorableValue = exports.toTree = undefined;
+exports.toStorableValue = exports.toSlateNodeTree = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -274,21 +275,35 @@ var _parser = __webpack_require__("./node_modules/@bbob/parser/dist/index.js");
 
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
-var mapShortcodeNodeToSlateNode = function mapShortcodeNodeToSlateNode(node) {
-  return {
-    type: 'shortcode',
-    tag: node.tag,
-    attributes: node.attrs,
-    children: [{ text: node.content ? node.content.join() : '' }]
-  };
+var createSlateNode = {
+  fromShortcodeNode: function fromShortcodeNode(_ref) {
+    var tag = _ref.tag,
+        attributes = _ref.attrs,
+        content = _ref.content;
+    return {
+      type: 'shortcode',
+      shortcode: tag,
+      attributes: attributes,
+      children: [{ text: content ? content.join() : '' }]
+    };
+  },
+  fromText: function fromText(text) {
+    return {
+      children: [{ text: text }]
+    };
+  }
 };
 
-var toTree = exports.toTree = function toTree(input) {
-  var codeNodes = (0, _parser.parse)(input);
-  var slateNodes = codeNodes.map(function (node) {
-    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && !!node.tag ? mapShortcodeNodeToSlateNode(node) : { text: node };
+var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, validCodes) {
+  if (!validCodes || validCodes.length === 0) {
+    return [createSlateNode.fromText(input)];
+  }
+
+  var parserOptions = { onlyAllowTags: validCodes };
+  var codeNodes = (0, _parser.parse)(input, parserOptions);
+  return codeNodes.map(function (node) {
+    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && !!node.tag ? createSlateNode.fromShortcodeNode(node) : createSlateNode.fromText(node);
   });
-  return slateNodes;
 };
 
 var toStorableValue = exports.toStorableValue = function toStorableValue(tree) {
@@ -298,7 +313,7 @@ var toStorableValue = exports.toStorableValue = function toStorableValue(tree) {
 };
 
 exports.default = {
-  deserialise: toTree,
+  deserialise: toSlateNodeTree,
   serialise: toStorableValue
 };
 

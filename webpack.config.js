@@ -29,7 +29,7 @@ const config = [
     },
     output: {
       path: PATHS.DIST,
-      filename: 'js/[name].js',
+      filename: '[name].js',
     },
     devtool: (ENV !== 'production') ? 'source-map' : '',
     resolve: resolveJS(ENV, PATHS),
@@ -37,19 +37,19 @@ const config = [
     module: moduleJS(ENV, PATHS),
     plugins: pluginJS(ENV, PATHS),
   },
-  // {
-  //   name: 'css',
-  //   entry: {
-  //     bundle: `${PATHS.SRC}/bundles/bundle.scss`,
-  //   },
-  //   output: {
-  //     path: PATHS.DIST,
-  //     filename: 'styles/[name].css',
-  //   },
-  //   devtool: (ENV !== 'production') ? 'source-map' : '',
-  //   module: moduleCSS(ENV, PATHS),
-  //   plugins: pluginCSS(ENV, PATHS),
-  // },
+  {
+    name: 'css',
+    entry: {
+      bundle: `${PATHS.SRC}/styles/editableShortcodes.scss`,
+    },
+    output: {
+      path: PATHS.DIST,
+      filename: '[name].css',
+    },
+    devtool: (ENV !== 'production') ? 'source-map' : '',
+    module: moduleCSS(ENV, PATHS),
+    plugins: pluginCSS(ENV, PATHS),
+  },
 ];
 
 // Use WEBPACK_CHILD=js or WEBPACK_CHILD=css env var to run a single config

@@ -27,6 +27,9 @@
     "slate": "^0.82.1",
     "slate-react": "^0.83.0"
   },
+  "peerDependencies": {
+    "silverstripe-admin": "^4.0.0"
+  },
   "devDependencies": {
     "@silverstripe/eslint-config": "^0.0.5",
     "@silverstripe/webpack-config": "^1.0.0",

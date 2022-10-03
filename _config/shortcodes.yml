@@ -1,6 +1,11 @@
 ---
 Name: configurableshortcodes
 ---
+SilverStripe\Admin\LeftAndMain:
+  extra_requirements_javascript:
+    - nightjar/silverstripe-configcodes:client/dist/bundle.js
+  extra_requirements_css:
+    - nightjar/silverstripe-configcodes:client/dist/bundle.css
 SilverStripe\Core\Injector\Injector:
   SilverStripe\View\Parsers\ShortcodeParser: NZTA\ConfigCodes\InstanceIdentifiableShortcodeParser
   NZTA\ConfigCodes\Registry: NZTA\ConfigCodes\Registry\ConfigReader

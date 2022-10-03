@@ -1,24 +1,37 @@
 import { parse } from '@bbob/parser';
 import { Node } from 'slate';
 
-const mapShortcodeNodeToSlateNode = (node) => ({
-  type: 'shortcode',
-  tag: node.tag,
-  attributes: node.attrs,
-  children: [{ text: node.content ? node.content.join() : '' }],
-});
+const createSlateNode = {
+  fromShortcodeNode: ({tag, attrs: attributes, content}) => ({
+    type: 'shortcode',
+    shortcode: tag,
+    attributes,
+    children: [{ text: content ? content.join() : '' }],
+  }),
+  fromText: (text) => ({
+    children: [{ text }],
+  })
+};
 
-export const toTree = (input) => {
-  const codeNodes = parse(input);
-  const slateNodes = codeNodes.map(
-    (node) => (typeof node === 'object' && !!node.tag ? mapShortcodeNodeToSlateNode(node) : { text: node })
+export const toSlateNodeTree = (input, validCodes) => {
+  if (!validCodes || validCodes.length === 0) {
+    return [createSlateNode.fromText(input)];
+  }
+
+  const parserOptions = { onlyAllowTags: validCodes };
+  const codeNodes = parse(input, parserOptions);
+  return codeNodes.map(
+    (node) => (
+      typeof node === 'object' && !!node.tag
+        ? createSlateNode.fromShortcodeNode(node)
+        : createSlateNode.fromText(node)
+    )
   );
-  return slateNodes;
 };
 
 export const toStorableValue = (tree) => tree.map((node) => Node.string(node)).join(' ');
 
 export default {
-  deserialise: toTree,
+  deserialise: toSlateNodeTree,
   serialise: toStorableValue,
 };

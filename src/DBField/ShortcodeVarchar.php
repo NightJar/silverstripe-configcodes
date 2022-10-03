@@ -23,7 +23,6 @@ class ShortcodeVarchar extends DBVarchar
      */
     public function forTemplate(): string
     {
-        Requirements::javascript('nightjar/silverstripe-configcodes:client/dist/js/bundle.js');
         // shortcodes are not valid XML so should not be affected/escaped
         $htmlSafeValue = Convert::raw2xml($this->getValue());
         return $this->processShortcodes($htmlSafeValue) ?? $htmlSafeValue;
