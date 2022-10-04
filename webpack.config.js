@@ -1,18 +1,17 @@
 const Path = require('path');
-const webpackConfig = require('@silverstripe/webpack-config');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const {
   resolveJS,
   externalJS,
   moduleJS,
   pluginJS,
   moduleCSS,
-  pluginCSS,
-} = webpackConfig;
+} = require('@silverstripe/webpack-config');
 
 const ENV = process.env.NODE_ENV;
 const PATHS = {
   MODULES: 'node_modules',
-  FILES_PATH: '../',
+  FILES_PATH: './', // public path to files, e.g. images, fonts, etc. that must be loaded by browser via CSS
   ROOT: Path.resolve(),
   SRC: Path.resolve('client/src'),
   DIST: Path.resolve('client/dist'),
@@ -48,7 +47,12 @@ const config = [
     },
     devtool: (ENV !== 'production') ? 'source-map' : '',
     module: moduleCSS(ENV, PATHS),
-    plugins: pluginCSS(ENV, PATHS),
+    plugins: [
+      new ExtractTextPlugin({
+        filename: '[name].css',
+        allChunks: true,
+      }),
+    ],
   },
 ];
 

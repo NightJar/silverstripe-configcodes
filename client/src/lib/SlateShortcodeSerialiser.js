@@ -2,7 +2,7 @@ import { parse } from '@bbob/parser';
 import { Node } from 'slate';
 
 const createSlateNode = {
-  fromShortcodeNode: ({tag, attrs: attributes, content}) => ({
+  fromShortcodeNode: ({ tag, attrs: attributes, content }) => ({
     type: 'shortcode',
     shortcode: tag,
     attributes,
@@ -29,9 +29,26 @@ export const toSlateNodeTree = (input, validCodes) => {
   );
 };
 
-export const toStorableValue = (tree) => tree.map((node) => Node.string(node)).join(' ');
+const fromSlateShortcodeNodeToString = (node) => {
+  const { shortcode: code, attributes} = node;
+  const stringifyAttribute = (key) => {
+    const value = attributes[key];
+    const needsQuotes = value.match(/\s/);
+    return ` ${key}=` + (needsQuotes ? `"${value}"` : value);
+  }
+  const attributesString = Object.keys(attributes).reduce(
+    (prev, attribute) => `${prev} ${stringifyAttribute(attribute)}`,
+    ''
+  );
+  return `[${code}${attributesString}]${Node.string(node)}[/${code}]`;
+};
+
+export const toStorableString = (tree) => tree.reduce(
+  (value, node) => value + (node.type === 'shortcode' ? fromSlateShortcodeNodeToString(node) : Node.string(node)),
+  ''
+);
 
 export default {
   deserialise: toSlateNodeTree,
-  serialise: toStorableValue,
+  serialise: toStorableString,
 };
