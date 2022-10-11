@@ -7,7 +7,6 @@ jQuery.entwine('ss', ($) => {
   $('.js-injector-boot input.extrashortcodes').entwine({
     onmatch() {
       const renderRoot = document.createElement('div');
-      renderRoot.classList.add('form-control', 'shortcodable-input');
       this[0].parentNode.insertBefore(renderRoot, this[0]);
       const ShortcodableTextField = loadComponent('ShortcodableTextField');
       const props = { linkedInput: this[0], validCodes: ['maori'] };

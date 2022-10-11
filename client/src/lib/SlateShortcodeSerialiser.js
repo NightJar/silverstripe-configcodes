@@ -30,7 +30,7 @@ export const toSlateNodeTree = (input, validCodes) => {
 };
 
 const fromSlateShortcodeNodeToString = (node) => {
-  const { shortcode: code, attributes} = node;
+  const { shortcode: code, attributes = {}} = node;
   const stringifyAttribute = (key) => {
     const value = attributes[key];
     const needsQuotes = value.match(/\s/);

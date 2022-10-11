@@ -92,7 +92,6 @@ _jquery2.default.entwine('ss', function ($) {
   $('.js-injector-boot input.extrashortcodes').entwine({
     onmatch: function onmatch() {
       var renderRoot = document.createElement('div');
-      renderRoot.classList.add('form-control', 'shortcodable-input');
       this[0].parentNode.insertBefore(renderRoot, this[0]);
       var ShortcodableTextField = (0, _Injector.loadComponent)('ShortcodableTextField');
       var props = { linkedInput: this[0], validCodes: ['maori'] };
@@ -208,6 +207,10 @@ var _slateHistory = __webpack_require__("./node_modules/slate-history/dist/index
 
 var _SlateShortcodeSerialiser = __webpack_require__("./client/src/lib/SlateShortcodeSerialiser.js");
 
+var _isHotkey = __webpack_require__("./node_modules/is-hotkey/lib/index.js");
+
+var _isHotkey2 = _interopRequireDefault(_isHotkey);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ContentShortcode = function ContentShortcode(_ref) {
@@ -234,6 +237,8 @@ var DefaultElement = function DefaultElement(_ref2) {
   );
 };
 
+var isShortcodeHotkey = (0, _isHotkey2.default)('alt+m');
+
 exports.default = function (_ref3) {
   var linkedInput = _ref3.linkedInput,
       validCodes = _ref3.validCodes;
@@ -258,10 +263,35 @@ exports.default = function (_ref3) {
   var initialValue = (0, _react.useMemo)(function () {
     return (0, _SlateShortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes);
   });
+  var detectHotKey = function detectHotKey(event) {
+    return isShortcodeHotkey(event) && handleHotKey(event);
+  };
+  var handleHotKey = function handleHotKey(event) {
+    event.preventDefault();
+    _slate.Transforms.wrapNodes(editor, { type: 'shortcode', shortcode: 'maori' }, {
+      split: true,
+      match: function match(node) {
+        return _slate.Node.isNode(node) && node.type !== 'shortcode';
+      }
+    });
+  };
+  var editableElementId = 'shortcodable-' + linkedInput.id;
+  linkedInput.labels.forEach(function (label) {
+    return label.addEventListener('click', function (event) {
+      event.preventDefault();
+      document.getElementById(editableElementId).focus();
+    });
+  });
   return _react2.default.createElement(
     _slateReact.Slate,
     { editor: editor, value: initialValue, onChange: storeValueForSubmit },
-    _react2.default.createElement(_slateReact.Editable, { renderElement: elementRenderer })
+    _react2.default.createElement(_slateReact.Editable, {
+      id: editableElementId,
+      'aria-labelledby': linkedInput.labels[0].id,
+      className: 'form-control shortcodable-input',
+      onKeyDown: detectHotKey,
+      renderElement: elementRenderer
+    })
   );
 };
 
@@ -317,7 +347,8 @@ var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, 
 
 var fromSlateShortcodeNodeToString = function fromSlateShortcodeNodeToString(node) {
   var code = node.shortcode,
-      attributes = node.attributes;
+      _node$attributes = node.attributes,
+      attributes = _node$attributes === undefined ? {} : _node$attributes;
 
   var stringifyAttribute = function stringifyAttribute(key) {
     var value = attributes[key];
@@ -1773,6 +1804,10 @@ function parseHotkey(hotkey, options) {
       var name = toKeyName(value);
       var modifier = MODIFIERS[name];
 
+      if (value.length > 1 && !modifier && !ALIASES[value] && !CODES[name]) {
+        throw new TypeError('Unknown modifier: "' + value + '"');
+      }
+
       if (length === 1 || !modifier) {
         if (byKey) {
           ret.key = name;
@@ -2983,7 +3018,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_react__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_scroll_into_view_if_needed__ = __webpack_require__("./node_modules/scroll-into-view-if-needed/es/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_slate__ = __webpack_require__("./node_modules/slate/dist/index.es.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey__ = __webpack_require__("./node_modules/is-hotkey/lib/index.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey__ = __webpack_require__("./node_modules/slate-react/node_modules/is-hotkey/lib/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_is_hotkey__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_react_dom__);
@@ -8051,6 +8086,258 @@ var getMatches = (e, path) => {
 
 //# sourceMappingURL=index.es.js.map
 
+
+/***/ }),
+
+/***/ "./node_modules/slate-react/node_modules/is-hotkey/lib/index.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+/**
+ * Constants.
+ */
+
+var IS_MAC = typeof window != 'undefined' && /Mac|iPod|iPhone|iPad/.test(window.navigator.platform);
+
+var MODIFIERS = {
+  alt: 'altKey',
+  control: 'ctrlKey',
+  meta: 'metaKey',
+  shift: 'shiftKey'
+};
+
+var ALIASES = {
+  add: '+',
+  break: 'pause',
+  cmd: 'meta',
+  command: 'meta',
+  ctl: 'control',
+  ctrl: 'control',
+  del: 'delete',
+  down: 'arrowdown',
+  esc: 'escape',
+  ins: 'insert',
+  left: 'arrowleft',
+  mod: IS_MAC ? 'meta' : 'control',
+  opt: 'alt',
+  option: 'alt',
+  return: 'enter',
+  right: 'arrowright',
+  space: ' ',
+  spacebar: ' ',
+  up: 'arrowup',
+  win: 'meta',
+  windows: 'meta'
+};
+
+var CODES = {
+  backspace: 8,
+  tab: 9,
+  enter: 13,
+  shift: 16,
+  control: 17,
+  alt: 18,
+  pause: 19,
+  capslock: 20,
+  escape: 27,
+  ' ': 32,
+  pageup: 33,
+  pagedown: 34,
+  end: 35,
+  home: 36,
+  arrowleft: 37,
+  arrowup: 38,
+  arrowright: 39,
+  arrowdown: 40,
+  insert: 45,
+  delete: 46,
+  meta: 91,
+  numlock: 144,
+  scrolllock: 145,
+  ';': 186,
+  '=': 187,
+  ',': 188,
+  '-': 189,
+  '.': 190,
+  '/': 191,
+  '`': 192,
+  '[': 219,
+  '\\': 220,
+  ']': 221,
+  '\'': 222
+};
+
+for (var f = 1; f < 20; f++) {
+  CODES['f' + f] = 111 + f;
+}
+
+/**
+ * Is hotkey?
+ */
+
+function isHotkey(hotkey, options, event) {
+  if (options && !('byKey' in options)) {
+    event = options;
+    options = null;
+  }
+
+  if (!Array.isArray(hotkey)) {
+    hotkey = [hotkey];
+  }
+
+  var array = hotkey.map(function (string) {
+    return parseHotkey(string, options);
+  });
+  var check = function check(e) {
+    return array.some(function (object) {
+      return compareHotkey(object, e);
+    });
+  };
+  var ret = event == null ? check : check(event);
+  return ret;
+}
+
+function isCodeHotkey(hotkey, event) {
+  return isHotkey(hotkey, event);
+}
+
+function isKeyHotkey(hotkey, event) {
+  return isHotkey(hotkey, { byKey: true }, event);
+}
+
+/**
+ * Parse.
+ */
+
+function parseHotkey(hotkey, options) {
+  var byKey = options && options.byKey;
+  var ret = {};
+
+  // Special case to handle the `+` key since we use it as a separator.
+  hotkey = hotkey.replace('++', '+add');
+  var values = hotkey.split('+');
+  var length = values.length;
+
+  // Ensure that all the modifiers are set to false unless the hotkey has them.
+
+  for (var k in MODIFIERS) {
+    ret[MODIFIERS[k]] = false;
+  }
+
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = values[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var value = _step.value;
+
+      var optional = value.endsWith('?') && value.length > 1;
+
+      if (optional) {
+        value = value.slice(0, -1);
+      }
+
+      var name = toKeyName(value);
+      var modifier = MODIFIERS[name];
+
+      if (length === 1 || !modifier) {
+        if (byKey) {
+          ret.key = name;
+        } else {
+          ret.which = toKeyCode(value);
+        }
+      }
+
+      if (modifier) {
+        ret[modifier] = optional ? null : true;
+      }
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return ret;
+}
+
+/**
+ * Compare.
+ */
+
+function compareHotkey(object, event) {
+  for (var key in object) {
+    var expected = object[key];
+    var actual = void 0;
+
+    if (expected == null) {
+      continue;
+    }
+
+    if (key === 'key' && event.key != null) {
+      actual = event.key.toLowerCase();
+    } else if (key === 'which') {
+      actual = expected === 91 && event.which === 93 ? 91 : event.which;
+    } else {
+      actual = event[key];
+    }
+
+    if (actual == null && expected === false) {
+      continue;
+    }
+
+    if (actual !== expected) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Utils.
+ */
+
+function toKeyCode(name) {
+  name = toKeyName(name);
+  var code = CODES[name] || name.toUpperCase().charCodeAt(0);
+  return code;
+}
+
+function toKeyName(name) {
+  name = name.toLowerCase();
+  name = ALIASES[name] || name;
+  return name;
+}
+
+/**
+ * Export.
+ */
+
+exports.default = isHotkey;
+exports.isHotkey = isHotkey;
+exports.isCodeHotkey = isCodeHotkey;
+exports.isKeyHotkey = isKeyHotkey;
+exports.parseHotkey = parseHotkey;
+exports.compareHotkey = compareHotkey;
+exports.toKeyCode = toKeyCode;
+exports.toKeyName = toKeyName;
 
 /***/ }),
 
