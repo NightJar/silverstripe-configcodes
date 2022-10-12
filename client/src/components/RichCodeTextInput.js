@@ -32,7 +32,6 @@ export default ({ linkedInput, validCodes }) => {
     }
   };
   const initialValue = useMemo(() => toSlateNodeTree(linkedInput.value, validCodes));
-  const detectHotKey = (event) => isShortcodeHotkey(event) && handleHotKey(event);
   const handleHotKey = (event) => {
     event.preventDefault();
     Transforms.wrapNodes(
@@ -43,7 +42,8 @@ export default ({ linkedInput, validCodes }) => {
         match: (node) => Node.isNode(node) && node.type !== 'shortcode'
       }
     );
-  }
+  };
+  const detectHotKey = (event) => isShortcodeHotkey(event) && handleHotKey(event);
   const editableElementId = `shortcodable-${linkedInput.id}`;
   linkedInput.labels.forEach(
     label => label.addEventListener(
@@ -54,12 +54,23 @@ export default ({ linkedInput, validCodes }) => {
       }
     )
   );
+  const readOnly = (linkedInput.disabled || linkedInput.readOnly) || undefined;
+  const isMultiline = linkedInput.type === 'textarea';
+  const block = 'shortcodable-input';
+  const classes = ['disabled', 'readOnly']
+    .filter((state) => linkedInput[state])
+    .reduce((classnames, modifier) => `${classnames} ${block}--${modifier}`, block);
   return (
     <Slate editor={editor} value={initialValue} onChange={storeValueForSubmit}>
       <Editable
         id={editableElementId}
         aria-labelledby={linkedInput.labels[0].id}
-        className="form-control shortcodable-input"
+        tabindex="0"
+        className={`form-control ${classes}`}
+        readOnly={readOnly}
+        aria-multiline={(!readOnly && isMultiline) || undefined}
+        aria-disabled={linkedInput.disabled || undefined}
+        aria-readonly={linkedInput.readonly || undefined}
         onKeyDown={detectHotKey}
         renderElement={elementRenderer}
       />

@@ -263,9 +263,6 @@ exports.default = function (_ref3) {
   var initialValue = (0, _react.useMemo)(function () {
     return (0, _SlateShortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes);
   });
-  var detectHotKey = function detectHotKey(event) {
-    return isShortcodeHotkey(event) && handleHotKey(event);
-  };
   var handleHotKey = function handleHotKey(event) {
     event.preventDefault();
     _slate.Transforms.wrapNodes(editor, { type: 'shortcode', shortcode: 'maori' }, {
@@ -275,6 +272,9 @@ exports.default = function (_ref3) {
       }
     });
   };
+  var detectHotKey = function detectHotKey(event) {
+    return isShortcodeHotkey(event) && handleHotKey(event);
+  };
   var editableElementId = 'shortcodable-' + linkedInput.id;
   linkedInput.labels.forEach(function (label) {
     return label.addEventListener('click', function (event) {
@@ -282,13 +282,26 @@ exports.default = function (_ref3) {
       document.getElementById(editableElementId).focus();
     });
   });
+  var readOnly = linkedInput.disabled || linkedInput.readOnly || undefined;
+  var isMultiline = linkedInput.type === 'textarea';
+  var block = 'shortcodable-input';
+  var classes = ['disabled', 'readOnly'].filter(function (state) {
+    return linkedInput[state];
+  }).reduce(function (classnames, modifier) {
+    return classnames + ' ' + block + '--' + modifier;
+  }, block);
   return _react2.default.createElement(
     _slateReact.Slate,
     { editor: editor, value: initialValue, onChange: storeValueForSubmit },
     _react2.default.createElement(_slateReact.Editable, {
       id: editableElementId,
       'aria-labelledby': linkedInput.labels[0].id,
-      className: 'form-control shortcodable-input',
+      tabindex: '0',
+      className: 'form-control ' + classes,
+      readOnly: readOnly,
+      'aria-multiline': !readOnly && isMultiline || undefined,
+      'aria-disabled': linkedInput.disabled || undefined,
+      'aria-readonly': linkedInput.readonly || undefined,
       onKeyDown: detectHotKey,
       renderElement: elementRenderer
     })

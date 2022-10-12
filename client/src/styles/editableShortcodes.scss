@@ -1,12 +1,23 @@
 // Core variables
+@import "bootstrap-variables";
 @import "variables";
 
 .shortcode {
   outline: solid $brand-secondary 1px;
-  padding: 2px 5px;
-  box-shadow: $brand-secondary inset 0px 0px 5px -2px;
+  margin-left: 2px;
+  margin-right: 2px;
+  padding: 2px 3px;
+  box-shadow: $brand-secondary inset 0 0 2px 0;
   border-radius: 1px;
   position: relative;
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
 
   &::before {
     position: absolute;
@@ -23,6 +34,13 @@
   }
 }
 
-// .shortcodable-input + input[type="text"].text {
-//   display: none;
-// }
+.shortcodable-input {
+  &--disabled.form-control,
+  &--readonly.form-control {
+    background-color: $input-disabled-bg;
+    opacity: 1;
+  }
+//   & + input[type="text"].text {
+//     display: none;
+//   }
+}

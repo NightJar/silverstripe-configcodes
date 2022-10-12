@@ -58,22 +58,6 @@ trait ShortcodableDBString
         return $this;
     }
 
-    public function Clean(): string
-    {
-        return $this->Plain();
-    }
-
-    /**
-     * Remove any HTML that exists either in the field's value or introduced by shortcodes
-     *
-     * @return string|null
-     */
-    public function Plain(): string
-    {
-        $text = strip_tags($this->RAW());
-        return trim(Convert::xml2raw($text));
-    }
-
     public function RAW(): ?string
     {
         return $this->processShortcodes($this->getValue()) ?? parent::RAW();
@@ -103,4 +87,15 @@ trait ShortcodableDBString
         $parser = $this->getParserInstance();
         return $parser->parse($value);
     }
+
+    /**
+     * Remove any HTML that exists either in the field's value or introduced by shortcodes
+     *
+     * @return string|null
+     */
+    // public function Plain(): string
+    // {
+    //     $text = strip_tags($this->RAW());
+    //     return trim(Convert::xml2raw($text));
+    // }
 }
