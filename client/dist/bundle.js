@@ -211,6 +211,8 @@ var _isHotkey = __webpack_require__("./node_modules/is-hotkey/lib/index.js");
 
 var _isHotkey2 = _interopRequireDefault(_isHotkey);
 
+var _RichInputMenu = __webpack_require__("./client/src/components/RichInputMenu.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var ContentShortcode = function ContentShortcode(_ref) {
@@ -293,10 +295,11 @@ exports.default = function (_ref3) {
   return _react2.default.createElement(
     _slateReact.Slate,
     { editor: editor, value: initialValue, onChange: storeValueForSubmit },
+    _react2.default.createElement(_RichInputMenu.RichInputMenu, { title: 'shortcodes' }),
     _react2.default.createElement(_slateReact.Editable, {
       id: editableElementId,
       'aria-labelledby': linkedInput.labels[0].id,
-      tabindex: '0',
+      tabIndex: '0',
       className: 'form-control ' + classes,
       readOnly: readOnly,
       'aria-multiline': !readOnly && isMultiline || undefined,
@@ -306,6 +309,98 @@ exports.default = function (_ref3) {
       renderElement: elementRenderer
     })
   );
+};
+
+/***/ }),
+
+/***/ "./client/src/components/RichInputMenu.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RichInputMenu = undefined;
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = __webpack_require__(2);
+
+var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
+
+var _slateReact = __webpack_require__("./node_modules/slate-react/dist/index.es.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var RichInputMenu = exports.RichInputMenu = function RichInputMenu(_ref) {
+  var title = _ref.title;
+
+  var ref = (0, _react.useRef)();
+  var editor = (0, _slateReact.useSlate)();
+  var inFocus = (0, _slateReact.useFocused)();
+  (0, _react.useEffect)(function () {
+    var menuElement = ref.current;
+    var selection = editor.selection;
+
+
+    if (!menuElement || !selection || !inFocus || _slate.Range.isCollapsed(selection) || _slate.Editor.string(editor, selection) === '') {
+      if (menuElement) {
+        menuElement.removeAttribute('style');
+      }
+      return;
+    }
+
+    var _window$getSelection$ = window.getSelection().getRangeAt(0).getBoundingClientRect(),
+        top = _window$getSelection$.top,
+        left = _window$getSelection$.left,
+        selectionWidth = _window$getSelection$.width;
+
+    var menuHeight = menuElement.offsetHeight,
+        menuWidth = menuElement.offsetWidth;
+
+    var hoverBuffer = 5;
+    menuElement.style.position = 'absolute';
+    menuElement.style.top = top + window.pageYOffset - menuHeight - hoverBuffer + 'px';
+    menuElement.style.left = left + window.pageXOffset - menuWidth / 2 + selectionWidth / 2 + 'px';
+  });
+
+  return _react2.default.createElement(
+    'div',
+    {
+      ref: ref,
+      role: 'toolbar',
+      onMouseDown: function onMouseDown(e) {
+        return e.preventDefault();
+      },
+      className: 'shortcodable-input__menu'
+    },
+    'Menu',
+    title && " for ",
+    title,
+    _react2.default.createElement(
+      'button',
+      null,
+      'Add shortcode'
+    ),
+    _react2.default.createElement(
+      'button',
+      null,
+      'Remove shortcode'
+    ),
+    _react2.default.createElement(
+      'button',
+      null,
+      'Edit shortcode'
+    )
+  );
+};
+
+exports.default = function (p) {
+  return (0, _reactDom.createPortal)(_react2.default.createElement(RichInputMenu, p), document.body);
 };
 
 /***/ }),

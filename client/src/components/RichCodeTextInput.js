@@ -4,6 +4,7 @@ import { Slate, Editable, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { toStorableString, toSlateNodeTree } from '../lib/SlateShortcodeSerialiser';
 import isHotKey from 'is-hotkey';
+import { RichInputMenu } from './RichInputMenu';
 
 const ContentShortcode = ({ element: { shortcode }, attributes, children }) => (
   <span
@@ -62,10 +63,11 @@ export default ({ linkedInput, validCodes }) => {
     .reduce((classnames, modifier) => `${classnames} ${block}--${modifier}`, block);
   return (
     <Slate editor={editor} value={initialValue} onChange={storeValueForSubmit}>
+      <RichInputMenu title="shortcodes" />
       <Editable
         id={editableElementId}
         aria-labelledby={linkedInput.labels[0].id}
-        tabindex="0"
+        tabIndex="0"
         className={`form-control ${classes}`}
         readOnly={readOnly}
         aria-multiline={(!readOnly && isMultiline) || undefined}
