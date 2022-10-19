@@ -1,12 +1,12 @@
 /* global document */
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
-import { toStorableString, toSlateNodeTree } from '../lib/shortcodeSerialiser';
-import { RichInputMenu } from './InputMenu';
-import memoElement from './Element';
-import detectHotKey from '../lib/hotkey';
+import { toStorableString, toSlateNodeTree } from 'lib/shortcodeSerialiser';
+import { RichInputMenu } from 'components/InputMenu';
+import DocumentElement from 'components/DocumentElement';
+import detectHotKey from 'lib/hotkey';
 
 const makeLabelsFocusEditor = (input, editableElement) => {
   input.labels.forEach((label) => label.addEventListener('click', (event) => {
@@ -45,7 +45,7 @@ export default ({ linkedInput, validCodes }) => {
         aria-disabled={linkedInput.disabled || undefined}
         aria-readonly={linkedInput.readonly || undefined}
         onKeyDown={detectHotKey(editor)}
-        renderElement={memoElement}
+        renderElement={useCallback(DocumentElement)}
       />
     </Slate>
   );
