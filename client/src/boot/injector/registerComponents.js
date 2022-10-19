@@ -1,8 +1,8 @@
 import Injector from 'lib/Injector';
-import RichCodeTextInput from 'components/RichCodeTextInput';
+import RichInput from 'components/RichInput';
 
 export default () => {
   Injector.component.registerMany({
-    ShortcodableTextField: RichCodeTextInput,
+    ShortcodableTextField: RichInput,
   });
 };

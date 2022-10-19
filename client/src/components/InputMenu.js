@@ -12,7 +12,13 @@ export const RichInputMenu = ({ title }) => {
     const menuElement = ref.current;
     const { selection } = editor;
 
-    if (!menuElement || !selection || !inFocus || Range.isCollapsed(selection) || Editor.string(editor, selection) === '') {
+    if (
+      !menuElement
+      || !selection
+      || !inFocus
+      || Range.isCollapsed(selection)
+      || Editor.string(editor, selection) === ''
+    ) {
       if (menuElement) {
         menuElement.removeAttribute('style');
       }
@@ -23,8 +29,8 @@ export const RichInputMenu = ({ title }) => {
     const { offsetHeight: menuHeight, offsetWidth: menuWidth } = menuElement;
     const hoverBuffer = 5;
     menuElement.style.position = 'absolute';
-    menuElement.style.top = `${top + window.pageYOffset - menuHeight - hoverBuffer}px`;
-    menuElement.style.left = `${left + window.pageXOffset - menuWidth / 2 + selectionWidth / 2 }px`;
+    menuElement.style.top = `${(top + window.pageYOffset) - menuHeight - hoverBuffer}px`;
+    menuElement.style.left = `${(left + window.pageXOffset) - ((menuWidth + selectionWidth) / 2)}px`;
   });
 
   return (
@@ -34,7 +40,7 @@ export const RichInputMenu = ({ title }) => {
       onMouseDown={e => e.preventDefault()} // prevent focus being taken from editor
       className="shortcodable-input__menu"
     >
-      Menu{title && " for "}{title}
+      Menu{title && ' for '}{title}
       <button>Add shortcode</button>
       <button>Remove shortcode</button>
       <button>Edit shortcode</button>
