@@ -82,9 +82,9 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(2);
+var _reactDom = __webpack_require__(1);
 
-var _Injector = __webpack_require__(1);
+var _Injector = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -126,19 +126,19 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Injector = __webpack_require__(1);
+var _Injector = __webpack_require__(2);
 
 var _Injector2 = _interopRequireDefault(_Injector);
 
-var _RichCodeTextInput = __webpack_require__("./client/src/components/RichCodeTextInput.js");
+var _RichInput = __webpack_require__("./client/src/components/RichInput.js");
 
-var _RichCodeTextInput2 = _interopRequireDefault(_RichCodeTextInput);
+var _RichInput2 = _interopRequireDefault(_RichInput);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function () {
   _Injector2.default.component.registerMany({
-    ShortcodableTextField: _RichCodeTextInput2.default
+    ShortcodableTextField: _RichInput2.default
   });
 };
 
@@ -181,7 +181,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
 
 /***/ }),
 
-/***/ "./client/src/components/RichCodeTextInput.js":
+/***/ "./client/src/components/Element.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -190,10 +190,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+exports.Element = undefined;
 
 var _react = __webpack_require__(0);
 
@@ -203,117 +200,21 @@ var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 var _slateReact = __webpack_require__("./node_modules/slate-react/dist/index.es.js");
 
-var _slateHistory = __webpack_require__("./node_modules/slate-history/dist/index.es.js");
+var _ShortcodeElement = __webpack_require__("./client/src/components/ShortcodeElement.js");
 
-var _SlateShortcodeSerialiser = __webpack_require__("./client/src/lib/SlateShortcodeSerialiser.js");
-
-var _isHotkey = __webpack_require__("./node_modules/is-hotkey/lib/index.js");
-
-var _isHotkey2 = _interopRequireDefault(_isHotkey);
-
-var _RichInputMenu = __webpack_require__("./client/src/components/RichInputMenu.js");
+var _ShortcodeElement2 = _interopRequireDefault(_ShortcodeElement);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var ContentShortcode = function ContentShortcode(_ref) {
-  var shortcode = _ref.element.shortcode,
-      attributes = _ref.attributes,
-      children = _ref.children;
-  return _react2.default.createElement(
-    'span',
-    _extends({
-      className: 'shortcode shortcode--' + shortcode,
-      'data-shortcode': shortcode
-    }, attributes),
-    children
-  );
+var Element = exports.Element = function Element(elementProps) {
+  return _slate.Element.isElementType(elementProps.element, 'shortcode') ? _react2.default.createElement(_ShortcodeElement2.default, elementProps) : _react2.default.createElement(_slateReact.DefaultElement, elementProps);
 };
 
-var DefaultElement = function DefaultElement(_ref2) {
-  var attributes = _ref2.attributes,
-      children = _ref2.children;
-  return _react2.default.createElement(
-    'span',
-    attributes,
-    children
-  );
-};
-
-var isShortcodeHotkey = (0, _isHotkey2.default)('alt+m');
-
-exports.default = function (_ref3) {
-  var linkedInput = _ref3.linkedInput,
-      validCodes = _ref3.validCodes;
-
-  var _useState = (0, _react.useState)(function () {
-    return (0, _slateReact.withReact)((0, _slateHistory.withHistory)((0, _slate.createEditor)()));
-  }),
-      _useState2 = _slicedToArray(_useState, 1),
-      editor = _useState2[0];
-
-  var elementRenderer = (0, _react.useCallback)(function (props) {
-    return props.element.type === 'shortcode' ? _react2.default.createElement(ContentShortcode, props) : _react2.default.createElement(DefaultElement, props);
-  }, []);
-  var storeValueForSubmit = function storeValueForSubmit(updatedContent) {
-    var astChanged = editor.operations.some(function (op) {
-      return op.type !== 'set_selection';
-    });
-    if (astChanged) {
-      linkedInput.setRangeText((0, _SlateShortcodeSerialiser.toStorableString)(updatedContent, validCodes), 0, linkedInput.value.length);
-    }
-  };
-  var initialValue = (0, _react.useMemo)(function () {
-    return (0, _SlateShortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes);
-  });
-  var handleHotKey = function handleHotKey(event) {
-    event.preventDefault();
-    _slate.Transforms.wrapNodes(editor, { type: 'shortcode', shortcode: 'maori' }, {
-      split: true,
-      match: function match(node) {
-        return _slate.Node.isNode(node) && node.type !== 'shortcode';
-      }
-    });
-  };
-  var detectHotKey = function detectHotKey(event) {
-    return isShortcodeHotkey(event) && handleHotKey(event);
-  };
-  var editableElementId = 'shortcodable-' + linkedInput.id;
-  linkedInput.labels.forEach(function (label) {
-    return label.addEventListener('click', function (event) {
-      event.preventDefault();
-      document.getElementById(editableElementId).focus();
-    });
-  });
-  var readOnly = linkedInput.disabled || linkedInput.readOnly || undefined;
-  var isMultiline = linkedInput.type === 'textarea';
-  var block = 'shortcodable-input';
-  var classes = ['disabled', 'readOnly'].filter(function (state) {
-    return linkedInput[state];
-  }).reduce(function (classnames, modifier) {
-    return classnames + ' ' + block + '--' + modifier;
-  }, block);
-  return _react2.default.createElement(
-    _slateReact.Slate,
-    { editor: editor, value: initialValue, onChange: storeValueForSubmit },
-    _react2.default.createElement(_RichInputMenu.RichInputMenu, { title: 'shortcodes' }),
-    _react2.default.createElement(_slateReact.Editable, {
-      id: editableElementId,
-      'aria-labelledby': linkedInput.labels[0].id,
-      tabIndex: '0',
-      className: 'form-control ' + classes,
-      readOnly: readOnly,
-      'aria-multiline': !readOnly && isMultiline || undefined,
-      'aria-disabled': linkedInput.disabled || undefined,
-      'aria-readonly': linkedInput.readonly || undefined,
-      onKeyDown: detectHotKey,
-      renderElement: elementRenderer
-    })
-  );
-};
+exports.default = Element;
 
 /***/ }),
 
-/***/ "./client/src/components/RichInputMenu.js":
+/***/ "./client/src/components/InputMenu.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -328,7 +229,7 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(2);
+var _reactDom = __webpack_require__(1);
 
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
@@ -365,7 +266,7 @@ var RichInputMenu = exports.RichInputMenu = function RichInputMenu(_ref) {
     var hoverBuffer = 5;
     menuElement.style.position = 'absolute';
     menuElement.style.top = top + window.pageYOffset - menuHeight - hoverBuffer + 'px';
-    menuElement.style.left = left + window.pageXOffset - menuWidth / 2 + selectionWidth / 2 + 'px';
+    menuElement.style.left = left + window.pageXOffset - (menuWidth + selectionWidth) / 2 + 'px';
   });
 
   return _react2.default.createElement(
@@ -379,7 +280,7 @@ var RichInputMenu = exports.RichInputMenu = function RichInputMenu(_ref) {
       className: 'shortcodable-input__menu'
     },
     'Menu',
-    title && " for ",
+    title && ' for ',
     title,
     _react2.default.createElement(
       'button',
@@ -405,7 +306,178 @@ exports.default = function (p) {
 
 /***/ }),
 
-/***/ "./client/src/lib/SlateShortcodeSerialiser.js":
+/***/ "./client/src/components/RichInput.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
+
+var _slateReact = __webpack_require__("./node_modules/slate-react/dist/index.es.js");
+
+var _slateHistory = __webpack_require__("./node_modules/slate-history/dist/index.es.js");
+
+var _shortcodeSerialiser = __webpack_require__("./client/src/lib/shortcodeSerialiser.js");
+
+var _InputMenu = __webpack_require__("./client/src/components/InputMenu.js");
+
+var _Element = __webpack_require__("./client/src/components/Element.js");
+
+var _Element2 = _interopRequireDefault(_Element);
+
+var _hotkey = __webpack_require__("./client/src/lib/hotkey.js");
+
+var _hotkey2 = _interopRequireDefault(_hotkey);
+
+var _withShortcodes = __webpack_require__("./client/src/lib/withShortcodes.js");
+
+var _withShortcodes2 = _interopRequireDefault(_withShortcodes);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var makeLabelsFocusEditor = function makeLabelsFocusEditor(input, editableElement) {
+  input.labels.forEach(function (label) {
+    return label.addEventListener('click', function (event) {
+      event.preventDefault();
+      editableElement.focus();
+    });
+  });
+};
+
+var contentChanged = function contentChanged(editor) {
+  return editor.operations.some(function (op) {
+    return op.type !== 'set_selection';
+  });
+};
+
+exports.default = function (_ref) {
+  var linkedInput = _ref.linkedInput,
+      validCodes = _ref.validCodes;
+
+  var _useState = (0, _react.useState)(function () {
+    return (0, _slateReact.withReact)((0, _slateHistory.withHistory)((0, _withShortcodes2.default)((0, _slate.createEditor)())));
+  }),
+      _useState2 = _slicedToArray(_useState, 1),
+      editor = _useState2[0];
+
+  var initialValue = (0, _react.useMemo)(function () {
+    return (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes);
+  });
+  var storeValueForSubmit = function storeValueForSubmit(updatedContent) {
+    return contentChanged(editor) && linkedInput.setRangeText((0, _shortcodeSerialiser.toStorableString)(updatedContent, validCodes), 0, linkedInput.value.length);
+  };
+  var editableElementId = 'shortcodable-' + linkedInput.id;
+  makeLabelsFocusEditor(linkedInput, document.getElementById(editableElementId));
+  var readOnly = linkedInput.disabled || linkedInput.readOnly || undefined;
+  var isMultiline = linkedInput.type === 'textarea';
+  var block = 'shortcodable-input';
+  var classes = ['disabled', 'readOnly'].filter(function (state) {
+    return linkedInput[state];
+  }).reduce(function (classnames, modifier) {
+    return classnames + ' ' + block + '--' + modifier;
+  }, block);
+  return _react2.default.createElement(
+    _slateReact.Slate,
+    { editor: editor, value: initialValue, onChange: storeValueForSubmit },
+    _react2.default.createElement(_InputMenu.RichInputMenu, { title: 'shortcodes' }),
+    _react2.default.createElement(_slateReact.Editable, {
+      id: editableElementId,
+      'aria-labelledby': linkedInput.labels[0].id,
+      tabIndex: '0',
+      className: 'form-control ' + classes,
+      readOnly: readOnly,
+      'aria-multiline': !readOnly && isMultiline || undefined,
+      'aria-disabled': linkedInput.disabled || undefined,
+      'aria-readonly': linkedInput.readonly || undefined,
+      onKeyDown: (0, _hotkey2.default)(editor),
+      renderElement: (0, _react.useCallback)(_Element2.default)
+    })
+  );
+};
+
+/***/ }),
+
+/***/ "./client/src/components/ShortcodeElement.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ShortcodeElement = function ShortcodeElement(_ref) {
+  var shortcode = _ref.element.shortcode,
+      attributes = _ref.attributes,
+      children = _ref.children;
+  return _react2.default.createElement(
+    'span',
+    _extends({
+      className: 'shortcode shortcode--' + shortcode,
+      'data-shortcode': shortcode
+    }, attributes),
+    children
+  );
+};
+
+exports.default = ShortcodeElement;
+
+/***/ }),
+
+/***/ "./client/src/lib/hotkey.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _isHotkey = __webpack_require__("./node_modules/is-hotkey/lib/index.js");
+
+var _isHotkey2 = _interopRequireDefault(_isHotkey);
+
+var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var isShortcodeHotkey = (0, _isHotkey2.default)('alt+m');
+
+exports.default = function (editor) {
+  var handleHotKey = function handleHotKey(event) {
+    event.preventDefault();
+    (0, _shortcodeTransforms.applyShortcode)(editor, 'maori');
+  };
+
+  return function (event) {
+    return isShortcodeHotkey(event) && handleHotKey(event);
+  };
+};
+
+/***/ }),
+
+/***/ "./client/src/lib/shortcodeSerialiser.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -434,50 +506,110 @@ var createSlateNode = {
       children: [{ text: content ? content.join() : '' }]
     };
   },
-  fromText: function fromText(text) {
-    return {
-      children: [{ text: text }]
-    };
+  fromString: function fromString(text) {
+    return { text: text };
   }
 };
 
 var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, validCodes) {
   if (!validCodes || validCodes.length === 0) {
-    return [createSlateNode.fromText(input)];
+    return [createSlateNode.fromString(input)];
   }
 
   var parserOptions = { onlyAllowTags: validCodes };
   var codeNodes = (0, _parser.parse)(input, parserOptions);
   return codeNodes.map(function (node) {
-    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && !!node.tag ? createSlateNode.fromShortcodeNode(node) : createSlateNode.fromText(node);
+    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && !!node.tag ? createSlateNode.fromShortcodeNode(node) : createSlateNode.fromString(node);
   });
 };
 
-var fromSlateShortcodeNodeToString = function fromSlateShortcodeNodeToString(node) {
-  var code = node.shortcode,
-      _node$attributes = node.attributes,
-      attributes = _node$attributes === undefined ? {} : _node$attributes;
+var toStringFromSlate = {
+  shortcodeNode: function shortcodeNode(node) {
+    var code = node.shortcode,
+        _node$attributes = node.attributes,
+        attributes = _node$attributes === undefined ? {} : _node$attributes;
 
-  var stringifyAttribute = function stringifyAttribute(key) {
-    var value = attributes[key];
-    var needsQuotes = value.match(/\s/);
-    return ' ' + key + '=' + (needsQuotes ? '"' + value + '"' : value);
-  };
-  var attributesString = Object.keys(attributes).reduce(function (prev, attribute) {
-    return prev + ' ' + stringifyAttribute(attribute);
-  }, '');
-  return '[' + code + attributesString + ']' + _slate.Node.string(node) + '[/' + code + ']';
+    var stringifyAttribute = function stringifyAttribute(key) {
+      var value = attributes[key];
+      var needsQuotes = value.match(/\s/);
+      return ' ' + key + '=' + (needsQuotes ? '"' + value + '"' : value);
+    };
+    var attributesString = Object.keys(attributes).reduce(function (prev, attribute) {
+      return prev + ' ' + stringifyAttribute(attribute);
+    }, '');
+    return '[' + code + attributesString + ']' + _slate.Node.string(node) + '[/' + code + ']';
+  },
+  telxt: function telxt(node) {
+    return _slate.Node.string(node);
+  }
 };
 
 var toStorableString = exports.toStorableString = function toStorableString(tree) {
   return tree.reduce(function (value, node) {
-    return value + (node.type === 'shortcode' ? fromSlateShortcodeNodeToString(node) : _slate.Node.string(node));
+    return value + (_slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeNode(node) : toStringFromSlate.text(node));
   }, '');
 };
 
 exports.default = {
   deserialise: toSlateNodeTree,
   serialise: toStorableString
+};
+
+/***/ }),
+
+/***/ "./client/src/lib/shortcodeTransforms.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.removeShortcode = exports.applyShortcode = undefined;
+
+var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
+
+var applyShortcode = exports.applyShortcode = function applyShortcode(editor, shortcode) {
+  console.log(editor, shortcode);
+  return _slate.Transforms.wrapNodes(editor, { type: 'shortcode', shortcode: shortcode }, {
+    split: true
+  });
+};
+
+var removeShortcode = exports.removeShortcode = function removeShortcode(editor) {
+  return _slate.Transforms.unwrapNodes(editor, {
+    match: function match(node) {
+      return _slate.Node.isNode(node) && node.type === 'shortcode';
+    }
+  });
+};
+
+exports.default = {
+  activate: applyShortcode,
+  deactivate: removeShortcode
+};
+
+/***/ }),
+
+/***/ "./client/src/lib/withShortcodes.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+exports.default = function (editor) {
+  return _extends({}, editor, {
+    isInline: function isInline(element) {
+      return element.type === 'shortcode' || editor.isInline(element);
+    }
+  });
 };
 
 /***/ }),
@@ -3128,7 +3260,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_slate__ = __webpack_require__("./node_modules/slate/dist/index.es.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey__ = __webpack_require__("./node_modules/slate-react/node_modules/is-hotkey/lib/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_is_hotkey__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_react_dom__);
 
 
@@ -14547,14 +14679,14 @@ module.exports = React;
 /***/ 1:
 /***/ (function(module, exports) {
 
-module.exports = Injector;
+module.exports = ReactDom;
 
 /***/ }),
 
 /***/ 2:
 /***/ (function(module, exports) {
 
-module.exports = ReactDom;
+module.exports = Injector;
 
 /***/ }),
 

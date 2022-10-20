@@ -5,8 +5,9 @@ import { Slate, Editable, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { toStorableString, toSlateNodeTree } from 'lib/shortcodeSerialiser';
 import { RichInputMenu } from 'components/InputMenu';
-import DocumentElement from 'components/DocumentElement';
+import Element from 'components/Element';
 import detectHotKey from 'lib/hotkey';
+import withShortcodes from 'lib/withShortcodes';
 
 const makeLabelsFocusEditor = (input, editableElement) => {
   input.labels.forEach((label) => label.addEventListener('click', (event) => {
@@ -15,15 +16,14 @@ const makeLabelsFocusEditor = (input, editableElement) => {
   }));
 };
 
+const contentChanged = (editor) => editor.operations.some((op) => op.type !== 'set_selection');
+
 export default ({ linkedInput, validCodes }) => {
-  const [editor] = useState(() => withReact(withHistory(createEditor())));
+  const [editor] = useState(() => withReact(withHistory(withShortcodes(createEditor()))));
   const initialValue = useMemo(() => toSlateNodeTree(linkedInput.value, validCodes));
-  const storeValueForSubmit = (updatedContent) => {
-    const astChanged = editor.operations.some((op) => op.type !== 'set_selection');
-    if (astChanged) {
-      linkedInput.setRangeText(toStorableString(updatedContent, validCodes), 0, linkedInput.value.length);
-    }
-  };
+  const storeValueForSubmit = (updatedContent) => contentChanged(editor) && linkedInput.setRangeText(
+    toStorableString(updatedContent, validCodes), 0, linkedInput.value.length
+  );
   const editableElementId = `shortcodable-${linkedInput.id}`;
   makeLabelsFocusEditor(linkedInput, document.getElementById(editableElementId));
   const readOnly = (linkedInput.disabled || linkedInput.readOnly) || undefined;
@@ -45,7 +45,7 @@ export default ({ linkedInput, validCodes }) => {
         aria-disabled={linkedInput.disabled || undefined}
         aria-readonly={linkedInput.readonly || undefined}
         onKeyDown={detectHotKey(editor)}
-        renderElement={useCallback(DocumentElement)}
+        renderElement={useCallback(Element)}
       />
     </Slate>
   );

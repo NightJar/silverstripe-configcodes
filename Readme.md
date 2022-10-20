@@ -16,3 +16,4 @@ Allow text fields to hold and process short codes.
 [x] Disabled state visual style
 [ ] javascript tests
 [ ] reuse menu/modal between instances of field?
+[ ] JS Injector override input element (how to save then though?)

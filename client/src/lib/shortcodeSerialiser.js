@@ -1,5 +1,5 @@
 import { parse } from '@bbob/parser';
-import { Node } from 'slate';
+import { Node, Element } from 'slate';
 
 const createSlateNode = {
   fromShortcodeNode: ({ tag, attrs: attributes, content }) => ({
@@ -8,14 +8,12 @@ const createSlateNode = {
     attributes,
     children: [{ text: content ? content.join() : '' }],
   }),
-  fromText: (text) => ({
-    children: [{ text }],
-  })
+  fromString: (text) => ({ text }),
 };
 
 export const toSlateNodeTree = (input, validCodes) => {
   if (!validCodes || validCodes.length === 0) {
-    return [createSlateNode.fromText(input)];
+    return [createSlateNode.fromString(input)];
   }
 
   const parserOptions = { onlyAllowTags: validCodes };
@@ -24,27 +22,33 @@ export const toSlateNodeTree = (input, validCodes) => {
     (node) => (
       typeof node === 'object' && !!node.tag
         ? createSlateNode.fromShortcodeNode(node)
-        : createSlateNode.fromText(node)
+        : createSlateNode.fromString(node)
     )
   );
 };
 
-const fromSlateShortcodeNodeToString = (node) => {
-  const { shortcode: code, attributes = {} } = node;
-  const stringifyAttribute = (key) => {
-    const value = attributes[key];
-    const needsQuotes = value.match(/\s/);
-    return ` ${key}=${needsQuotes ? `"${value}"` : value}`;
-  };
-  const attributesString = Object.keys(attributes).reduce(
-    (prev, attribute) => `${prev} ${stringifyAttribute(attribute)}`,
-    ''
-  );
-  return `[${code}${attributesString}]${Node.string(node)}[/${code}]`;
+const toStringFromSlate = {
+  shortcodeNode: (node) => {
+    const { shortcode: code, attributes = {} } = node;
+    const stringifyAttribute = (key) => {
+      const value = attributes[key];
+      const needsQuotes = value.match(/\s/);
+      return ` ${key}=${needsQuotes ? `"${value}"` : value}`;
+    };
+    const attributesString = Object.keys(attributes).reduce(
+      (prev, attribute) => `${prev} ${stringifyAttribute(attribute)}`,
+      ''
+    );
+    return `[${code}${attributesString}]${Node.string(node)}[/${code}]`;
+  },
+  telxt: (node) => Node.string(node),
 };
 
 export const toStorableString = (tree) => tree.reduce(
-  (value, node) => value + (node.type === 'shortcode' ? fromSlateShortcodeNodeToString(node) : Node.string(node)),
+  (value, node) => value + (Element.isElementType(node, 'shortcode')
+    ? toStringFromSlate.shortcodeNode(node)
+    : toStringFromSlate.text(node)
+  ),
   ''
 );
 

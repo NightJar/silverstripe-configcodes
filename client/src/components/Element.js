@@ -1,12 +1,12 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Element as SlateElement } from 'slate';
 import { DefaultElement } from 'slate-react';
 import ShortcodeElement from 'components/ShortcodeElement';
 
-export const DocumentElement = (elementProps) => (
-  SlateElement.isElementType(elementProps, 'shortcode')
+export const Element = (elementProps) => (
+  SlateElement.isElementType(elementProps.element, 'shortcode')
     ? <ShortcodeElement {...elementProps} />
     : <DefaultElement {...elementProps} />
 );
 
-export default DocumentElement;
+export default Element;
