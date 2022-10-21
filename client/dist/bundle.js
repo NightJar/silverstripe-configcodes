@@ -190,7 +190,6 @@ window.document.addEventListener('DOMContentLoaded', function () {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Element = undefined;
 
 var _react = __webpack_require__(0);
 
@@ -206,11 +205,9 @@ var _ShortcodeElement2 = _interopRequireDefault(_ShortcodeElement);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Element = exports.Element = function Element(elementProps) {
+exports.default = function (elementProps) {
   return _slate.Element.isElementType(elementProps.element, 'shortcode') ? _react2.default.createElement(_ShortcodeElement2.default, elementProps) : _react2.default.createElement(_slateReact.DefaultElement, elementProps);
 };
-
-exports.default = Element;
 
 /***/ }),
 
@@ -346,18 +343,12 @@ var _withShortcodes2 = _interopRequireDefault(_withShortcodes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var makeLabelsFocusEditor = function makeLabelsFocusEditor(input, editableElement) {
+var makeLabelsFocusEditor = function makeLabelsFocusEditor(input, targetId) {
   input.labels.forEach(function (label) {
     return label.addEventListener('click', function (event) {
       event.preventDefault();
-      editableElement.focus();
+      document.getElementById(targetId).focus();
     });
-  });
-};
-
-var contentChanged = function contentChanged(editor) {
-  return editor.operations.some(function (op) {
-    return op.type !== 'set_selection';
   });
 };
 
@@ -366,7 +357,7 @@ exports.default = function (_ref) {
       validCodes = _ref.validCodes;
 
   var _useState = (0, _react.useState)(function () {
-    return (0, _slateReact.withReact)((0, _slateHistory.withHistory)((0, _withShortcodes2.default)((0, _slate.createEditor)())));
+    return (0, _withShortcodes2.default)((0, _slateHistory.withHistory)((0, _slateReact.withReact)((0, _slate.createEditor)())));
   }),
       _useState2 = _slicedToArray(_useState, 1),
       editor = _useState2[0];
@@ -375,10 +366,10 @@ exports.default = function (_ref) {
     return (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes);
   });
   var storeValueForSubmit = function storeValueForSubmit(updatedContent) {
-    return contentChanged(editor) && linkedInput.setRangeText((0, _shortcodeSerialiser.toStorableString)(updatedContent, validCodes), 0, linkedInput.value.length);
+    return editor.isContentChanging() && linkedInput.setRangeText((0, _shortcodeSerialiser.toStorableString)(updatedContent, validCodes), 0, linkedInput.value.length);
   };
   var editableElementId = 'shortcodable-' + linkedInput.id;
-  makeLabelsFocusEditor(linkedInput, document.getElementById(editableElementId));
+  makeLabelsFocusEditor(linkedInput, editableElementId);
   var readOnly = linkedInput.disabled || linkedInput.readOnly || undefined;
   var isMultiline = linkedInput.type === 'textarea';
   var block = 'shortcodable-input';
@@ -519,7 +510,7 @@ var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, 
   var parserOptions = { onlyAllowTags: validCodes };
   var codeNodes = (0, _parser.parse)(input, parserOptions);
   return codeNodes.map(function (node) {
-    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && !!node.tag ? createSlateNode.fromShortcodeNode(node) : createSlateNode.fromString(node);
+    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && typeof node.tag === 'string' && node.tag ? createSlateNode.fromShortcodeNode(node) : createSlateNode.fromString(node);
   });
 };
 
@@ -539,14 +530,14 @@ var toStringFromSlate = {
     }, '');
     return '[' + code + attributesString + ']' + _slate.Node.string(node) + '[/' + code + ']';
   },
-  telxt: function telxt(node) {
+  textNode: function textNode(node) {
     return _slate.Node.string(node);
   }
 };
 
 var toStorableString = exports.toStorableString = function toStorableString(tree) {
   return tree.reduce(function (value, node) {
-    return value + (_slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeNode(node) : toStringFromSlate.text(node));
+    return value + (_slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeNode(node) : toStringFromSlate.textNode(node));
   }, '');
 };
 
@@ -571,16 +562,18 @@ exports.removeShortcode = exports.applyShortcode = undefined;
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 var applyShortcode = exports.applyShortcode = function applyShortcode(editor, shortcode) {
-  console.log(editor, shortcode);
   return _slate.Transforms.wrapNodes(editor, { type: 'shortcode', shortcode: shortcode }, {
-    split: true
+    split: true,
+    match: function match(node) {
+      return _slate.Node.isNode(node) && !_slate.Element.isElementType(node, 'shortcode');
+    }
   });
 };
 
 var removeShortcode = exports.removeShortcode = function removeShortcode(editor) {
   return _slate.Transforms.unwrapNodes(editor, {
     match: function match(node) {
-      return _slate.Node.isNode(node) && node.type === 'shortcode';
+      return _slate.Element.isElementType(node, 'shortcode');
     }
   });
 };
@@ -602,12 +595,19 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 exports.default = function (editor) {
-  return _extends({}, editor, {
+  var originalIsInline = editor.isInline;
+
+  return Object.assign(editor, {
     isInline: function isInline(element) {
-      return element.type === 'shortcode' || editor.isInline(element);
+      return _slate.Element.isElementType(element, 'shortcode') || originalIsInline(element);
+    },
+    isContentChanging: function isContentChanging() {
+      return editor.operations.some(function (op) {
+        return op.type !== 'set_selection';
+      });
     }
   });
 };

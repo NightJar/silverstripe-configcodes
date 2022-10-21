@@ -9,23 +9,21 @@ import Element from 'components/Element';
 import detectHotKey from 'lib/hotkey';
 import withShortcodes from 'lib/withShortcodes';
 
-const makeLabelsFocusEditor = (input, editableElement) => {
+const makeLabelsFocusEditor = (input, targetId) => {
   input.labels.forEach((label) => label.addEventListener('click', (event) => {
     event.preventDefault();
-    editableElement.focus();
+    document.getElementById(targetId).focus();
   }));
 };
 
-const contentChanged = (editor) => editor.operations.some((op) => op.type !== 'set_selection');
-
 export default ({ linkedInput, validCodes }) => {
-  const [editor] = useState(() => withReact(withHistory(withShortcodes(createEditor()))));
+  const [editor] = useState(() => withShortcodes(withHistory(withReact(createEditor()))));
   const initialValue = useMemo(() => toSlateNodeTree(linkedInput.value, validCodes));
-  const storeValueForSubmit = (updatedContent) => contentChanged(editor) && linkedInput.setRangeText(
+  const storeValueForSubmit = (updatedContent) => editor.isContentChanging() && linkedInput.setRangeText(
     toStorableString(updatedContent, validCodes), 0, linkedInput.value.length
   );
   const editableElementId = `shortcodable-${linkedInput.id}`;
-  makeLabelsFocusEditor(linkedInput, document.getElementById(editableElementId));
+  makeLabelsFocusEditor(linkedInput, editableElementId);
   const readOnly = (linkedInput.disabled || linkedInput.readOnly) || undefined;
   const isMultiline = linkedInput.type === 'textarea';
   const block = 'shortcodable-input';

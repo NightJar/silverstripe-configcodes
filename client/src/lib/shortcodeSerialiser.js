@@ -20,7 +20,7 @@ export const toSlateNodeTree = (input, validCodes) => {
   const codeNodes = parse(input, parserOptions);
   return codeNodes.map(
     (node) => (
-      typeof node === 'object' && !!node.tag
+      typeof node === 'object' && typeof node.tag === 'string' && node.tag
         ? createSlateNode.fromShortcodeNode(node)
         : createSlateNode.fromString(node)
     )
@@ -41,13 +41,13 @@ const toStringFromSlate = {
     );
     return `[${code}${attributesString}]${Node.string(node)}[/${code}]`;
   },
-  telxt: (node) => Node.string(node),
+  textNode: (node) => Node.string(node),
 };
 
 export const toStorableString = (tree) => tree.reduce(
   (value, node) => value + (Element.isElementType(node, 'shortcode')
     ? toStringFromSlate.shortcodeNode(node)
-    : toStringFromSlate.text(node)
+    : toStringFromSlate.textNode(node)
   ),
   ''
 );
