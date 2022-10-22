@@ -357,13 +357,14 @@ exports.default = function (_ref) {
       validCodes = _ref.validCodes;
 
   var _useState = (0, _react.useState)(function () {
-    return (0, _withShortcodes2.default)((0, _slateHistory.withHistory)((0, _slateReact.withReact)((0, _slate.createEditor)())));
+    return (0, _slateReact.withReact)((0, _slateHistory.withHistory)((0, _withShortcodes2.default)((0, _slate.createEditor)())));
   }),
       _useState2 = _slicedToArray(_useState, 1),
       editor = _useState2[0];
 
+  var slateDocument = linkedInput.value ? (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes) : [{ text: '' }];
   var initialValue = (0, _react.useMemo)(function () {
-    return (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes);
+    return [{ children: slateDocument }];
   });
   var storeValueForSubmit = function storeValueForSubmit(updatedContent) {
     return editor.isContentChanging() && linkedInput.setRangeText((0, _shortcodeSerialiser.toStorableString)(updatedContent, validCodes), 0, linkedInput.value.length);
@@ -3392,6 +3393,7 @@ var MARK_PLACEHOLDER_SYMBOL = Symbol('mark-placeholder');
 /**
  * Types.
  */
+var DOMText = globalThis.Text;
 /**
  * Returns the host window of a DOM node
  */
@@ -3771,7 +3773,6 @@ var ReactEditor = {
    * Deselect the editor.
    */
   deselect(editor) {
-    ReactEditor.toDOMNode(editor, editor);
     var {
       selection
     } = editor;
@@ -3906,7 +3907,13 @@ var ReactEditor = {
       if (point.offset === end && nextText !== null && nextText !== void 0 && nextText.hasAttribute('data-slate-mark-placeholder')) {
         var _nextText$textContent;
 
-        domPoint = [nextText, (_nextText$textContent = nextText.textContent) !== null && _nextText$textContent !== void 0 && _nextText$textContent.startsWith('\uFEFF') ? 1 : 0];
+        var domText = nextText.childNodes[0];
+        domPoint = [// COMPAT: If we don't explicity set the dom point to be on the actual
+        // dom text element, chrome will put the selection behind the actual dom
+        // text element, causing domRange.getBoundingClientRect() calls on a collapsed
+        // selection to return incorrect zero values (https://bugs.chromium.org/p/chromium/issues/detail?id=435438)
+        // which will cause issues when scrolling to it.
+        domText instanceof DOMText ? domText : nextText, (_nextText$textContent = nextText.textContent) !== null && _nextText$textContent !== void 0 && _nextText$textContent.startsWith('\uFEFF') ? 1 : 0];
         break;
       }
 
@@ -4489,7 +4496,7 @@ var Leaf = props => {
   var editor = useSlateStatic();
   __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3_react__["useEffect"])(() => {
     var placeholderEl = placeholderRef === null || placeholderRef === void 0 ? void 0 : placeholderRef.current;
-    var editorEl = document.querySelector('[data-slate-editor="true"]');
+    var editorEl = ReactEditor.toDOMNode(editor, editor);
 
     if (!placeholderEl || !editorEl) {
       return;
@@ -6768,16 +6775,6 @@ var Editable = props => {
         case 'insertReplacementText':
         case 'insertText':
           {
-            var {
-              selection: _selection
-            } = editor;
-
-            if (_selection) {
-              if (__WEBPACK_IMPORTED_MODULE_5_slate__["Range"].isExpanded(_selection)) {
-                __WEBPACK_IMPORTED_MODULE_5_slate__["Editor"].deleteFragment(editor);
-              }
-            }
-
             if (type === 'insertFromComposition') {
               // COMPAT: in Safari, `compositionend` is dispatched after the
               // `beforeinput` for "insertFromComposition". But if we wait for it
@@ -11453,6 +11450,7 @@ var Operation = {
 
 };
 
+// eslint-disable-next-line no-redeclare
 var Path = {
   /**
    * Get a list of ancestor paths for a given path.
@@ -11736,131 +11734,130 @@ var Path = {
    */
   transform(path, operation) {
     var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-    return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_immer__["a" /* produce */])(path, p => {
-      var {
-        affinity = 'forward'
-      } = options; // PERF: Exit early if the operation is guaranteed not to have an effect.
+    if (!path) return null; // PERF: use destructing instead of immer
 
-      if (!path || (path === null || path === void 0 ? void 0 : path.length) === 0) {
-        return;
-      }
+    var p = [...path];
+    var {
+      affinity = 'forward'
+    } = options; // PERF: Exit early if the operation is guaranteed not to have an effect.
 
-      if (p === null) {
-        return null;
-      }
+    if (path.length === 0) {
+      return p;
+    }
 
-      switch (operation.type) {
-        case 'insert_node':
-          {
-            var {
-              path: op
-            } = operation;
+    switch (operation.type) {
+      case 'insert_node':
+        {
+          var {
+            path: op
+          } = operation;
 
-            if (Path.equals(op, p) || Path.endsBefore(op, p) || Path.isAncestor(op, p)) {
-              p[op.length - 1] += 1;
-            }
-
-            break;
+          if (Path.equals(op, p) || Path.endsBefore(op, p) || Path.isAncestor(op, p)) {
+            p[op.length - 1] += 1;
           }
 
-        case 'remove_node':
-          {
-            var {
-              path: _op
-            } = operation;
+          break;
+        }
 
-            if (Path.equals(_op, p) || Path.isAncestor(_op, p)) {
+      case 'remove_node':
+        {
+          var {
+            path: _op
+          } = operation;
+
+          if (Path.equals(_op, p) || Path.isAncestor(_op, p)) {
+            return null;
+          } else if (Path.endsBefore(_op, p)) {
+            p[_op.length - 1] -= 1;
+          }
+
+          break;
+        }
+
+      case 'merge_node':
+        {
+          var {
+            path: _op2,
+            position
+          } = operation;
+
+          if (Path.equals(_op2, p) || Path.endsBefore(_op2, p)) {
+            p[_op2.length - 1] -= 1;
+          } else if (Path.isAncestor(_op2, p)) {
+            p[_op2.length - 1] -= 1;
+            p[_op2.length] += position;
+          }
+
+          break;
+        }
+
+      case 'split_node':
+        {
+          var {
+            path: _op3,
+            position: _position
+          } = operation;
+
+          if (Path.equals(_op3, p)) {
+            if (affinity === 'forward') {
+              p[p.length - 1] += 1;
+            } else if (affinity === 'backward') ; else {
               return null;
-            } else if (Path.endsBefore(_op, p)) {
-              p[_op.length - 1] -= 1;
             }
-
-            break;
+          } else if (Path.endsBefore(_op3, p)) {
+            p[_op3.length - 1] += 1;
+          } else if (Path.isAncestor(_op3, p) && path[_op3.length] >= _position) {
+            p[_op3.length - 1] += 1;
+            p[_op3.length] -= _position;
           }
 
-        case 'merge_node':
-          {
-            var {
-              path: _op2,
-              position
-            } = operation;
+          break;
+        }
 
-            if (Path.equals(_op2, p) || Path.endsBefore(_op2, p)) {
-              p[_op2.length - 1] -= 1;
-            } else if (Path.isAncestor(_op2, p)) {
-              p[_op2.length - 1] -= 1;
-              p[_op2.length] += position;
-            }
+      case 'move_node':
+        {
+          var {
+            path: _op4,
+            newPath: onp
+          } = operation; // If the old and new path are the same, it's a no-op.
 
-            break;
+          if (Path.equals(_op4, onp)) {
+            return p;
           }
 
-        case 'split_node':
-          {
-            var {
-              path: _op3,
-              position: _position
-            } = operation;
+          if (Path.isAncestor(_op4, p) || Path.equals(_op4, p)) {
+            var copy = onp.slice();
 
-            if (Path.equals(_op3, p)) {
-              if (affinity === 'forward') {
-                p[p.length - 1] += 1;
-              } else if (affinity === 'backward') ; else {
-                return null;
-              }
-            } else if (Path.endsBefore(_op3, p)) {
-              p[_op3.length - 1] += 1;
-            } else if (Path.isAncestor(_op3, p) && path[_op3.length] >= _position) {
-              p[_op3.length - 1] += 1;
-              p[_op3.length] -= _position;
+            if (Path.endsBefore(_op4, onp) && _op4.length < onp.length) {
+              copy[_op4.length - 1] -= 1;
             }
 
-            break;
-          }
-
-        case 'move_node':
-          {
-            var {
-              path: _op4,
-              newPath: onp
-            } = operation; // If the old and new path are the same, it's a no-op.
-
-            if (Path.equals(_op4, onp)) {
-              return;
+            return copy.concat(p.slice(_op4.length));
+          } else if (Path.isSibling(_op4, onp) && (Path.isAncestor(onp, p) || Path.equals(onp, p))) {
+            if (Path.endsBefore(_op4, p)) {
+              p[_op4.length - 1] -= 1;
+            } else {
+              p[_op4.length - 1] += 1;
             }
-
-            if (Path.isAncestor(_op4, p) || Path.equals(_op4, p)) {
-              var copy = onp.slice();
-
-              if (Path.endsBefore(_op4, onp) && _op4.length < onp.length) {
-                copy[_op4.length - 1] -= 1;
-              }
-
-              return copy.concat(p.slice(_op4.length));
-            } else if (Path.isSibling(_op4, onp) && (Path.isAncestor(onp, p) || Path.equals(onp, p))) {
-              if (Path.endsBefore(_op4, p)) {
-                p[_op4.length - 1] -= 1;
-              } else {
-                p[_op4.length - 1] += 1;
-              }
-            } else if (Path.endsBefore(onp, p) || Path.equals(onp, p) || Path.isAncestor(onp, p)) {
-              if (Path.endsBefore(_op4, p)) {
-                p[_op4.length - 1] -= 1;
-              }
-
-              p[onp.length - 1] += 1;
-            } else if (Path.endsBefore(_op4, p)) {
-              if (Path.equals(onp, p)) {
-                p[onp.length - 1] += 1;
-              }
-
+          } else if (Path.endsBefore(onp, p) || Path.equals(onp, p) || Path.isAncestor(onp, p)) {
+            if (Path.endsBefore(_op4, p)) {
               p[_op4.length - 1] -= 1;
             }
 
-            break;
+            p[onp.length - 1] += 1;
+          } else if (Path.endsBefore(_op4, p)) {
+            if (Path.equals(onp, p)) {
+              p[onp.length - 1] += 1;
+            }
+
+            p[_op4.length - 1] -= 1;
           }
-      }
-    });
+
+          break;
+        }
+    }
+
+    return p;
   }
 
 };
@@ -14247,20 +14244,16 @@ var TextTransforms = {
         }
       }
 
-      for (var pathRef of pathRefs) {
-        var _path2 = pathRef.unref();
-
-        Transforms.removeNodes(editor, {
-          at: _path2,
-          voids
-        });
-      }
+      pathRefs.reverse().map(r => r.unref()).filter(r => r !== null).forEach(p => Transforms.removeNodes(editor, {
+        at: p,
+        voids
+      }));
 
       if (!endVoid) {
         var _point2 = endRef.current;
         var [_node2] = Editor.leaf(editor, _point2);
         var {
-          path: _path3
+          path: _path2
         } = _point2;
 
         var _offset = isSingleText ? start.offset : 0;
@@ -14270,7 +14263,7 @@ var TextTransforms = {
         if (_text.length > 0) {
           editor.apply({
             type: 'remove_text',
-            path: _path3,
+            path: _path2,
             offset: _offset,
             text: _text
           });

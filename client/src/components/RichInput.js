@@ -17,8 +17,13 @@ const makeLabelsFocusEditor = (input, targetId) => {
 };
 
 export default ({ linkedInput, validCodes }) => {
-  const [editor] = useState(() => withShortcodes(withHistory(withReact(createEditor()))));
-  const initialValue = useMemo(() => toSlateNodeTree(linkedInput.value, validCodes));
+  const [editor] = useState(() => withReact(withHistory(withShortcodes(createEditor()))));
+  // Unmentioned constraints on the slate document tree (via documentation) as at 2022-10-21:
+  // - Editor node MUST have Element children only.
+  //   It does not appear to be able to directly hold Text nodes - all text will be deleted on attempting to edit if so.
+  // - All Element nodes MUST have a leaf node (Text) children, even if they're empty.
+  const slateDocument = linkedInput.value ? toSlateNodeTree(linkedInput.value, validCodes) : [{ text: '' }];
+  const initialValue = useMemo(() => [{ children:  slateDocument }]);
   const storeValueForSubmit = (updatedContent) => editor.isContentChanging() && linkedInput.setRangeText(
     toStorableString(updatedContent, validCodes), 0, linkedInput.value.length
   );
