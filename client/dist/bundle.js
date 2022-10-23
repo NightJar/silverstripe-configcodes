@@ -237,6 +237,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var RichInputMenu = exports.RichInputMenu = function RichInputMenu(_ref) {
   var title = _ref.title;
 
+  return null;
   var ref = (0, _react.useRef)();
   var editor = (0, _slateReact.useSlate)();
   var inFocus = (0, _slateReact.useFocused)();
@@ -362,9 +363,8 @@ exports.default = function (_ref) {
       _useState2 = _slicedToArray(_useState, 1),
       editor = _useState2[0];
 
-  var slateDocument = linkedInput.value ? (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes) : [{ text: '' }];
   var initialValue = (0, _react.useMemo)(function () {
-    return [{ children: slateDocument }];
+    return [{ children: (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes) }];
   });
   var storeValueForSubmit = function storeValueForSubmit(updatedContent) {
     return editor.isContentChanging() && linkedInput.setRangeText((0, _shortcodeSerialiser.toStorableString)(updatedContent, validCodes), 0, linkedInput.value.length);
@@ -504,7 +504,7 @@ var createSlateNode = {
 };
 
 var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, validCodes) {
-  if (!validCodes || validCodes.length === 0) {
+  if (!validCodes || validCodes.length === 0 || !input) {
     return [createSlateNode.fromString(input)];
   }
 
@@ -516,7 +516,7 @@ var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, 
 };
 
 var toStringFromSlate = {
-  shortcodeNode: function shortcodeNode(node) {
+  shortcodeElement: function shortcodeElement(node) {
     var code = node.shortcode,
         _node$attributes = node.attributes,
         attributes = _node$attributes === undefined ? {} : _node$attributes;
@@ -533,12 +533,15 @@ var toStringFromSlate = {
   },
   textNode: function textNode(node) {
     return _slate.Node.string(node);
+  },
+  elementNode: function elementNode(node) {
+    return _slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeElement(node) : toStorableString(node.children);
   }
 };
 
 var toStorableString = exports.toStorableString = function toStorableString(tree) {
   return tree.reduce(function (value, node) {
-    return value + (_slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeNode(node) : toStringFromSlate.textNode(node));
+    return value + (_slate.Text.isText(node) ? toStringFromSlate.textNode(node) : toStringFromSlate.elementNode(node));
   }, '');
 };
 

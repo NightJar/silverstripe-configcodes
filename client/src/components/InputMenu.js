@@ -5,6 +5,7 @@ import { Editor, Range } from 'slate';
 import { useFocused, useSlate } from 'slate-react';
 
 export const RichInputMenu = ({ title }) => {
+  return null;
   const ref = useRef();
   const editor = useSlate();
   const inFocus = useFocused();

@@ -1,5 +1,5 @@
 import { parse } from '@bbob/parser';
-import { Node, Element } from 'slate';
+import { Node, Element, Text } from 'slate';
 
 const createSlateNode = {
   fromShortcodeNode: ({ tag, attrs: attributes, content }) => ({
@@ -12,7 +12,7 @@ const createSlateNode = {
 };
 
 export const toSlateNodeTree = (input, validCodes) => {
-  if (!validCodes || validCodes.length === 0) {
+  if (!validCodes || validCodes.length === 0 || !input) {
     return [createSlateNode.fromString(input)];
   }
 
@@ -28,7 +28,7 @@ export const toSlateNodeTree = (input, validCodes) => {
 };
 
 const toStringFromSlate = {
-  shortcodeNode: (node) => {
+  shortcodeElement: (node) => {
     const { shortcode: code, attributes = {} } = node;
     const stringifyAttribute = (key) => {
       const value = attributes[key];
@@ -42,12 +42,15 @@ const toStringFromSlate = {
     return `[${code}${attributesString}]${Node.string(node)}[/${code}]`;
   },
   textNode: (node) => Node.string(node),
+  elementNode: (node) => Element.isElementType(node, 'shortcode')
+    ? toStringFromSlate.shortcodeElement(node)
+    : toStorableString(node.children),
 };
 
 export const toStorableString = (tree) => tree.reduce(
-  (value, node) => value + (Element.isElementType(node, 'shortcode')
-    ? toStringFromSlate.shortcodeNode(node)
-    : toStringFromSlate.textNode(node)
+  (value, node) => value + (Text.isText(node)
+    ? toStringFromSlate.textNode(node)
+    : toStringFromSlate.elementNode(node)
   ),
   ''
 );

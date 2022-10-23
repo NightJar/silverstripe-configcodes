@@ -22,8 +22,10 @@ export default ({ linkedInput, validCodes }) => {
   // - Editor node MUST have Element children only.
   //   It does not appear to be able to directly hold Text nodes - all text will be deleted on attempting to edit if so.
   // - All Element nodes MUST have a leaf node (Text) children, even if they're empty.
-  const slateDocument = linkedInput.value ? toSlateNodeTree(linkedInput.value, validCodes) : [{ text: '' }];
-  const initialValue = useMemo(() => [{ children:  slateDocument }]);
+  // It may be to do with e.g. withHistory, but I've not looked too hard. Trial & error has discovered the above.
+  // This is why the node tree output is wrapped in an Element interface here.
+  // Without this, errors are silent and content simply disappears when attempting to type (in whole or part).
+  const initialValue = useMemo(() => [{ children:  toSlateNodeTree(linkedInput.value, validCodes) }]);
   const storeValueForSubmit = (updatedContent) => editor.isContentChanging() && linkedInput.setRangeText(
     toStorableString(updatedContent, validCodes), 0, linkedInput.value.length
   );
