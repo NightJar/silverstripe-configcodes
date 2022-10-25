@@ -334,9 +334,9 @@ var _Element = __webpack_require__("./client/src/components/Element.js");
 
 var _Element2 = _interopRequireDefault(_Element);
 
-var _hotkey = __webpack_require__("./client/src/lib/hotkey.js");
+var _keyboard = __webpack_require__("./client/src/lib/keyboard.js");
 
-var _hotkey2 = _interopRequireDefault(_hotkey);
+var _keyboard2 = _interopRequireDefault(_keyboard);
 
 var _withShortcodes = __webpack_require__("./client/src/lib/withShortcodes.js");
 
@@ -373,6 +373,14 @@ exports.default = function (_ref) {
   makeLabelsFocusEditor(linkedInput, editableElementId);
   var readOnly = linkedInput.disabled || linkedInput.readOnly || undefined;
   var isMultiline = linkedInput.type === 'textarea';
+  var keyHandler = isMultiline ? (0, _keyboard2.default)(editor) : function (event) {
+    if (event.key.toLowerCase() === 'enter') {
+      linkedInput.dispatchEvent((0, _keyboard.cloneKeyboardEvent)(event.nativeEvent)) && linkedInput.form.querySelector('input[type=submit],button[type=submit],input[type=image]').click();
+
+      event.preventDefault();
+    }
+    (0, _keyboard2.default)(editor);
+  };
   var block = 'shortcodable-input';
   var classes = ['disabled', 'readOnly'].filter(function (state) {
     return linkedInput[state];
@@ -392,7 +400,7 @@ exports.default = function (_ref) {
       'aria-multiline': !readOnly && isMultiline || undefined,
       'aria-disabled': linkedInput.disabled || undefined,
       'aria-readonly': linkedInput.readonly || undefined,
-      onKeyDown: (0, _hotkey2.default)(editor),
+      onKeyDown: keyHandler,
       renderElement: (0, _react.useCallback)(_Element2.default)
     })
   );
@@ -436,7 +444,7 @@ exports.default = ShortcodeElement;
 
 /***/ }),
 
-/***/ "./client/src/lib/hotkey.js":
+/***/ "./client/src/lib/keyboard.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -445,6 +453,9 @@ exports.default = ShortcodeElement;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.cloneKeyboardEvent = undefined;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _isHotkey = __webpack_require__("./node_modules/is-hotkey/lib/index.js");
 
@@ -465,6 +476,48 @@ exports.default = function (editor) {
   return function (event) {
     return isShortcodeHotkey(event) && handleHotKey(event);
   };
+};
+
+var cloneKeyboardEvent = exports.cloneKeyboardEvent = function cloneKeyboardEvent(_ref) {
+  var type = _ref.type,
+      bubbles = _ref.bubbles,
+      cancelable = _ref.cancelable,
+      composed = _ref.composed,
+      detail = _ref.detail,
+      view = _ref.view,
+      sourceCapabiliites = _ref.sourceCapabiliites,
+      key = _ref.key,
+      code = _ref.code,
+      location = _ref.location,
+      repeat = _ref.repeat,
+      isComposing = _ref.isComposing,
+      charCode = _ref.charCode,
+      keyCode = _ref.keyCode,
+      ctrlKey = _ref.ctrlKey,
+      shiftKey = _ref.shiftKey,
+      altKey = _ref.altKey,
+      metaKey = _ref.metaKey;
+  var overrideType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+  var overrideOptions = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+  return new KeyboardEvent(overrideType || type, _extends({
+    bubbles: bubbles,
+    cancelable: cancelable,
+    composed: composed,
+    detail: detail,
+    view: view,
+    sourceCapabiliites: sourceCapabiliites,
+    key: key,
+    code: code,
+    location: location,
+    repeat: repeat,
+    isComposing: isComposing,
+    charCode: charCode,
+    keyCode: keyCode,
+    ctrlKey: ctrlKey,
+    shiftKey: shiftKey,
+    altKey: altKey,
+    metaKey: metaKey
+  }, overrideOptions));
 };
 
 /***/ }),

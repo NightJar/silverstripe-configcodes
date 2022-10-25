@@ -4,7 +4,8 @@ Allow text fields to hold and process short codes.
 [x] Make 'plain' the default output (`forTemplate`)
 [ ] make shortcode unable to be applied within or over a shortcode - https://docs.silverstripe.org/en/4/developer_guides/extending/shortcodes/#limitations
 [ ] serverside validation there are no nested shortcodes?
-[ ] make single line edit only (for input type text). Restrict this with onKeyDown?
+[x] make single line edit only (for input type text).
+[x] make enter key submit like would happen with an `input[type=text]` field
 [x] hot key
 [x] focus indicator
 [x] recieve focus from label activation

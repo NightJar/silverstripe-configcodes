@@ -6,7 +6,7 @@ import { withHistory } from 'slate-history';
 import { toStorableString, toSlateNodeTree } from 'lib/shortcodeSerialiser';
 import { RichInputMenu } from 'components/InputMenu';
 import Element from 'components/Element';
-import detectHotKey from 'lib/hotkey';
+import detectKeyboardShortcut, { cloneKeyboardEvent } from 'lib/keyboard';
 import withShortcodes from 'lib/withShortcodes';
 
 const makeLabelsFocusEditor = (input, targetId) => {
@@ -33,6 +33,23 @@ export default ({ linkedInput, validCodes }) => {
   makeLabelsFocusEditor(linkedInput, editableElementId);
   const readOnly = (linkedInput.disabled || linkedInput.readOnly) || undefined;
   const isMultiline = linkedInput.type === 'textarea';
+  const keyHandler = isMultiline ? detectKeyboardShortcut(editor) : (event) => {
+    if (event.key.toLowerCase() === 'enter') {
+      // Trigger any handlers on the original input
+      // if the event did not get preventDefault called on it (dispatchEvent returns false if preventDefault is called)
+      // trigger an implicit submission just as a regular input[type=text]
+      // ideally this could happen via HTMLFormElement.requestSubmit() - but it doesn't seem to work in the CMS :(
+      // so manually try to locate the "default button" and trigger a click on it.
+      // https://www.w3.org/TR/2014/REC-html5-20141028/forms.html#implicit-submission
+      // https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#implicit-submission
+      // click() will do nothing if the element is disabled - and CMS entwine will block it anyway if that wasn't true.
+      linkedInput.dispatchEvent(cloneKeyboardEvent(event.nativeEvent))
+        && linkedInput.form.querySelector('input[type=submit],button[type=submit],input[type=image]').click();
+      // never break to a new line.
+      event.preventDefault();
+    }
+    detectKeyboardShortcut(editor);
+  };
   const block = 'shortcodable-input';
   const classes = ['disabled', 'readOnly']
     .filter((state) => linkedInput[state])
@@ -49,7 +66,7 @@ export default ({ linkedInput, validCodes }) => {
         aria-multiline={(!readOnly && isMultiline) || undefined}
         aria-disabled={linkedInput.disabled || undefined}
         aria-readonly={linkedInput.readonly || undefined}
-        onKeyDown={detectHotKey(editor)}
+        onKeyDown={keyHandler}
         renderElement={useCallback(Element)}
       />
     </Slate>
