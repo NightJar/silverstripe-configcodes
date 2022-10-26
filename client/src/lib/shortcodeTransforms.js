@@ -1,19 +1,30 @@
-import { Node, Element, Transforms } from 'slate';
+import { Transforms, Range } from 'slate';
 
-export const applyShortcode = (editor, shortcode) => Transforms.wrapNodes(
+export const applyShortcode = (editor, shortcode) => Range.isExpanded(editor.selection) && Transforms.wrapNodes(
   editor,
   { type: 'shortcode', shortcode },
   {
     split: true,
-    match: (node) => Node.isNode(node) && !Element.isElementType(node, 'shortcode')
+    match: (node) => !editor.isShortcode(node),
   }
 );
 
-export const removeShortcode = (editor) => Transforms.unwrapNodes(editor, {
-  match: node => Element.isElementType(node, 'shortcode')
+export const updateShortcode = (editor, shortcodeSettings) => Transforms.setNodes(editor, shortcodeSettings, {
+  match: node => editor.isShortcode(node),
 });
 
-export default {
-  activate: applyShortcode,
-  deactivate: removeShortcode,
+export const removeShortcode = (editor) => Transforms.unwrapNodes(editor, {
+  match: node => editor.isShortcode(node),
+});
+
+const openShortcodeConfigurator = (editor) => applyShortcode(editor, 'maori');
+
+export default (editor) => {
+  if (editor.hasShortcode()) {
+    return removeShortcode(editor);
+  }
+  if (Range.isExpanded(editor.selection)) {
+    return openShortcodeConfigurator(editor);
+  }
+  return null;
 };

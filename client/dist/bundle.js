@@ -220,24 +220,24 @@ exports.default = function (elementProps) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.RichInputMenu = undefined;
 
 var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(1);
-
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 var _slateReact = __webpack_require__("./node_modules/slate-react/dist/index.es.js");
 
+var _ShortcodeEditor = __webpack_require__("./client/src/components/ShortcodeEditor.js");
+
+var _ShortcodeEditor2 = _interopRequireDefault(_ShortcodeEditor);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var RichInputMenu = exports.RichInputMenu = function RichInputMenu(_ref) {
+exports.default = function (_ref) {
   var title = _ref.title;
 
-  return null;
   var ref = (0, _react.useRef)();
   var editor = (0, _slateReact.useSlate)();
   var inFocus = (0, _slateReact.useFocused)();
@@ -250,56 +250,38 @@ var RichInputMenu = exports.RichInputMenu = function RichInputMenu(_ref) {
       if (menuElement) {
         menuElement.removeAttribute('style');
       }
-      return;
     }
-
-    var _window$getSelection$ = window.getSelection().getRangeAt(0).getBoundingClientRect(),
-        top = _window$getSelection$.top,
-        left = _window$getSelection$.left,
-        selectionWidth = _window$getSelection$.width;
-
-    var menuHeight = menuElement.offsetHeight,
-        menuWidth = menuElement.offsetWidth;
-
-    var hoverBuffer = 5;
-    menuElement.style.position = 'absolute';
-    menuElement.style.top = top + window.pageYOffset - menuHeight - hoverBuffer + 'px';
-    menuElement.style.left = left + window.pageXOffset - (menuWidth + selectionWidth) / 2 + 'px';
   });
+
+  var shortcodeInRange = editor.hasShortcode();
 
   return _react2.default.createElement(
     'div',
     {
-      ref: ref,
       role: 'toolbar',
       onMouseDown: function onMouseDown(e) {
         return e.preventDefault();
       },
       className: 'shortcodable-input__menu'
     },
-    'Menu',
-    title && ' for ',
+    _react2.default.createElement(
+      'button',
+      {
+        onClick: function onClick() {
+          return ref.current.showModal();
+        }
+      },
+      shortcodeInRange ? 'Edit' : 'Add'
+    ),
+    shortcodeInRange && 'or',
+    shortcodeInRange && _react2.default.createElement(
+      'button',
+      null,
+      'Remove'
+    ),
     title,
-    _react2.default.createElement(
-      'button',
-      null,
-      'Add shortcode'
-    ),
-    _react2.default.createElement(
-      'button',
-      null,
-      'Remove shortcode'
-    ),
-    _react2.default.createElement(
-      'button',
-      null,
-      'Edit shortcode'
-    )
+    _react2.default.createElement(_ShortcodeEditor2.default, { ref: ref })
   );
-};
-
-exports.default = function (p) {
-  return (0, _reactDom.createPortal)(_react2.default.createElement(RichInputMenu, p), document.body);
 };
 
 /***/ }),
@@ -329,6 +311,8 @@ var _slateHistory = __webpack_require__("./node_modules/slate-history/dist/index
 var _shortcodeSerialiser = __webpack_require__("./client/src/lib/shortcodeSerialiser.js");
 
 var _InputMenu = __webpack_require__("./client/src/components/InputMenu.js");
+
+var _InputMenu2 = _interopRequireDefault(_InputMenu);
 
 var _Element = __webpack_require__("./client/src/components/Element.js");
 
@@ -373,13 +357,16 @@ exports.default = function (_ref) {
   makeLabelsFocusEditor(linkedInput, editableElementId);
   var readOnly = linkedInput.disabled || linkedInput.readOnly || undefined;
   var isMultiline = linkedInput.type === 'textarea';
-  var keyHandler = isMultiline ? (0, _keyboard2.default)(editor) : function (event) {
+  var keyboardShortcutHandler = (0, _keyboard2.default)(editor);
+  var keyHandler = isMultiline ? keyboardShortcutHandler : function (event) {
     if (event.key.toLowerCase() === 'enter') {
-      linkedInput.dispatchEvent((0, _keyboard.cloneKeyboardEvent)(event.nativeEvent)) && linkedInput.form.querySelector('input[type=submit],button[type=submit],input[type=image]').click();
+      if (linkedInput.dispatchEvent((0, _keyboard.cloneKeyboardEvent)(event.nativeEvent))) {
+        linkedInput.form.querySelector('input[type=submit],button[type=submit],input[type=image]').click();
+      }
 
       event.preventDefault();
     }
-    (0, _keyboard2.default)(editor);
+    keyboardShortcutHandler(event);
   };
   var block = 'shortcodable-input';
   var classes = ['disabled', 'readOnly'].filter(function (state) {
@@ -390,7 +377,7 @@ exports.default = function (_ref) {
   return _react2.default.createElement(
     _slateReact.Slate,
     { editor: editor, value: initialValue, onChange: storeValueForSubmit },
-    _react2.default.createElement(_InputMenu.RichInputMenu, { title: 'shortcodes' }),
+    _react2.default.createElement(_InputMenu2.default, { title: 'shortcode' }),
     _react2.default.createElement(_slateReact.Editable, {
       id: editableElementId,
       'aria-labelledby': linkedInput.labels[0].id,
@@ -405,6 +392,51 @@ exports.default = function (_ref) {
     })
   );
 };
+
+/***/ }),
+
+/***/ "./client/src/components/ShortcodeEditor.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = (0, _react.forwardRef)(function (props, ref) {
+  return _react2.default.createElement(
+    "dialog",
+    { ref: ref },
+    _react2.default.createElement(
+      "form",
+      { method: "dialog" },
+      _react2.default.createElement(
+        "select",
+        null,
+        _react2.default.createElement(
+          "option",
+          { value: "maori" },
+          "Te reo M\u0101ori"
+        ),
+        _react2.default.createElement(
+          "option",
+          { value: "invalid" },
+          "Not actually a shortcode"
+        )
+      ),
+      _react2.default.createElement("input", { type: "submit", value: "apply" }),
+      _react2.default.createElement("input", { type: "submit", value: "remove" })
+    )
+  );
+});
 
 /***/ }),
 
@@ -463,6 +495,8 @@ var _isHotkey2 = _interopRequireDefault(_isHotkey);
 
 var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
 
+var _shortcodeTransforms2 = _interopRequireDefault(_shortcodeTransforms);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var isShortcodeHotkey = (0, _isHotkey2.default)('alt+m');
@@ -470,7 +504,7 @@ var isShortcodeHotkey = (0, _isHotkey2.default)('alt+m');
 exports.default = function (editor) {
   var handleHotKey = function handleHotKey(event) {
     event.preventDefault();
-    (0, _shortcodeTransforms.applyShortcode)(editor, 'maori');
+    (0, _shortcodeTransforms2.default)(editor);
   };
 
   return function (event) {
@@ -614,15 +648,23 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.removeShortcode = exports.applyShortcode = undefined;
+exports.removeShortcode = exports.updateShortcode = exports.applyShortcode = undefined;
 
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 var applyShortcode = exports.applyShortcode = function applyShortcode(editor, shortcode) {
-  return _slate.Transforms.wrapNodes(editor, { type: 'shortcode', shortcode: shortcode }, {
+  return _slate.Range.isExpanded(editor.selection) && _slate.Transforms.wrapNodes(editor, { type: 'shortcode', shortcode: shortcode }, {
     split: true,
     match: function match(node) {
-      return _slate.Node.isNode(node) && !_slate.Element.isElementType(node, 'shortcode');
+      return !editor.isShortcode(node);
+    }
+  });
+};
+
+var updateShortcode = exports.updateShortcode = function updateShortcode(editor, shortcodeSettings) {
+  return _slate.Transforms.setNodes(editor, shortcodeSettings, {
+    match: function match(node) {
+      return editor.isShortcode(node);
     }
   });
 };
@@ -630,14 +672,23 @@ var applyShortcode = exports.applyShortcode = function applyShortcode(editor, sh
 var removeShortcode = exports.removeShortcode = function removeShortcode(editor) {
   return _slate.Transforms.unwrapNodes(editor, {
     match: function match(node) {
-      return _slate.Element.isElementType(node, 'shortcode');
+      return editor.isShortcode(node);
     }
   });
 };
 
-exports.default = {
-  activate: applyShortcode,
-  deactivate: removeShortcode
+var openShortcodeConfigurator = function openShortcodeConfigurator(editor) {
+  return applyShortcode(editor, 'maori');
+};
+
+exports.default = function (editor) {
+  if (editor.hasShortcode()) {
+    return removeShortcode(editor);
+  }
+  if (_slate.Range.isExpanded(editor.selection)) {
+    return openShortcodeConfigurator(editor);
+  }
+  return null;
 };
 
 /***/ }),
@@ -652,19 +703,33 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 exports.default = function (editor) {
   var originalIsInline = editor.isInline;
 
   return Object.assign(editor, {
+    isShortcode: function isShortcode(element) {
+      return _slate.Element.isElementType(element, 'shortcode');
+    },
     isInline: function isInline(element) {
-      return _slate.Element.isElementType(element, 'shortcode') || originalIsInline(element);
+      return editor.isShortcode(element) || originalIsInline(element);
     },
     isContentChanging: function isContentChanging() {
       return editor.operations.some(function (op) {
         return op.type !== 'set_selection';
       });
+    },
+    hasShortcode: function hasShortcode() {
+      var _Editor$nodes = _slate.Editor.nodes(editor, { match: function match(node) {
+          return editor.isShortcode(node);
+        } }),
+          _Editor$nodes2 = _slicedToArray(_Editor$nodes, 1),
+          shortcodeNode = _Editor$nodes2[0];
+
+      return shortcodeNode;
     }
   });
 };

@@ -1,12 +1,12 @@
 import isHotKey from 'is-hotkey';
-import { applyShortcode } from 'lib/shortcodeTransforms';
+import openShortcodeEditor from 'lib/shortcodeTransforms';
 
 const isShortcodeHotkey = isHotKey('alt+m');
 
 export default (editor) => {
   const handleHotKey = (event) => {
     event.preventDefault();
-    applyShortcode(editor, 'maori');
+    openShortcodeEditor(editor);
   };
 
   return (event) => isShortcodeHotkey(event) && handleHotKey(event);
@@ -14,15 +14,15 @@ export default (editor) => {
 
 export const cloneKeyboardEvent = ({
   type,
-  //Event
+  // Event
   bubbles,
   cancelable,
   composed,
-  //UIEvent
+  // UIEvent
   detail,
   view,
   sourceCapabiliites,
-  //KeyboardEvent
+  // KeyboardEvent
   key,
   code,
   location,

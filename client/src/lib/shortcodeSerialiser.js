@@ -42,9 +42,11 @@ const toStringFromSlate = {
     return `[${code}${attributesString}]${Node.string(node)}[/${code}]`;
   },
   textNode: (node) => Node.string(node),
-  elementNode: (node) => Element.isElementType(node, 'shortcode')
-    ? toStringFromSlate.shortcodeElement(node)
-    : toStorableString(node.children),
+  elementNode: (node) => (
+    Element.isElementType(node, 'shortcode')
+      ? toStringFromSlate.shortcodeElement(node)
+      : toStorableString(node.children) // eslint-disable-line no-use-before-define
+  ),
 };
 
 export const toStorableString = (tree) => tree.reduce(
