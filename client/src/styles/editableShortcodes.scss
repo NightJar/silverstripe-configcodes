@@ -4,12 +4,13 @@
 
 .shortcode {
   outline: solid $brand-secondary 1px;
-  margin-left: 2px;
-  margin-right: 2px;
-  padding: 2px 3px;
+  margin: 0 2px;
+  padding: 0 3px;
   box-shadow: $brand-secondary inset 0 0 2px 0;
   border-radius: 1px;
-  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  align-items: stretch;
 
   &:first-child {
     margin-left: 0;
@@ -20,17 +21,19 @@
   }
 
   &::before {
-    position: absolute;
-    bottom: 100%;
-    left: 0;
+    position: relative;
+    left: -3px;
+    margin-right: -1px;
     background-color: $brand-secondary;
-    display: block;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
     content: attr(data-shortcode);
     color: white;
-    font-size: 10px;
+    font-size: 0.7em;
     padding: 0 3px;
     border-top-left-radius: 1px;
-    border-top-right-radius: 1px;
+    border-bottom-left-radius: 1px;
   }
 }
 
@@ -53,11 +56,18 @@
     opacity: 1;
   }
 
-  &__menu {
-    // position: absolute;
-    &::after {
-      position: absolute;
-      rotate: 45deg;
+  &__toolbar {
+    button {
+      border: 1px solid $gray-700;
+      margin: 0 0.7em;
+
+      &:first-child {
+        margin-left: 0;
+      }
+
+      &:focus {
+        outline: 2px solid transparent, 2px solid black;
+      }
     }
   }
 //   & + input[type="text"].text {

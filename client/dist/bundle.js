@@ -82,9 +82,9 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(1);
+var _reactDom = __webpack_require__(2);
 
-var _Injector = __webpack_require__(2);
+var _Injector = __webpack_require__(1);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -126,7 +126,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Injector = __webpack_require__(2);
+var _Injector = __webpack_require__(1);
 
 var _Injector2 = _interopRequireDefault(_Injector);
 
@@ -262,7 +262,8 @@ exports.default = function (_ref) {
       onMouseDown: function onMouseDown(e) {
         return e.preventDefault();
       },
-      className: 'shortcodable-input__menu'
+      className: 'shortcodable-input__toolbar',
+      tabIndex: '-1'
     },
     _react2.default.createElement(
       'button',
@@ -3382,7 +3383,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_slate__ = __webpack_require__("./node_modules/slate/dist/index.es.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey__ = __webpack_require__("./node_modules/slate-react/node_modules/is-hotkey/lib/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_is_hotkey__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_react_dom__);
 
 
@@ -14793,14 +14794,14 @@ module.exports = React;
 /***/ 1:
 /***/ (function(module, exports) {
 
-module.exports = ReactDom;
+module.exports = Injector;
 
 /***/ }),
 
 /***/ 2:
 /***/ (function(module, exports) {
 
-module.exports = Injector;
+module.exports = ReactDom;
 
 /***/ }),
 

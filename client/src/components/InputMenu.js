@@ -31,7 +31,8 @@ export default ({ title }) => {
     <div
       role="toolbar"
       onMouseDown={e => e.preventDefault()} // prevent focus being taken from editor
-      className="shortcodable-input__menu"
+      className="shortcodable-input__toolbar"
+      tabIndex="-1"
     >
       <button
         onClick={() => ref.current.showModal()}
