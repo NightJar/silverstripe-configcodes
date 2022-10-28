@@ -15,10 +15,15 @@ const PATHS = {
   ROOT: Path.resolve(),
   SRC: Path.resolve('client/src'),
   DIST: Path.resolve('client/dist'),
+  ADMIN: Path.resolve('../../silverstripe/admin/client/src'),
 };
 
-const externals = externalJS(ENV, PATHS);
-delete externals.reactstrap;
+const jsResolveConfig = resolveJS(ENV, PATHS);
+// jsResolveConfig.modules = [...jsResolveConfig.modules, PATHS.ADMIN, PATHS.ADMIN_MODULES];
+jsResolveConfig.alias = {
+  ...jsResolveConfig.alias,
+  admin: PATHS.ADMIN,
+};
 
 const config = [
   {
@@ -31,8 +36,8 @@ const config = [
       filename: '[name].js',
     },
     devtool: (ENV !== 'production') ? 'source-map' : '',
-    resolve: resolveJS(ENV, PATHS),
-    externals,
+    resolve: jsResolveConfig,
+    externals: externalJS(ENV, PATHS),
     module: moduleJS(ENV, PATHS),
     plugins: pluginJS(ENV, PATHS),
   },

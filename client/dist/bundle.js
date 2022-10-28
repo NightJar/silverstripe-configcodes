@@ -68,13 +68,158 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "../../silverstripe/admin/client/src/components/Tip/Tip.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.tipShape = exports.TIP_IMPORTANCE_LEVELS = undefined;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _tipImportanceMap;
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(4);
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _reactstrap = __webpack_require__(3);
+
+var _i18n = __webpack_require__(5);
+
+var _i18n2 = _interopRequireDefault(_i18n);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var TIP_IMPORTANCE_LEVELS = exports.TIP_IMPORTANCE_LEVELS = {
+  NORMAL: 'normal',
+  HIGH: 'high'
+};
+
+var tipImportanceMap = (_tipImportanceMap = {}, _defineProperty(_tipImportanceMap, TIP_IMPORTANCE_LEVELS.NORMAL, {
+  iconColor: 'muted',
+  type: _i18n2.default._t('Admin.NORMAL_TIP', 'Tip')
+}), _defineProperty(_tipImportanceMap, TIP_IMPORTANCE_LEVELS.HIGH, {
+  iconColor: 'danger',
+  type: _i18n2.default._t('Admin.IMPORTANT_TIP', 'Important tip')
+}), _tipImportanceMap);
+
+var Tip = function (_Component) {
+  _inherits(Tip, _Component);
+
+  function Tip(props) {
+    _classCallCheck(this, Tip);
+
+    var _this = _possibleConstructorReturn(this, (Tip.__proto__ || Object.getPrototypeOf(Tip)).call(this, props));
+
+    _this.state = {
+      open: false
+    };
+
+    _this.handleTipToggle = _this.handleTipToggle.bind(_this);
+    return _this;
+  }
+
+  _createClass(Tip, [{
+    key: 'handleTipToggle',
+    value: function handleTipToggle() {
+      this.setState(function (state) {
+        return { open: !state.open };
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          content = _props.content,
+          fieldTitle = _props.fieldTitle,
+          icon = _props.icon,
+          id = _props.id,
+          importance = _props.importance;
+      var open = this.state.open;
+      var _tipImportanceMap$imp = tipImportanceMap[importance],
+          iconColor = _tipImportanceMap$imp.iconColor,
+          type = _tipImportanceMap$imp.type;
+
+
+      var label = _i18n2.default.inject(_i18n2.default._t('Admin.TIP_LABEL', '{type} for {fieldTitle}'), {
+        type: type,
+        fieldTitle: fieldTitle
+      });
+
+      return [_react2.default.createElement(_reactstrap.Button, {
+        key: id + '-tip-button',
+        color: 'outline-secondary',
+        id: id + '-tip',
+        onClick: this.handleTipToggle,
+        className: 'btn--no-text btn--last font-icon-' + icon + ' text-' + iconColor,
+        'aria-label': label,
+        'aria-expanded': open
+      }), _react2.default.createElement(
+        _reactstrap.Popover,
+        {
+          key: id + '-tip-popover',
+          target: id + '-tip',
+          placement: 'top-end',
+          isOpen: open
+        },
+        _react2.default.createElement(
+          _reactstrap.PopoverBody,
+          { 'aria-live': 'assertive', 'aria-relevant': 'additions' },
+          content
+        )
+      )];
+    }
+  }]);
+
+  return Tip;
+}(_react.Component);
+
+var tipShape = exports.tipShape = {
+  content: _propTypes2.default.string.isRequired,
+  importance: _propTypes2.default.oneOf(Object.values(TIP_IMPORTANCE_LEVELS)),
+  icon: _propTypes2.default.string
+};
+
+Tip.propTypes = _extends({}, tipShape, {
+  fieldTitle: _propTypes2.default.string.isRequired,
+  id: _propTypes2.default.string.isRequired
+});
+
+Tip.defaultProps = {
+  importance: TIP_IMPORTANCE_LEVELS.NORMAL,
+  icon: 'lamp'
+};
+
+exports.default = Tip;
+
+/***/ }),
+
 /***/ "./client/src/boot/entwineLoader.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _jquery = __webpack_require__(3);
+var _jquery = __webpack_require__(6);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
@@ -238,11 +383,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = function (_ref) {
   var title = _ref.title;
 
-  var ref = (0, _react.useRef)();
+  var dialog = (0, _react.useRef)();
   var editor = (0, _slateReact.useSlate)();
   var inFocus = (0, _slateReact.useFocused)();
   (0, _react.useEffect)(function () {
-    var menuElement = ref.current;
+    var menuElement = dialog.current;
     var selection = editor.selection;
 
 
@@ -269,7 +414,7 @@ exports.default = function (_ref) {
       'button',
       {
         onClick: function onClick() {
-          return ref.current.showModal();
+          return dialog.current.showModal();
         }
       },
       shortcodeInRange ? 'Edit' : 'Add'
@@ -281,7 +426,7 @@ exports.default = function (_ref) {
       'Remove'
     ),
     title,
-    _react2.default.createElement(_ShortcodeEditor2.default, { ref: ref })
+    _react2.default.createElement(_ShortcodeEditor2.default, { ref: dialog })
   );
 };
 
@@ -296,6 +441,7 @@ exports.default = function (_ref) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.RichInput = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -327,6 +473,12 @@ var _withShortcodes = __webpack_require__("./client/src/lib/withShortcodes.js");
 
 var _withShortcodes2 = _interopRequireDefault(_withShortcodes);
 
+var _reactstrap = __webpack_require__(3);
+
+var _Tip = __webpack_require__("../../silverstripe/admin/client/src/components/Tip/Tip.js");
+
+var _Tip2 = _interopRequireDefault(_Tip);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var makeLabelsFocusEditor = function makeLabelsFocusEditor(input, targetId) {
@@ -338,7 +490,7 @@ var makeLabelsFocusEditor = function makeLabelsFocusEditor(input, targetId) {
   });
 };
 
-exports.default = function (_ref) {
+var RichInput = exports.RichInput = function RichInput(_ref) {
   var linkedInput = _ref.linkedInput,
       validCodes = _ref.validCodes;
 
@@ -378,20 +530,37 @@ exports.default = function (_ref) {
   return _react2.default.createElement(
     _slateReact.Slate,
     { editor: editor, value: initialValue, onChange: storeValueForSubmit },
-    _react2.default.createElement(_InputMenu2.default, { title: 'shortcode' }),
-    _react2.default.createElement(_slateReact.Editable, {
-      id: editableElementId,
-      'aria-labelledby': linkedInput.labels[0].id,
-      tabIndex: '0',
-      className: 'form-control ' + classes,
-      readOnly: readOnly,
-      'aria-multiline': !readOnly && isMultiline || undefined,
-      'aria-disabled': linkedInput.disabled || undefined,
-      'aria-readonly': linkedInput.readonly || undefined,
-      onKeyDown: keyHandler,
-      renderElement: (0, _react.useCallback)(_Element2.default)
-    })
+    _react2.default.createElement(
+      _reactstrap.InputGroup,
+      null,
+      _react2.default.createElement(
+        _reactstrap.InputGroupAddon,
+        { addonType: 'prepend' },
+        _react2.default.createElement(_InputMenu2.default, { title: 'shortcode' })
+      ),
+      _react2.default.createElement(_slateReact.Editable, {
+        id: editableElementId,
+        'aria-labelledby': linkedInput.labels[0].id,
+        tabIndex: '0',
+        className: 'form-control ' + classes,
+        readOnly: readOnly,
+        'aria-multiline': !readOnly && isMultiline || undefined,
+        'aria-disabled': linkedInput.disabled || undefined,
+        'aria-readonly': linkedInput.readonly || undefined,
+        onKeyDown: keyHandler,
+        renderElement: (0, _react.useCallback)(_Element2.default)
+      }),
+      _react2.default.createElement(
+        _reactstrap.InputGroupAddon,
+        { addonType: 'append' },
+        _react2.default.createElement(_Tip2.default, { id: editableElementId + '__help', type: 'input-group', content: 'Press Alt+M to enter shortcode' })
+      )
+    )
   );
+};
+
+exports.default = function (props) {
+  return _react2.default.createElement(RichInput, props);
 };
 
 /***/ }),
@@ -412,7 +581,8 @@ var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = (0, _react.forwardRef)(function (props, ref) {
+exports.default = (0, _react.forwardRef)(function (_ref, ref) {
+  var isEditing = _ref.isEditing;
   return _react2.default.createElement(
     "dialog",
     { ref: ref },
@@ -431,10 +601,15 @@ exports.default = (0, _react.forwardRef)(function (props, ref) {
           "option",
           { value: "invalid" },
           "Not actually a shortcode"
+        ),
+        _react2.default.createElement(
+          "option",
+          { value: "third" },
+          "Three"
         )
       ),
       _react2.default.createElement("input", { type: "submit", value: "apply" }),
-      _react2.default.createElement("input", { type: "submit", value: "remove" })
+      isEditing && _react2.default.createElement("input", { type: "submit", value: "remove" })
     )
   );
 });
@@ -14806,6 +14981,27 @@ module.exports = ReactDom;
 /***/ }),
 
 /***/ 3:
+/***/ (function(module, exports) {
+
+module.exports = Reactstrap;
+
+/***/ }),
+
+/***/ 4:
+/***/ (function(module, exports) {
+
+module.exports = PropTypes;
+
+/***/ }),
+
+/***/ 5:
+/***/ (function(module, exports) {
+
+module.exports = i18n;
+
+/***/ }),
+
+/***/ 6:
 /***/ (function(module, exports) {
 
 module.exports = jQuery;

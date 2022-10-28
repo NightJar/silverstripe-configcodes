@@ -5,11 +5,11 @@ import { useFocused, useSlate } from 'slate-react';
 import ShortcodeEditor from './ShortcodeEditor';
 
 export default ({ title }) => {
-  const ref = useRef();
+  const dialog = useRef();
   const editor = useSlate();
   const inFocus = useFocused();
   useEffect(() => {
-    const menuElement = ref.current;
+    const menuElement = dialog.current;
     const { selection } = editor;
 
     if (
@@ -35,14 +35,14 @@ export default ({ title }) => {
       tabIndex="-1"
     >
       <button
-        onClick={() => ref.current.showModal()}
+        onClick={() => dialog.current.showModal()}
       >
         {shortcodeInRange ? 'Edit' : 'Add'}
       </button>
       {shortcodeInRange && 'or'}
       {shortcodeInRange && <button>Remove</button>}
       {title}
-      <ShortcodeEditor ref={ref} />
+      <ShortcodeEditor ref={dialog} />
     </div>
   );
 };

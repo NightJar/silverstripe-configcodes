@@ -8,6 +8,8 @@ import InputMenu from 'components/InputMenu';
 import Element from 'components/Element';
 import detectKeyboardShortcut, { cloneKeyboardEvent } from 'lib/keyboard';
 import withShortcodes from 'lib/withShortcodes';
+import { InputGroup, InputGroupAddon } from 'reactstrap';
+import Tip from 'admin/components/Tip/Tip';
 
 const makeLabelsFocusEditor = (input, targetId) => {
   input.labels.forEach((label) => label.addEventListener('click', (event) => {
@@ -16,7 +18,7 @@ const makeLabelsFocusEditor = (input, targetId) => {
   }));
 };
 
-export default ({ linkedInput, validCodes }) => {
+export const RichInput = ({ linkedInput, validCodes }) => {
   const [editor] = useState(() => withReact(withHistory(withShortcodes(createEditor()))));
   // Unmentioned constraints on the slate document tree (via documentation) as at 2022-10-21:
   // - Editor node MUST have Element children only.
@@ -58,19 +60,30 @@ export default ({ linkedInput, validCodes }) => {
     .reduce((classnames, modifier) => `${classnames} ${block}--${modifier}`, block);
   return (
     <Slate editor={editor} value={initialValue} onChange={storeValueForSubmit}>
-      <InputMenu title="shortcode" />
-      <Editable
-        id={editableElementId}
-        aria-labelledby={linkedInput.labels[0].id}
-        tabIndex="0"
-        className={`form-control ${classes}`}
-        readOnly={readOnly}
-        aria-multiline={(!readOnly && isMultiline) || undefined}
-        aria-disabled={linkedInput.disabled || undefined}
-        aria-readonly={linkedInput.readonly || undefined}
-        onKeyDown={keyHandler}
-        renderElement={useCallback(Element)}
-      />
+      <InputGroup>
+        <InputGroupAddon addonType="prepend">
+          <InputMenu title="shortcode" />
+        </InputGroupAddon>
+        <Editable
+          id={editableElementId}
+          aria-labelledby={linkedInput.labels[0].id}
+          tabIndex="0"
+          className={`form-control ${classes}`}
+          readOnly={readOnly}
+          aria-multiline={(!readOnly && isMultiline) || undefined}
+          aria-disabled={linkedInput.disabled || undefined}
+          aria-readonly={linkedInput.readonly || undefined}
+          onKeyDown={keyHandler}
+          renderElement={useCallback(Element)}
+        />
+        <InputGroupAddon addonType="append">
+          <Tip id={`${editableElementId}__help`} type="input-group" content="Press Alt+M to enter shortcode" />
+        </InputGroupAddon>
+      </InputGroup>
     </Slate>
   );
 };
+
+export default (props) => (
+  <RichInput {...props} />
+);
