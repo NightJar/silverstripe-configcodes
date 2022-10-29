@@ -1,0 +1,70 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/home/me/.nvm/versions/node/v0.12.18/bin/node',
+1 verbose cli   '/home/me/.nvm/versions/node/v0.12.18/bin/npm',
+1 verbose cli   'view',
+1 verbose cli   '--json',
+1 verbose cli   'silverstripe-admin',
+1 verbose cli   'description',
+1 verbose cli   'dist-tags.latest',
+1 verbose cli   'homepage',
+1 verbose cli   'version' ]
+2 info using npm@2.15.11
+3 info using node@v0.12.18
+4 silly mapToRegistry name silverstripe-admin
+5 silly mapToRegistry using default registry
+6 silly mapToRegistry registry https://registry.npmjs.org/
+7 silly mapToRegistry data { raw: 'silverstripe-admin',
+7 silly mapToRegistry   scope: null,
+7 silly mapToRegistry   name: 'silverstripe-admin',
+7 silly mapToRegistry   rawSpec: '',
+7 silly mapToRegistry   spec: 'latest',
+7 silly mapToRegistry   type: 'tag' }
+8 silly mapToRegistry uri https://registry.npmjs.org/silverstripe-admin
+9 verbose request uri https://registry.npmjs.org/silverstripe-admin
+10 verbose request no auth needed
+11 info attempt registry request try #1 at 12:39:00 PM
+12 verbose request id 02708b15938f406e
+13 http request GET https://registry.npmjs.org/silverstripe-admin
+14 http 404 https://registry.npmjs.org/silverstripe-admin
+15 verbose headers { date: 'Sat, 29 Oct 2022 23:39:01 GMT',
+15 verbose headers   'content-type': 'application/json',
+15 verbose headers   'content-length': '21',
+15 verbose headers   connection: 'keep-alive',
+15 verbose headers   'cf-ray': '761fbf806ed0dfbd-SYD',
+15 verbose headers   vary: 'Accept-Encoding',
+15 verbose headers   server: 'cloudflare' }
+16 silly get cb [ 404,
+16 silly get   { date: 'Sat, 29 Oct 2022 23:39:01 GMT',
+16 silly get     'content-type': 'application/json',
+16 silly get     'content-length': '21',
+16 silly get     connection: 'keep-alive',
+16 silly get     'cf-ray': '761fbf806ed0dfbd-SYD',
+16 silly get     vary: 'Accept-Encoding',
+16 silly get     server: 'cloudflare' } ]
+17 verbose stack Error: Not found : silverstripe-admin
+17 verbose stack     at makeError (/home/me/.nvm/versions/node/v0.12.18/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+17 verbose stack     at CachingRegistryClient.<anonymous> (/home/me/.nvm/versions/node/v0.12.18/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:290:14)
+17 verbose stack     at Request._callback (/home/me/.nvm/versions/node/v0.12.18/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+17 verbose stack     at Request.self.callback (/home/me/.nvm/versions/node/v0.12.18/lib/node_modules/npm/node_modules/request/request.js:187:22)
+17 verbose stack     at Request.emit (events.js:110:17)
+17 verbose stack     at Request.<anonymous> (/home/me/.nvm/versions/node/v0.12.18/lib/node_modules/npm/node_modules/request/request.js:1044:10)
+17 verbose stack     at Request.emit (events.js:107:17)
+17 verbose stack     at IncomingMessage.<anonymous> (/home/me/.nvm/versions/node/v0.12.18/lib/node_modules/npm/node_modules/request/request.js:965:12)
+17 verbose stack     at IncomingMessage.emit (events.js:129:20)
+17 verbose stack     at _stream_readable.js:908:16
+18 verbose statusCode 404
+19 verbose pkgid silverstripe-admin
+20 verbose cwd /var/www/nzta1/vendor/nightjar/silverstripe-configcodes
+21 error Linux 4.19.0-20-amd64
+22 error argv "/home/me/.nvm/versions/node/v0.12.18/bin/node" "/home/me/.nvm/versions/node/v0.12.18/bin/npm" "view" "--json" "silverstripe-admin" "description" "dist-tags.latest" "homepage" "version"
+23 error node v0.12.18
+24 error npm  v2.15.11
+25 error code E404
+26 error 404 Not found : silverstripe-admin
+26 error 404
+26 error 404 'silverstripe-admin' is not in the npm registry.
+26 error 404 You should bug the author to publish it (or use the name yourself!)
+26 error 404
+26 error 404 Note that you can also install from a
+26 error 404 tarball, folder, http url, or git url.
+27 verbose exit [ 1, true ]

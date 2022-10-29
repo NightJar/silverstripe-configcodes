@@ -1,23 +1,17 @@
 {
   "name": "silverstripe-semirich-text-shortcode-editor",
   "description": "Like a text field, but with some rich text type functions specifically for managing shortcodes",
-  "main": "./client/src/boot/index.js",
+  "source": "client/src/boot/index.js",
+  "module": "client/dist/bundle.js",
   "author": "Dylan Wagstaff",
   "engines": {
-    "node": ">=10.x"
+    "node": ">=16"
   },
   "scripts": {
-    "build": "yarn && yarn lint && NODE_ENV=production webpack -p --bail --progress",
-    "dev": "NODE_ENV=development webpack --progress",
-    "watch": "NODE_ENV=development webpack --watch --progress",
-    "css": "WEBPACK_CHILD=css npm run build",
-    "test": "jest",
-    "coverage": "jest --coverage",
-    "lock": "npm-shrinkwrap --dev",
-    "lint": "eslint client/src && sass-lint client/src",
-    "lint-js": "eslint client/src",
-    "lint-js-fix": "eslint client/src --fix",
-    "lint-sass": "sass-lint client/src"
+    "build": "parcel build",
+    "dev": "parcel",
+    "watch": "parcel watch",
+    "lint": "eslint client/src && sass-lint client/src"
   },
   "dependencies": {
     "@bbob/parser": "^2.8.1",
@@ -32,23 +26,19 @@
   "peerDependencies": {
     "silverstripe-admin": "^4.0.0"
   },
+  "peerDependenciesMeta": {
+    "silverstripe-admin": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@silverstripe/eslint-config": "^0.0.5",
-    "@silverstripe/webpack-config": "^1.0.0",
-    "babel-jest": "^23.6.0",
-    "enzyme": "^3.3.0",
-    "enzyme-adapter-react-16": "^1.10.0",
-    "jest-cli": "^23.6.0"
+    "parcel": "^2.7.0",
+    "parcel-plugin-externals": "^0.5.2"
   },
-  "babel": {
-    "presets": [
-      "env",
-      "react"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ]
-  },
+  "externals": [
+    "jquery => jQuery"
+  ],
   "jest": {
     "roots": [
       "client/src"
@@ -61,22 +51,6 @@
       "../silverstripe/admin/node_modules",
       "../../silverstripe/admin/client/src",
       "../../silverstripe/admin/node_modules"
-    ],
-    "collectCoverageFrom": [
-      "**/*.{js,jsx}",
-      "!**/node_modules/**",
-      "!**/boot/**",
-      "!**/bundles/**",
-      "!**/legacy/**",
-      "!**/vendor/**",
-      "!**/*-test.{js,jsx}",
-      "!**/*-story.{js,jsx}"
-    ],
-    "testMatch": [
-      "**/tests/**/*-test.js?(x)"
-    ],
-    "transform": {
-      ".*": "babel-jest"
-    }
+    ]
   }
 }

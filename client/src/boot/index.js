@@ -1,2 +1,2 @@
-require('boot/entwineLoader');
-require('boot/reactLoader');
+require('./entwineLoader');
+require('./reactLoader');
