@@ -3,13 +3,13 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
-import { toStorableString, toSlateNodeTree } from 'lib/shortcodeSerialiser';
-import InputMenu from 'components/InputMenu';
-import Element from 'components/Element';
-import detectKeyboardShortcut, { cloneKeyboardEvent } from 'lib/keyboard';
-import withShortcodes from 'lib/withShortcodes';
+import { toStorableString, toSlateNodeTree } from 'lib/shortcodeSerialiser.js';
+import InputMenu from 'components/InputMenu.jsx';
+import Element from 'components/Element.jsx';
+import detectKeyboardShortcut, { cloneKeyboardEvent } from 'lib/keyboard.js';
+import withShortcodes from 'lib/withShortcodes.js';
 import { InputGroup, InputGroupAddon } from 'reactstrap';
-import Tip from 'admin/components/Tip/Tip';
+import Tip from 'admin/components/Tip/Tip.js';
 
 const makeLabelsFocusEditor = (input, targetId) => {
   input.labels.forEach((label) => label.addEventListener('click', (event) => {

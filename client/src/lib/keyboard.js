@@ -1,5 +1,5 @@
 import isHotKey from 'is-hotkey';
-import openShortcodeEditor from 'lib/shortcodeTransforms';
+import openShortcodeEditor from 'lib/shortcodeTransforms.js';
 
 const isShortcodeHotkey = isHotKey('alt+m');
 

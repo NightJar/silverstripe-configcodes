@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Editor, Range } from 'slate';
 import { useFocused, useSlate } from 'slate-react';
-import ShortcodeEditor from './ShortcodeEditor';
+import ShortcodeEditor from './ShortcodeEditor.jsx';
 
 export default ({ title }) => {
   const dialog = useRef();

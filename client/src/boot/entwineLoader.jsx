@@ -2,9 +2,9 @@
 import jQuery from 'jquery';
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
-import { loadComponent } from 'lib/Injector';
+import { loadComponent } from 'admin/lib/Injector.js';
 
-jQuery.entwine('ss', ($) => {
+export default () => jQuery.entwine('ss', ($) => {
   $('.js-injector-boot input.extrashortcodes').entwine({
     onmatch() {
       const renderRoot = document.createElement('div');
