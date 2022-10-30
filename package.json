@@ -7,21 +7,13 @@
     "node": ">=10.x"
   },
   "scripts": {
-    "build": "yarn && yarn lint && NODE_ENV=production webpack -p --bail --progress",
-    "dev": "NODE_ENV=development webpack --progress",
-    "watch": "NODE_ENV=development webpack --watch --progress",
-    "css": "WEBPACK_CHILD=css npm run build",
-    "test": "jest",
-    "coverage": "jest --coverage",
-    "lock": "npm-shrinkwrap --dev",
-    "lint": "eslint client/src && sass-lint client/src",
-    "lint-js": "eslint client/src",
-    "lint-js-fix": "eslint client/src --fix",
-    "lint-sass": "sass-lint client/src"
+    "build": "rollup -c",
+    "dev": "rollup -m -c",
+    "watch": "rollup -wc",
+    "lint": "eslint client/src && sass-lint client/src"
   },
   "dependencies": {
     "@bbob/parser": "^2.8.1",
-    "babel-polyfill": "6.7.4",
     "is-hotkey": "^0.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -32,22 +24,21 @@
   "peerDependencies": {
     "silverstripe-admin": "^4.0.0"
   },
-  "devDependencies": {
-    "@silverstripe/eslint-config": "^0.0.5",
-    "@silverstripe/webpack-config": "^1.0.0",
-    "babel-jest": "^23.6.0",
-    "enzyme": "^3.3.0",
-    "enzyme-adapter-react-16": "^1.10.0",
-    "jest-cli": "^23.6.0"
+  "peerDependenciesMeta": {
+    "silverstripe-admin": {
+      "optional": true
+    }
   },
-  "babel": {
-    "presets": [
-      "env",
-      "react"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ]
+  "devDependencies": {
+    "@babel/preset-react": "^7.18.6",
+    "@rollup/plugin-babel": "^6.0.2",
+    "@rollup/plugin-commonjs": "^23.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@silverstripe/eslint-config": "^0.0.5",
+    "rollup": "^3.2.3",
+    "rollup-plugin-sass": "^1.12.16",
+    "rollup-plugin-scss": "^3.0.0",
+    "sass": "^1.56.0"
   },
   "jest": {
     "roots": [
@@ -61,22 +52,6 @@
       "../silverstripe/admin/node_modules",
       "../../silverstripe/admin/client/src",
       "../../silverstripe/admin/node_modules"
-    ],
-    "collectCoverageFrom": [
-      "**/*.{js,jsx}",
-      "!**/node_modules/**",
-      "!**/boot/**",
-      "!**/bundles/**",
-      "!**/legacy/**",
-      "!**/vendor/**",
-      "!**/*-test.{js,jsx}",
-      "!**/*-story.{js,jsx}"
-    ],
-    "testMatch": [
-      "**/tests/**/*-test.js?(x)"
-    ],
-    "transform": {
-      ".*": "babel-jest"
-    }
+    ]
   }
 }

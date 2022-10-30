@@ -1,9 +1,8 @@
 /* global window */
-
 import registerComponents from 'boot/injector/registerComponents';
 import registerTransforms from 'boot/injector/registerTransforms';
 
-window.document.addEventListener('DOMContentLoaded', () => {
+export default () => window.document.addEventListener('DOMContentLoaded', () => {
   registerComponents();
   registerTransforms();
 });

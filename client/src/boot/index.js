@@ -1,2 +1,5 @@
-require('boot/entwineLoader');
-require('boot/reactLoader');
+import registerEntwineHook from 'boot/entwineLoader';
+import registerReactComponentsWithInjector from 'boot/reactLoader';
+
+registerReactComponentsWithInjector();
+registerEntwineHook();
