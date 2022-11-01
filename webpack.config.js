@@ -25,6 +25,8 @@ jsResolveConfig.alias = {
   admin: PATHS.ADMIN,
 };
 
+const jsExternals = { ...externalJS(ENV, PATHS), 'admin/components/Tip/Tip': 'Tip' }
+
 const config = [
   {
     name: 'js',
@@ -37,7 +39,7 @@ const config = [
     },
     devtool: (ENV !== 'production') ? 'source-map' : '',
     resolve: jsResolveConfig,
-    externals: externalJS(ENV, PATHS),
+    externals: jsExternals,
     module: moduleJS(ENV, PATHS),
     plugins: pluginJS(ENV, PATHS),
   },
