@@ -48,6 +48,15 @@
     &::-webkit-scrollbar {
       display: none;
     }
+
+    & + .input-group-append {
+      .btn-toolbar {
+        margin: 0;
+      }
+      .btn-group {
+        margin-right: 0;
+      }
+    }
   }
 
   &--disabled.form-control,

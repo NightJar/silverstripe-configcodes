@@ -68,7 +68,7 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "../../silverstripe/admin/client/src/components/Tip/Tip.js":
+/***/ "../../silverstripe/admin/client/src/components/Button/Button.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -77,139 +77,109 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.tipShape = exports.TIP_IMPORTANCE_LEVELS = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _tipImportanceMap;
 
 var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _propTypes = __webpack_require__(4);
+var _reactstrap = __webpack_require__(4);
+
+var _propTypes = __webpack_require__(2);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _reactstrap = __webpack_require__(3);
+var _classnames = __webpack_require__(5);
 
-var _i18n = __webpack_require__(5);
+var _classnames2 = _interopRequireDefault(_classnames);
 
-var _i18n2 = _interopRequireDefault(_i18n);
+var _IconHOC = __webpack_require__("../../silverstripe/admin/client/src/components/Button/IconHOC.js");
+
+var _IconHOC2 = _interopRequireDefault(_IconHOC);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+var Button = function Button(_ref) {
+  var className = _ref.className,
+      noText = _ref.noText,
+      children = _ref.children,
+      props = _objectWithoutProperties(_ref, ['className', 'noText', 'children']);
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-var TIP_IMPORTANCE_LEVELS = exports.TIP_IMPORTANCE_LEVELS = {
-  NORMAL: 'normal',
-  HIGH: 'high'
+  return _react2.default.createElement(
+    _reactstrap.Button,
+    _extends({
+      className: (0, _classnames2.default)(className, { 'btn--no-text': noText }),
+      'aria-label': noText ? children : undefined
+    }, props),
+    noText ? undefined : children
+  );
 };
 
-var tipImportanceMap = (_tipImportanceMap = {}, _defineProperty(_tipImportanceMap, TIP_IMPORTANCE_LEVELS.NORMAL, {
-  iconColor: 'muted',
-  type: _i18n2.default._t('Admin.NORMAL_TIP', 'Tip')
-}), _defineProperty(_tipImportanceMap, TIP_IMPORTANCE_LEVELS.HIGH, {
-  iconColor: 'danger',
-  type: _i18n2.default._t('Admin.IMPORTANT_TIP', 'Important tip')
-}), _tipImportanceMap);
-
-var Tip = function (_Component) {
-  _inherits(Tip, _Component);
-
-  function Tip(props) {
-    _classCallCheck(this, Tip);
-
-    var _this = _possibleConstructorReturn(this, (Tip.__proto__ || Object.getPrototypeOf(Tip)).call(this, props));
-
-    _this.state = {
-      open: false
-    };
-
-    _this.handleTipToggle = _this.handleTipToggle.bind(_this);
-    return _this;
-  }
-
-  _createClass(Tip, [{
-    key: 'handleTipToggle',
-    value: function handleTipToggle() {
-      this.setState(function (state) {
-        return { open: !state.open };
-      });
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var _props = this.props,
-          content = _props.content,
-          fieldTitle = _props.fieldTitle,
-          icon = _props.icon,
-          id = _props.id,
-          importance = _props.importance;
-      var open = this.state.open;
-      var _tipImportanceMap$imp = tipImportanceMap[importance],
-          iconColor = _tipImportanceMap$imp.iconColor,
-          type = _tipImportanceMap$imp.type;
-
-
-      var label = _i18n2.default.inject(_i18n2.default._t('Admin.TIP_LABEL', '{type} for {fieldTitle}'), {
-        type: type,
-        fieldTitle: fieldTitle
-      });
-
-      return [_react2.default.createElement(_reactstrap.Button, {
-        key: id + '-tip-button',
-        color: 'outline-secondary',
-        id: id + '-tip',
-        onClick: this.handleTipToggle,
-        className: 'btn--no-text btn--last font-icon-' + icon + ' text-' + iconColor,
-        'aria-label': label,
-        'aria-expanded': open
-      }), _react2.default.createElement(
-        _reactstrap.Popover,
-        {
-          key: id + '-tip-popover',
-          target: id + '-tip',
-          placement: 'top-end',
-          isOpen: open
-        },
-        _react2.default.createElement(
-          _reactstrap.PopoverBody,
-          { 'aria-live': 'assertive', 'aria-relevant': 'additions' },
-          content
-        )
-      )];
-    }
-  }]);
-
-  return Tip;
-}(_react.Component);
-
-var tipShape = exports.tipShape = {
-  content: _propTypes2.default.string.isRequired,
-  importance: _propTypes2.default.oneOf(Object.values(TIP_IMPORTANCE_LEVELS)),
-  icon: _propTypes2.default.string
-};
-
-Tip.propTypes = _extends({}, tipShape, {
-  fieldTitle: _propTypes2.default.string.isRequired,
-  id: _propTypes2.default.string.isRequired
+Button.propTypes = _extends({}, _reactstrap.Button.propTypes, {
+  noText: _propTypes2.default.bool
 });
 
-Tip.defaultProps = {
-  importance: TIP_IMPORTANCE_LEVELS.NORMAL,
-  icon: 'lamp'
+Button.defaultProps = _extends({}, _reactstrap.Button.defaultProps, {
+  noText: false
+});
+
+exports.default = (0, _IconHOC2.default)(Button);
+
+/***/ }),
+
+/***/ "../../silverstripe/admin/client/src/components/Button/IconHOC.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(2);
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _classnames = __webpack_require__(5);
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+var IconHOC = function IconHOC(Component) {
+  var IconComponent = function IconComponent(_ref) {
+    var icon = _ref.icon,
+        className = _ref.className,
+        props = _objectWithoutProperties(_ref, ['icon', 'className']);
+
+    return _react2.default.createElement(Component, _extends({
+      className: (0, _classnames2.default)(className, icon && 'font-icon-' + icon)
+    }, props));
+  };
+
+  IconComponent.propTypes = _extends({}, Component.propTypes, {
+    icon: _propTypes2.default.string
+  });
+
+  IconComponent.defaultProps = Component.defaultProps;
+  IconComponent.displayName = Component.name;
+
+  return IconComponent;
 };
 
-exports.default = Tip;
+exports.default = IconHOC;
 
 /***/ }),
 
@@ -219,7 +189,7 @@ exports.default = Tip;
 "use strict";
 
 
-var _jquery = __webpack_require__(6);
+var _jquery = __webpack_require__(7);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
@@ -227,7 +197,7 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(2);
+var _reactDom = __webpack_require__(3);
 
 var _Injector = __webpack_require__(1);
 
@@ -473,11 +443,15 @@ var _withShortcodes = __webpack_require__("./client/src/lib/withShortcodes.js");
 
 var _withShortcodes2 = _interopRequireDefault(_withShortcodes);
 
-var _reactstrap = __webpack_require__(3);
+var _reactstrap = __webpack_require__(4);
 
-var _Tip = __webpack_require__("../../silverstripe/admin/client/src/components/Tip/Tip.js");
+var _Tip = __webpack_require__(6);
 
 var _Tip2 = _interopRequireDefault(_Tip);
+
+var _Button = __webpack_require__("../../silverstripe/admin/client/src/components/Button/Button.js");
+
+var _Button2 = _interopRequireDefault(_Button);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -527,17 +501,18 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
   }).reduce(function (classnames, modifier) {
     return classnames + ' ' + block + '--' + modifier;
   }, block);
+
+  var _useState3 = (0, _react.useState)(_slateReact.ReactEditor.isFocused(editor)),
+      _useState4 = _slicedToArray(_useState3, 2),
+      toolbarActive = _useState4[0],
+      activateToolbar = _useState4[1];
+
   return _react2.default.createElement(
     _slateReact.Slate,
     { editor: editor, value: initialValue, onChange: storeValueForSubmit },
     _react2.default.createElement(
       _reactstrap.InputGroup,
       null,
-      _react2.default.createElement(
-        _reactstrap.InputGroupAddon,
-        { addonType: 'prepend' },
-        _react2.default.createElement(_InputMenu2.default, { title: 'shortcode' })
-      ),
       _react2.default.createElement(_slateReact.Editable, {
         id: editableElementId,
         'aria-labelledby': linkedInput.labels[0].id,
@@ -548,12 +523,40 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
         'aria-disabled': linkedInput.disabled || undefined,
         'aria-readonly': linkedInput.readonly || undefined,
         onKeyDown: keyHandler,
-        renderElement: (0, _react.useCallback)(_Element2.default)
+        renderElement: (0, _react.useCallback)(_Element2.default),
+        onFocus: function onFocus() {
+          return activateToolbar(true);
+        },
+        onBlur: function onBlur() {
+          return activateToolbar(false);
+        }
       }),
       _react2.default.createElement(
         _reactstrap.InputGroupAddon,
         { addonType: 'append' },
-        _react2.default.createElement(_Tip2.default, { id: editableElementId + '__help', type: 'input-group', content: 'Press Alt+M to enter shortcode' })
+        _react2.default.createElement(
+          _reactstrap.ButtonToolbar,
+          null,
+          _react2.default.createElement(
+            _reactstrap.ButtonGroup,
+            null,
+            _react2.default.createElement(
+              _Button2.default,
+              { icon: 'edit-write', noText: true, outline: true },
+              'Add or edit shortcode'
+            ),
+            _react2.default.createElement(
+              _Button2.default,
+              { icon: 'block', noText: true, outline: true, disabled: toolbarActive && editor.hasShortcode() },
+              'Remove'
+            ),
+            _react2.default.createElement(_Tip2.default, {
+              id: editableElementId + '__help',
+              type: undefined && _Tip.TIP_TYPES.TITLE,
+              content: 'Press Alt+M to enter shortcode'
+            })
+          )
+        )
       )
     )
   );
@@ -3558,7 +3561,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_slate__ = __webpack_require__("./node_modules/slate/dist/index.es.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey__ = __webpack_require__("./node_modules/slate-react/node_modules/is-hotkey/lib/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_is_hotkey__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_react_dom__);
 
 
@@ -14976,32 +14979,39 @@ module.exports = Injector;
 /***/ 2:
 /***/ (function(module, exports) {
 
-module.exports = ReactDom;
+module.exports = PropTypes;
 
 /***/ }),
 
 /***/ 3:
 /***/ (function(module, exports) {
 
-module.exports = Reactstrap;
+module.exports = ReactDom;
 
 /***/ }),
 
 /***/ 4:
 /***/ (function(module, exports) {
 
-module.exports = PropTypes;
+module.exports = Reactstrap;
 
 /***/ }),
 
 /***/ 5:
 /***/ (function(module, exports) {
 
-module.exports = i18n;
+module.exports = classnames;
 
 /***/ }),
 
 /***/ 6:
+/***/ (function(module, exports) {
+
+module.exports = Tip;
+
+/***/ }),
+
+/***/ 7:
 /***/ (function(module, exports) {
 
 module.exports = jQuery;
