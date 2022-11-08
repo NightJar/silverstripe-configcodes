@@ -31,9 +31,9 @@ class DataObjectPropertyDisplay implements Handler
         ];
     }
 
-    public static function getRequiresContent(): bool
+    public static function getRequiresContent(): ?bool
     {
-        return false;
+        return null;
     }
 
     public function process(array $arguments = [], ?string $content = null): ?string

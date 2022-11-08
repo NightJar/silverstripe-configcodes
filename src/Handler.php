@@ -17,9 +17,9 @@ interface Handler
     /**
      * Whether or not this handler relies on content being set
      *
-     * @return bool
+     * @return bool|null null if the code does not accept content
      */
-    public static function getRequiresContent(): bool;
+    public static function getRequiresContent(): ?bool;
 
     /**
      * Process a shortcode someone has embedded into content

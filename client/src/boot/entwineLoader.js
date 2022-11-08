@@ -1,6 +1,5 @@
 /* global document */
 import jQuery from 'jquery';
-import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import { loadComponent } from 'lib/Injector';
 

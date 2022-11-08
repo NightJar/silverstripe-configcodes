@@ -8,7 +8,7 @@ use SilverStripe\View\Parsers\ShortcodeParser;
 
 class HandlerBroker implements ShortcodeHandler
 {
-    protected static function get_registry(): Registry
+    public static function get_registry(): Registry
     {
         return Injector::inst()->get(Registry::class);
     }

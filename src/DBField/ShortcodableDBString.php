@@ -47,7 +47,7 @@ trait ShortcodableDBString
         return $this;
     }
 
-    public function getParserName(): string
+    public function getParserName(): ?string
     {
         return $this->parserName;
     }

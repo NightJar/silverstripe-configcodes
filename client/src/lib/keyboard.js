@@ -14,15 +14,15 @@ export default (editor) => {
 
 export const cloneKeyboardEvent = ({
   type,
-  // Event
+  // Event:
   bubbles,
   cancelable,
   composed,
-  // UIEvent
+  // UIEvent:
   detail,
   view,
   sourceCapabiliites,
-  // KeyboardEvent
+  // KeyboardEvent:
   key,
   code,
   location,

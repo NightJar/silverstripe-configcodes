@@ -9,7 +9,7 @@ Allow text fields to hold and process short codes.
 [x] hot key
 [x] focus indicator
 [x] recieve focus from label activation
-[ ] tool tip on how to use
+[x] tool tip on how to use
 [ ] interface for setting shortcode options (i.e. attributes)
 [ ] pass config through from data attribute
 [ ] un-hardcode `[maori]` shortcode

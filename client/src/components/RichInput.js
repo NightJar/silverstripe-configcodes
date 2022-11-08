@@ -1,16 +1,14 @@
 /* global document */
 import React, { useState, useMemo, useCallback } from 'react';
 import { createEditor } from 'slate';
-import { Slate, Editable, withReact, ReactEditor } from 'slate-react';
+import { Slate, Editable, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { toStorableString, toSlateNodeTree } from 'lib/shortcodeSerialiser';
-import InputMenu from 'components/InputMenu';
+import InputMenu from 'components/InputToolbar';
 import Element from 'components/Element';
 import detectKeyboardShortcut, { cloneKeyboardEvent } from 'lib/keyboard';
 import withShortcodes from 'lib/withShortcodes';
-import { ButtonGroup, ButtonToolbar, InputGroup, InputGroupAddon } from 'reactstrap';
-import Tip, { TIP_TYPES } from 'admin/components/Tip/Tip';
-import Button from 'admin/components/Button/Button';
+import { InputGroup, InputGroupAddon } from 'reactstrap';
 
 const makeLabelsFocusEditor = (input, targetId) => {
   input.labels.forEach((label) => label.addEventListener('click', (event) => {
@@ -59,7 +57,6 @@ export const RichInput = ({ linkedInput, validCodes }) => {
   const classes = ['disabled', 'readOnly']
     .filter((state) => linkedInput[state])
     .reduce((classnames, modifier) => `${classnames} ${block}--${modifier}`, block);
-  const [toolbarActive, activateToolbar] = useState(ReactEditor.isFocused(editor));
   return (
     <Slate editor={editor} value={initialValue} onChange={storeValueForSubmit}>
       <InputGroup>
@@ -74,25 +71,9 @@ export const RichInput = ({ linkedInput, validCodes }) => {
           aria-readonly={linkedInput.readonly || undefined}
           onKeyDown={keyHandler}
           renderElement={useCallback(Element)}
-          onFocus={() => activateToolbar(true)}
-          onBlur={() => activateToolbar(false)}
         />
         <InputGroupAddon addonType="append">
-          <ButtonToolbar>
-            <ButtonGroup>
-              <Button icon="edit-write" noText outline>
-                Add or edit shortcode
-              </Button>
-              <Button icon="block" noText outline disabled={toolbarActive && editor.hasShortcode()}>
-                Remove
-              </Button>
-              <Tip
-                id={`${editableElementId}__help`}
-                type={undefined && TIP_TYPES.TITLE}
-                content="Press Alt+M to enter shortcode"
-              />
-            </ButtonGroup>
-          </ButtonToolbar>
+          <InputMenu blockId={editableElementId}/>
         </InputGroupAddon>
       </InputGroup>
     </Slate>

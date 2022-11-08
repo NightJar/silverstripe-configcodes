@@ -40,7 +40,7 @@
 .shortcodable-input {
   &:not([aria-multiline]) {
     white-space: nowrap !important;
-    // overflow-x: scroll; // webkit bug? makes Y axis overlays get hidden with all settings here excepting 'visible' - the shortcode tag currently overlays the top border so figure out later.
+    overflow-x: scroll;
     overflow-y: visible;
     scrollbar-width: 0;
     -ms-overflow-style: none;

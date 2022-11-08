@@ -84,9 +84,9 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactstrap = __webpack_require__(4);
+var _reactstrap = __webpack_require__(1);
 
-var _propTypes = __webpack_require__(2);
+var _propTypes = __webpack_require__(3);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
@@ -146,7 +146,7 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _propTypes = __webpack_require__(2);
+var _propTypes = __webpack_require__(3);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
@@ -193,13 +193,9 @@ var _jquery = __webpack_require__(7);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var _react = __webpack_require__(0);
+var _reactDom = __webpack_require__(4);
 
-var _react2 = _interopRequireDefault(_react);
-
-var _reactDom = __webpack_require__(3);
-
-var _Injector = __webpack_require__(1);
+var _Injector = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -210,7 +206,7 @@ _jquery2.default.entwine('ss', function ($) {
       this[0].parentNode.insertBefore(renderRoot, this[0]);
       var ShortcodableTextField = (0, _Injector.loadComponent)('ShortcodableTextField');
       var props = { linkedInput: this[0], validCodes: ['maori'] };
-      (0, _reactDom.render)(_react2.default.createElement(ShortcodableTextField, props), renderRoot);
+      (0, _reactDom.render)(React.createElement(ShortcodableTextField, props), renderRoot);
     },
     onunmatch: function onunmatch() {
       (0, _reactDom.unmountComponentAtNode)(this[0].previousElementSibling);
@@ -241,7 +237,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Injector = __webpack_require__(1);
+var _Injector = __webpack_require__(2);
 
 var _Injector2 = _interopRequireDefault(_Injector);
 
@@ -326,7 +322,7 @@ exports.default = function (elementProps) {
 
 /***/ }),
 
-/***/ "./client/src/components/InputMenu.js":
+/***/ "./client/src/components/InputToolbar.js":
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -340,63 +336,72 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
-
 var _slateReact = __webpack_require__("./node_modules/slate-react/dist/index.es.js");
 
 var _ShortcodeEditor = __webpack_require__("./client/src/components/ShortcodeEditor.js");
 
 var _ShortcodeEditor2 = _interopRequireDefault(_ShortcodeEditor);
 
+var _reactstrap = __webpack_require__(1);
+
+var _Tip = __webpack_require__(6);
+
+var _Tip2 = _interopRequireDefault(_Tip);
+
+var _Button = __webpack_require__("../../silverstripe/admin/client/src/components/Button/Button.js");
+
+var _Button2 = _interopRequireDefault(_Button);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function (_ref) {
-  var title = _ref.title;
+  var editableElementId = _ref.blockId;
 
   var dialog = (0, _react.useRef)();
   var editor = (0, _slateReact.useSlate)();
-  var inFocus = (0, _slateReact.useFocused)();
-  (0, _react.useEffect)(function () {
-    var menuElement = dialog.current;
+  var isFocused = (0, _slateReact.useFocused)();
+  var openModal = function openModal(event) {
+    var menuDialog = dialog.current;
     var selection = editor.selection;
 
 
-    if (!menuElement || !selection || !inFocus || _slate.Range.isCollapsed(selection) || _slate.Editor.string(editor, selection) === '') {
-      if (menuElement) {
-        menuElement.removeAttribute('style');
-      }
+    if (menuDialog && selection && isFocused) {
+      menuDialog.showModal();
+    } else {
+      console.log(isFocused, selection, menuDialog);
     }
-  });
+  };
 
-  var shortcodeInRange = editor.hasShortcode();
+  var preventFocusSteal = function preventFocusSteal(event) {
+    return event.preventDefault();
+  };
+
+  var cursorInShortcode = editor.hasShortcode();
 
   return _react2.default.createElement(
-    'div',
-    {
-      role: 'toolbar',
-      onMouseDown: function onMouseDown(e) {
-        return e.preventDefault();
-      },
-      className: 'shortcodable-input__toolbar',
-      tabIndex: '-1'
-    },
+    _reactstrap.ButtonToolbar,
+    null,
     _react2.default.createElement(
-      'button',
-      {
-        onClick: function onClick() {
-          return dialog.current.showModal();
-        }
-      },
-      shortcodeInRange ? 'Edit' : 'Add'
-    ),
-    shortcodeInRange && 'or',
-    shortcodeInRange && _react2.default.createElement(
-      'button',
+      _reactstrap.ButtonGroup,
       null,
-      'Remove'
+      _react2.default.createElement(
+        _Button2.default,
+        { icon: cursorInShortcode ? 'edit' : 'edit-write', noText: true, outline: true, disabled: !isFocused, onMouseDown: preventFocusSteal, onClick: openModal },
+        cursorInShortcode ? 'Edit' : 'Add',
+        ' shortcode'
+      ),
+      _react2.default.createElement(
+        _Button2.default,
+        { icon: 'block', noText: true, outline: true, disabled: !(isFocused && cursorInShortcode), onMouseDown: preventFocusSteal },
+        'Remove shortcode'
+      ),
+      _react2.default.createElement(_Tip2.default, {
+        id: editableElementId + '__help',
+        content: 'Press Alt+M to enter shortcode',
+        icon: 'white-question'
+      })
     ),
-    title,
-    _react2.default.createElement(_ShortcodeEditor2.default, { ref: dialog })
+    _react2.default.createElement(_ShortcodeEditor2.default, { isEditing: cursorInShortcode, ref: dialog })
   );
 };
 
@@ -427,9 +432,9 @@ var _slateHistory = __webpack_require__("./node_modules/slate-history/dist/index
 
 var _shortcodeSerialiser = __webpack_require__("./client/src/lib/shortcodeSerialiser.js");
 
-var _InputMenu = __webpack_require__("./client/src/components/InputMenu.js");
+var _InputToolbar = __webpack_require__("./client/src/components/InputToolbar.js");
 
-var _InputMenu2 = _interopRequireDefault(_InputMenu);
+var _InputToolbar2 = _interopRequireDefault(_InputToolbar);
 
 var _Element = __webpack_require__("./client/src/components/Element.js");
 
@@ -443,15 +448,7 @@ var _withShortcodes = __webpack_require__("./client/src/lib/withShortcodes.js");
 
 var _withShortcodes2 = _interopRequireDefault(_withShortcodes);
 
-var _reactstrap = __webpack_require__(4);
-
-var _Tip = __webpack_require__(6);
-
-var _Tip2 = _interopRequireDefault(_Tip);
-
-var _Button = __webpack_require__("../../silverstripe/admin/client/src/components/Button/Button.js");
-
-var _Button2 = _interopRequireDefault(_Button);
+var _reactstrap = __webpack_require__(1);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -501,12 +498,6 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
   }).reduce(function (classnames, modifier) {
     return classnames + ' ' + block + '--' + modifier;
   }, block);
-
-  var _useState3 = (0, _react.useState)(_slateReact.ReactEditor.isFocused(editor)),
-      _useState4 = _slicedToArray(_useState3, 2),
-      toolbarActive = _useState4[0],
-      activateToolbar = _useState4[1];
-
   return _react2.default.createElement(
     _slateReact.Slate,
     { editor: editor, value: initialValue, onChange: storeValueForSubmit },
@@ -523,40 +514,12 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
         'aria-disabled': linkedInput.disabled || undefined,
         'aria-readonly': linkedInput.readonly || undefined,
         onKeyDown: keyHandler,
-        renderElement: (0, _react.useCallback)(_Element2.default),
-        onFocus: function onFocus() {
-          return activateToolbar(true);
-        },
-        onBlur: function onBlur() {
-          return activateToolbar(false);
-        }
+        renderElement: (0, _react.useCallback)(_Element2.default)
       }),
       _react2.default.createElement(
         _reactstrap.InputGroupAddon,
         { addonType: 'append' },
-        _react2.default.createElement(
-          _reactstrap.ButtonToolbar,
-          null,
-          _react2.default.createElement(
-            _reactstrap.ButtonGroup,
-            null,
-            _react2.default.createElement(
-              _Button2.default,
-              { icon: 'edit-write', noText: true, outline: true },
-              'Add or edit shortcode'
-            ),
-            _react2.default.createElement(
-              _Button2.default,
-              { icon: 'block', noText: true, outline: true, disabled: toolbarActive && editor.hasShortcode() },
-              'Remove'
-            ),
-            _react2.default.createElement(_Tip2.default, {
-              id: editableElementId + '__help',
-              type: undefined && _Tip.TIP_TYPES.TITLE,
-              content: 'Press Alt+M to enter shortcode'
-            })
-          )
-        )
+        _react2.default.createElement(_InputToolbar2.default, { blockId: editableElementId })
       )
     )
   );
@@ -3561,7 +3524,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_slate__ = __webpack_require__("./node_modules/slate/dist/index.es.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey__ = __webpack_require__("./node_modules/slate-react/node_modules/is-hotkey/lib/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_is_hotkey__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_react_dom__);
 
 
@@ -14972,28 +14935,28 @@ module.exports = React;
 /***/ 1:
 /***/ (function(module, exports) {
 
-module.exports = Injector;
+module.exports = Reactstrap;
 
 /***/ }),
 
 /***/ 2:
 /***/ (function(module, exports) {
 
-module.exports = PropTypes;
+module.exports = Injector;
 
 /***/ }),
 
 /***/ 3:
 /***/ (function(module, exports) {
 
-module.exports = ReactDom;
+module.exports = PropTypes;
 
 /***/ }),
 
 /***/ 4:
 /***/ (function(module, exports) {
 
-module.exports = Reactstrap;
+module.exports = ReactDom;
 
 /***/ }),
 
