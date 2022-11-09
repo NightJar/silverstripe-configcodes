@@ -11,8 +11,8 @@ Allow text fields to hold and process short codes.
 [x] recieve focus from label activation
 [x] tool tip on how to use
 [ ] interface for setting shortcode options (i.e. attributes)
-[ ] pass config through from data attribute
-[ ] un-hardcode `[maori]` shortcode
+[x] pass config through from data attribute
+[x] un-hardcode `[maori]` shortcode
 [x] Disabled state visual style
 [ ] javascript tests
 [ ] reuse menu/modal between instances of field?

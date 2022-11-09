@@ -10,17 +10,17 @@ class ShortcodableExtension extends Extension
 {
     private static $default_classes = ['extrashortcodes'];
 
-    protected $shortcodeConfiguration = [];
+    protected $shortcodeParserName = null;
 
-    public function setShortcodeConfiguration($config)
+    public function setShortcodeParser(string $name)
     {
-        $this->shortcodeConfiguration = $config ?? [];
+        $this->shortcodeParserName = $name;
         return $this->owner;
     }
 
-    public function getShortcodeConfiguration()
+    public function getShortcodeParser(): ?string
     {
-        return $this->shortcodeConfiguration;
+        return $this->shortcodeParserName;
     }
 
     /**
@@ -42,7 +42,7 @@ class ShortcodableExtension extends Extension
     {
         $registry = HandlerBroker::get_registry();
         $codes = $registry->getCodesForParser(
-            InstanceIdentifiableShortcodeParser::get_active_identifier()
+            $this->getShortcodeParser() ?? InstanceIdentifiableShortcodeParser::get_active_identifier()
         );
         $configuration = [];
         foreach ($codes as $shortcode) {
@@ -53,7 +53,7 @@ class ShortcodableExtension extends Extension
             ];
         }
 
-        $this->owner->extend('updateFormFieldConfiguration', $configuration);
+        $this->owner->extend('updateShortcodeConfiguration', $configuration);
 
         return $configuration;
     }

@@ -4,11 +4,12 @@ import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { toStorableString, toSlateNodeTree } from 'lib/shortcodeSerialiser';
-import InputMenu from 'components/InputToolbar';
+import InputToolbar from 'components/InputToolbar';
 import Element from 'components/Element';
 import detectKeyboardShortcut, { cloneKeyboardEvent } from 'lib/keyboard';
 import withShortcodes from 'lib/withShortcodes';
 import { InputGroup, InputGroupAddon } from 'reactstrap';
+import { ShortcodeConfig } from '../lib/hookShortcodes';
 
 const makeLabelsFocusEditor = (input, targetId) => {
   input.labels.forEach((label) => label.addEventListener('click', (event) => {
@@ -17,11 +18,12 @@ const makeLabelsFocusEditor = (input, targetId) => {
   }));
 };
 
-export const RichInput = ({ linkedInput, validCodes }) => {
+export const RichInput = ({ linkedInput, shortcodeConfig }) => {
+  const validCodes = Object.keys(shortcodeConfig);
   const [editor] = useState(() => withReact(withHistory(withShortcodes(createEditor()))));
   // Unmentioned constraints on the slate document tree (via documentation) as at 2022-10-21:
   // - Editor node MUST have Element children only.
-  //   It does not appear to be able to directly hold Text nodes - all text will be deleted on attempting to edit if so.
+  //   It does not appear to be able to directly hold Text nodes - severe usability issues occur on attempting to edit
   // - All Element nodes MUST have a leaf node (Text) children, even if they're empty.
   // It may be to do with e.g. withHistory, but I've not looked too hard. Trial & error has discovered the above.
   // This is why the node tree output is wrapped in an Element interface here.
@@ -73,7 +75,9 @@ export const RichInput = ({ linkedInput, validCodes }) => {
           renderElement={useCallback(Element)}
         />
         <InputGroupAddon addonType="append">
-          <InputMenu blockId={editableElementId}/>
+          <ShortcodeConfig.Provider value={shortcodeConfig}>
+            <InputToolbar blockId={editableElementId}/>
+          </ShortcodeConfig.Provider>
         </InputGroupAddon>
       </InputGroup>
     </Slate>

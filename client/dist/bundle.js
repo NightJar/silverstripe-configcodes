@@ -200,12 +200,15 @@ var _Injector = __webpack_require__(2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 _jquery2.default.entwine('ss', function ($) {
-  $('.js-injector-boot input.extrashortcodes').entwine({
+  $('.js-injector-boot input[type=text].extrashortcodes[data-shortcodes]').entwine({
     onmatch: function onmatch() {
       var renderRoot = document.createElement('div');
       this[0].parentNode.insertBefore(renderRoot, this[0]);
       var ShortcodableTextField = (0, _Injector.loadComponent)('ShortcodableTextField');
-      var props = { linkedInput: this[0], validCodes: ['maori'] };
+      var props = {
+        linkedInput: this[0],
+        shortcodeConfig: JSON.parse(this[0].getAttribute('data-shortcodes'))
+      };
       (0, _reactDom.render)(React.createElement(ShortcodableTextField, props), renderRoot);
     },
     onunmatch: function onunmatch() {
@@ -450,6 +453,8 @@ var _withShortcodes2 = _interopRequireDefault(_withShortcodes);
 
 var _reactstrap = __webpack_require__(1);
 
+var _hookShortcodes = __webpack_require__("./client/src/lib/hookShortcodes.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var makeLabelsFocusEditor = function makeLabelsFocusEditor(input, targetId) {
@@ -463,7 +468,9 @@ var makeLabelsFocusEditor = function makeLabelsFocusEditor(input, targetId) {
 
 var RichInput = exports.RichInput = function RichInput(_ref) {
   var linkedInput = _ref.linkedInput,
-      validCodes = _ref.validCodes;
+      shortcodeConfig = _ref.shortcodeConfig;
+
+  var validCodes = Object.keys(shortcodeConfig);
 
   var _useState = (0, _react.useState)(function () {
     return (0, _slateReact.withReact)((0, _slateHistory.withHistory)((0, _withShortcodes2.default)((0, _slate.createEditor)())));
@@ -519,7 +526,11 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
       _react2.default.createElement(
         _reactstrap.InputGroupAddon,
         { addonType: 'append' },
-        _react2.default.createElement(_InputToolbar2.default, { blockId: editableElementId })
+        _react2.default.createElement(
+          _hookShortcodes.ShortcodeConfig.Provider,
+          { value: shortcodeConfig },
+          _react2.default.createElement(_InputToolbar2.default, { blockId: editableElementId })
+        )
       )
     )
   );
@@ -541,41 +552,117 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
+
+var _hookShortcodes = __webpack_require__("./client/src/lib/hookShortcodes.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = (0, _react.forwardRef)(function (_ref, ref) {
   var isEditing = _ref.isEditing;
+
+  var shortcodeConfig = (0, _hookShortcodes.useShortcodes)();
+
+  var _useState = (0, _react.useState)(isEditing ? null : Object.keys(shortcodeConfig)[0]),
+      _useState2 = _slicedToArray(_useState, 2),
+      chosenCode = _useState2[0],
+      setChosenCode = _useState2[1];
+
   return _react2.default.createElement(
-    "dialog",
+    'dialog',
     { ref: ref },
     _react2.default.createElement(
-      "form",
-      { method: "dialog" },
+      'div',
+      { className: 'modal-header' },
       _react2.default.createElement(
-        "select",
-        null,
-        _react2.default.createElement(
-          "option",
-          { value: "maori" },
-          "Te reo M\u0101ori"
-        ),
-        _react2.default.createElement(
-          "option",
-          { value: "invalid" },
-          "Not actually a shortcode"
-        ),
-        _react2.default.createElement(
-          "option",
-          { value: "third" },
-          "Three"
-        )
+        'h5',
+        { className: 'modal-title' },
+        isEditing ? 'Edit' : 'Insert',
+        ' Shortcode'
       ),
-      _react2.default.createElement("input", { type: "submit", value: "apply" }),
-      isEditing && _react2.default.createElement("input", { type: "submit", value: "remove" })
+      _react2.default.createElement(
+        'button',
+        { className: 'close', 'aria-label': 'Close', type: 'button', onClick: function onClick() {
+            return ref.current.close();
+          } },
+        _react2.default.createElement(
+          'span',
+          { 'aria-hidden': true },
+          '\xD7'
+        )
+      )
+    ),
+    _react2.default.createElement(
+      'form',
+      { method: 'dialog' },
+      _react2.default.createElement(
+        'fieldset',
+        { className: 'modal-body' },
+        _react2.default.createElement(
+          'div',
+          { className: 'field text form-group' },
+          _react2.default.createElement(
+            'label',
+            { className: 'form__field-label' },
+            'Shortcode'
+          ),
+          _react2.default.createElement(
+            'div',
+            { className: 'form__field-holder' },
+            _react2.default.createElement(
+              'select',
+              { onChange: function onChange(e) {
+                  return setChosenCode(e.target.value);
+                } },
+              Object.keys(shortcodeConfig).map(function (name) {
+                return _react2.default.createElement(
+                  'option',
+                  { value: name, selected: name === chosenCode || undefined },
+                  name
+                );
+              })
+            )
+          )
+        ),
+        chosenCode && Object.entries(shortcodeConfig[chosenCode].parameters).map(function (_ref2) {
+          var _ref3 = _slicedToArray(_ref2, 2),
+              name = _ref3[0],
+              required = _ref3[1];
+
+          return _react2.default.createElement(
+            'div',
+            { className: 'field text form-group' },
+            _react2.default.createElement(
+              'label',
+              { className: 'form__field-label' },
+              name
+            ),
+            _react2.default.createElement(
+              'div',
+              { className: 'form__field-holder' },
+              _react2.default.createElement('input', { name: name, required: required || undefined, className: 'text' })
+            )
+          );
+        })
+      ),
+      _react2.default.createElement(
+        'div',
+        { className: 'modal-footer btn-group' },
+        _react2.default.createElement(
+          'button',
+          { type: 'submit', value: 'apply', className: 'btn btn-primary font-icon-down-circled' },
+          'Apply'
+        ),
+        isEditing && _react2.default.createElement(
+          'button',
+          { type: 'submit', value: 'remove', className: 'btn btn-outline-danger font-icon-block' },
+          'Remove'
+        )
+      )
     )
   );
 });
@@ -615,6 +702,27 @@ var ShortcodeElement = function ShortcodeElement(_ref) {
 };
 
 exports.default = ShortcodeElement;
+
+/***/ }),
+
+/***/ "./client/src/lib/hookShortcodes.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useShortcodes = exports.ShortcodeConfig = undefined;
+
+var _react = __webpack_require__(0);
+
+var ShortcodeConfig = exports.ShortcodeConfig = (0, _react.createContext)(null);
+
+var useShortcodes = exports.useShortcodes = function useShortcodes() {
+  return (0, _react.useContext)(ShortcodeConfig);
+};
 
 /***/ }),
 
