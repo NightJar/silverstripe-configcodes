@@ -363,15 +363,13 @@ exports.default = function (_ref) {
   var dialog = (0, _react.useRef)();
   var editor = (0, _slateReact.useSlate)();
   var isFocused = (0, _slateReact.useFocused)();
-  var openModal = function openModal(event) {
+  var openModal = function openModal() {
     var menuDialog = dialog.current;
     var selection = editor.selection;
 
 
     if (menuDialog && selection && isFocused) {
       menuDialog.showModal();
-    } else {
-      console.log(isFocused, selection, menuDialog);
     }
   };
 
@@ -480,7 +478,7 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
 
   var initialValue = (0, _react.useMemo)(function () {
     return [{ children: (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes) }];
-  });
+  }, []);
   var storeValueForSubmit = function storeValueForSubmit(updatedContent) {
     return editor.isContentChanging() && linkedInput.setRangeText((0, _shortcodeSerialiser.toStorableString)(updatedContent, validCodes), 0, linkedInput.value.length);
   };
@@ -521,7 +519,7 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
         'aria-disabled': linkedInput.disabled || undefined,
         'aria-readonly': linkedInput.readonly || undefined,
         onKeyDown: keyHandler,
-        renderElement: (0, _react.useCallback)(_Element2.default)
+        renderElement: _Element2.default
       }),
       _react2.default.createElement(
         _reactstrap.InputGroupAddon,
@@ -565,16 +563,68 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = (0, _react.forwardRef)(function (_ref, ref) {
   var isEditing = _ref.isEditing;
 
-  var shortcodeConfig = (0, _hookShortcodes.useShortcodes)();
+  var shortcodeDescriptors = (0, _hookShortcodes.useShortcodes)();
 
-  var _useState = (0, _react.useState)(isEditing ? null : Object.keys(shortcodeConfig)[0]),
+  var _useState = (0, _react.useState)(isEditing ? null : { shortcode: Object.keys(shortcodeDescriptors)[0] }),
       _useState2 = _slicedToArray(_useState, 2),
-      chosenCode = _useState2[0],
-      setChosenCode = _useState2[1];
+      config = _useState2[0],
+      setConfig = _useState2[1];
 
+  var selectedCode = config.shortcode;
+
+  console.log(config);
+  var serialiseForm = function serialiseForm(form) {
+    var data = new FormData(form);
+    var newConfig = {};
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var _ref2 = _step.value;
+
+        var _ref3 = _slicedToArray(_ref2, 2);
+
+        var name = _ref3[0];
+        var value = _ref3[1];
+
+        console.log(name);
+        var configPath = name.split('.');
+        var configField = configPath.pop();
+        var configContext = newConfig;
+        while (configPath.length) {
+          var nextContext = configPath.shift();
+          configContext[nextContext] = configContext[nextContext] || {};
+          configContext = configContext[nextContext];
+        }
+        configContext[configField] = value;
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    setConfig(newConfig);
+    console.log('newconf:', newConfig);
+  };
   return _react2.default.createElement(
     'dialog',
-    { ref: ref },
+    { ref: ref, onClose: function onClose() {
+        return console.log('close', ref.current.returnValue);
+      }, onCancel: function onCancel() {
+        return ref.current.returnValue = '';
+      } },
     _react2.default.createElement(
       'div',
       { className: 'modal-header' },
@@ -587,7 +637,7 @@ exports.default = (0, _react.forwardRef)(function (_ref, ref) {
       _react2.default.createElement(
         'button',
         { className: 'close', 'aria-label': 'Close', type: 'button', onClick: function onClick() {
-            return ref.current.close();
+            return ref.current.close('');
           } },
         _react2.default.createElement(
           'span',
@@ -598,10 +648,17 @@ exports.default = (0, _react.forwardRef)(function (_ref, ref) {
     ),
     _react2.default.createElement(
       'form',
-      { method: 'dialog' },
+      { method: 'dialog', onChange: function onChange(e) {
+          return console.log('targets', e.target) || serialiseForm(e.target.form) || e.stopPropagation();
+        } },
       _react2.default.createElement(
         'fieldset',
         { className: 'modal-body' },
+        _react2.default.createElement(
+          'legend',
+          null,
+          'Attributes'
+        ),
         _react2.default.createElement(
           'div',
           { className: 'field text form-group' },
@@ -615,36 +672,34 @@ exports.default = (0, _react.forwardRef)(function (_ref, ref) {
             { className: 'form__field-holder' },
             _react2.default.createElement(
               'select',
-              { onChange: function onChange(e) {
-                  return setChosenCode(e.target.value);
-                } },
-              Object.keys(shortcodeConfig).map(function (name) {
+              { name: 'shortcode', className: 'no-change-track' },
+              Object.keys(shortcodeDescriptors).map(function (name) {
                 return _react2.default.createElement(
                   'option',
-                  { value: name, selected: name === chosenCode || undefined },
+                  { value: name, selected: name === selectedCode || undefined },
                   name
                 );
               })
             )
           )
         ),
-        chosenCode && Object.entries(shortcodeConfig[chosenCode].parameters).map(function (_ref2) {
-          var _ref3 = _slicedToArray(_ref2, 2),
-              name = _ref3[0],
-              required = _ref3[1];
+        selectedCode && Object.entries(shortcodeDescriptors[selectedCode].parameters).map(function (_ref4) {
+          var _ref5 = _slicedToArray(_ref4, 2),
+              name = _ref5[0],
+              required = _ref5[1];
 
           return _react2.default.createElement(
             'div',
             { className: 'field text form-group' },
             _react2.default.createElement(
               'label',
-              { className: 'form__field-label' },
+              { className: 'form__field-label', 'for': 'shortcode-attribute__' + name },
               name
             ),
             _react2.default.createElement(
               'div',
               { className: 'form__field-holder' },
-              _react2.default.createElement('input', { name: name, required: required || undefined, className: 'text' })
+              _react2.default.createElement('input', { id: 'shortcode-attribute__' + name, name: 'attributes.' + name, required: required || undefined, className: 'text no-change-track' })
             )
           );
         })
@@ -654,7 +709,7 @@ exports.default = (0, _react.forwardRef)(function (_ref, ref) {
         { className: 'modal-footer btn-group' },
         _react2.default.createElement(
           'button',
-          { type: 'submit', value: 'apply', className: 'btn btn-primary font-icon-down-circled' },
+          { type: 'submit', value: JSON.stringify(config), className: 'btn btn-primary font-icon-down-circled' },
           'Apply'
         ),
         isEditing && _react2.default.createElement(

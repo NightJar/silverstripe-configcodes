@@ -10,14 +10,12 @@ export default ({ blockId: editableElementId }) => {
   const dialog = useRef();
   const editor = useSlate();
   const isFocused = useFocused();
-  const openModal = (event) => {
+  const openModal = () => {
     const menuDialog = dialog.current;
     const { selection } = editor;
 
     if (menuDialog && selection && isFocused) {
       menuDialog.showModal();
-    } else {
-      console.log(isFocused, selection, menuDialog);
     }
   };
 

@@ -1,5 +1,5 @@
 /* global document */
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
@@ -28,7 +28,7 @@ export const RichInput = ({ linkedInput, shortcodeConfig }) => {
   // It may be to do with e.g. withHistory, but I've not looked too hard. Trial & error has discovered the above.
   // This is why the node tree output is wrapped in an Element interface here.
   // Without this, errors are silent and content simply disappears when attempting to type (in whole or part).
-  const initialValue = useMemo(() => [{ children: toSlateNodeTree(linkedInput.value, validCodes) }]);
+  const initialValue = useMemo(() => [{ children: toSlateNodeTree(linkedInput.value, validCodes) }], []);
   const storeValueForSubmit = (updatedContent) => editor.isContentChanging() && linkedInput.setRangeText(
     toStorableString(updatedContent, validCodes), 0, linkedInput.value.length
   );
@@ -72,7 +72,7 @@ export const RichInput = ({ linkedInput, shortcodeConfig }) => {
           aria-disabled={linkedInput.disabled || undefined}
           aria-readonly={linkedInput.readonly || undefined}
           onKeyDown={keyHandler}
-          renderElement={useCallback(Element)}
+          renderElement={Element}
         />
         <InputGroupAddon addonType="append">
           <ShortcodeConfig.Provider value={shortcodeConfig}>
