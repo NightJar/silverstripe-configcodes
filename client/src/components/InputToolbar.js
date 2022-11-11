@@ -1,8 +1,8 @@
 /* global window */
 import React, { useRef } from 'react';
 import { useFocused, useSlate } from 'slate-react';
-import ShortcodeEditor from './ShortcodeEditor';
-import { ButtonGroup, ButtonToolbar } from 'reactstrap';
+import ShortcodeEditor from 'components/ShortcodeEditor';
+import { ButtonGroup, ButtonToolbar } from 'reactstrap'; // eslint-disable-line import/no-extraneous-dependencies
 import Tip from 'admin/components/Tip/Tip';
 import Button from 'admin/components/Button/Button';
 
@@ -26,10 +26,22 @@ export default ({ blockId: editableElementId }) => {
   return (
     <ButtonToolbar>
       <ButtonGroup>
-        <Button icon={cursorInShortcode ? 'edit' : 'edit-write'} noText outline disabled={!isFocused} onMouseDown={preventFocusSteal} onClick={openModal}>
+        <Button
+          icon={cursorInShortcode ? 'edit' : 'edit-write'}
+          noText
+          outline
+          disabled={!isFocused}
+          onMouseDown={preventFocusSteal}
+          onClick={openModal}
+        >
           {cursorInShortcode ? 'Edit' : 'Add'} shortcode
         </Button>
-        <Button icon="block" noText outline disabled={!(isFocused && cursorInShortcode)} onMouseDown={preventFocusSteal}>
+        <Button
+          icon="block"
+          outline
+          disabled={!(isFocused && cursorInShortcode)}
+          onMouseDown={preventFocusSteal}
+        >
           Remove shortcode
         </Button>
         <Tip

@@ -1,4 +1,3 @@
-/* global document */
 import React, { useState, useMemo } from 'react';
 import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
@@ -8,7 +7,7 @@ import InputToolbar from 'components/InputToolbar';
 import Element from 'components/Element';
 import detectKeyboardShortcut, { cloneKeyboardEvent } from 'lib/keyboard';
 import withShortcodes from 'lib/withShortcodes';
-import { InputGroup, InputGroupAddon } from 'reactstrap';
+import { InputGroup, InputGroupAddon } from 'reactstrap'; // eslint-disable-line import/no-extraneous-dependencies
 import { ShortcodeConfig } from '../lib/hookShortcodes';
 
 const makeLabelsFocusEditor = (input, targetId) => {
@@ -76,14 +75,10 @@ export const RichInput = ({ linkedInput, shortcodeConfig }) => {
         />
         <InputGroupAddon addonType="append">
           <ShortcodeConfig.Provider value={shortcodeConfig}>
-            <InputToolbar blockId={editableElementId}/>
+            <InputToolbar blockId={editableElementId} />
           </ShortcodeConfig.Provider>
         </InputGroupAddon>
       </InputGroup>
     </Slate>
   );
 };
-
-export default (props) => (
-  <RichInput {...props} />
-);

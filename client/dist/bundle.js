@@ -187,20 +187,16 @@ exports.default = IconHOC;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
-
-var _jquery = __webpack_require__(7);
-
-var _jquery2 = _interopRequireDefault(_jquery);
+/* WEBPACK VAR INJECTION */(function(jQuery) {
 
 var _reactDom = __webpack_require__(4);
 
 var _Injector = __webpack_require__(2);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var selector = ['.js-injector-boot', ':not(.cms-search-form)', 'input.text[type=text].extrashortcodes[data-shortcodes]:not(.relation-search)'];
 
-_jquery2.default.entwine('ss', function ($) {
-  $('.js-injector-boot input[type=text].extrashortcodes[data-shortcodes]').entwine({
+jQuery.entwine('ss', function ($) {
+  $(selector.join(' ')).entwine({
     onmatch: function onmatch() {
       var renderRoot = document.createElement('div');
       this[0].parentNode.insertBefore(renderRoot, this[0]);
@@ -216,6 +212,7 @@ _jquery2.default.entwine('ss', function ($) {
     }
   });
 });
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(7)))
 
 /***/ }),
 
@@ -714,7 +711,9 @@ exports.default = (0, _react.forwardRef)(function (_ref, ref) {
         ),
         isEditing && _react2.default.createElement(
           'button',
-          { type: 'submit', value: 'remove', className: 'btn btn-outline-danger font-icon-block' },
+          { type: 'button', value: 'remove', onClick: function onClick(e) {
+              return ref.current.close(e.target.value);
+            }, className: 'btn btn-outline-danger font-icon-block' },
           'Remove'
         )
       )

@@ -1,4 +1,5 @@
 const Path = require('path');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const {
   resolveJS,
@@ -19,13 +20,16 @@ const PATHS = {
 };
 
 const jsResolveConfig = resolveJS(ENV, PATHS);
-// jsResolveConfig.modules = [...jsResolveConfig.modules, PATHS.ADMIN, PATHS.ADMIN_MODULES];
 jsResolveConfig.alias = {
   ...jsResolveConfig.alias,
   admin: PATHS.ADMIN,
 };
 
-const jsExternals = { ...externalJS(ENV, PATHS), 'admin/components/Tip/Tip': 'Tip' }
+const jsExternals = {
+  ...externalJS(ENV, PATHS),
+  'admin/components/Tip/Tip': 'Tip',
+  'admin/lib/Injector': 'Injector',
+};
 
 const config = [
   {

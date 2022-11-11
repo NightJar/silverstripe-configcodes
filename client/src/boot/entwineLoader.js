@@ -1,10 +1,17 @@
 /* global document */
 import jQuery from 'jquery';
+import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
-import { loadComponent } from 'lib/Injector';
+import { loadComponent } from 'admin/lib/Injector';
+
+const selector = [
+  '.js-injector-boot',
+  ':not(.cms-search-form)',
+  'input.text[type=text].extrashortcodes[data-shortcodes]:not(.relation-search)',
+];
 
 jQuery.entwine('ss', ($) => {
-  $('.js-injector-boot input[type=text].extrashortcodes[data-shortcodes]').entwine({
+  $(selector.join(' ')).entwine({
     onmatch() {
       const renderRoot = document.createElement('div');
       this[0].parentNode.insertBefore(renderRoot, this[0]);

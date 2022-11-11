@@ -1,12 +1,12 @@
 import isHotKey from 'is-hotkey';
-import openShortcodeEditor from 'lib/shortcodeTransforms';
+import addEditOrRemoveShortcode from 'lib/shortcodeTransforms';
 
 const isShortcodeHotkey = isHotKey('alt+m');
 
 export default (editor) => {
   const handleHotKey = (event) => {
     event.preventDefault();
-    openShortcodeEditor(editor);
+    addEditOrRemoveShortcode(editor);
   };
 
   return (event) => isShortcodeHotkey(event) && handleHotKey(event);
