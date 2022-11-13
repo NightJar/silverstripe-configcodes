@@ -10,10 +10,9 @@ Allow text fields to hold and process short codes.
 [x] focus indicator
 [x] recieve focus from label activation
 [x] tool tip on how to use
-[ ] interface for setting shortcode options (i.e. attributes)
+[x] interface for setting shortcode options (i.e. attributes)
 [x] pass config through from data attribute
 [x] un-hardcode `[maori]` shortcode
 [x] Disabled state visual style
 [ ] javascript tests
-[ ] reuse menu/modal between instances of field?
 [ ] JS Injector override input element (how to save then though?)

@@ -27,8 +27,12 @@ jsResolveConfig.alias = {
 
 const jsExternals = {
   ...externalJS(ENV, PATHS),
-  'admin/components/Tip/Tip': 'Tip',
   'admin/lib/Injector': 'Injector',
+  // because using Injector we probably don't need these:
+  'admin/components/Tip/Tip': 'Tip',
+  'admin/components/Button/Button': 'Button',
+  'admin/components/TextField/TextField': 'TextField',
+  'admin/components/SingleSelectField/SingleSelectField': 'SingleSelectField',
 };
 
 const config = [
@@ -59,6 +63,7 @@ const config = [
     devtool: (ENV !== 'production') ? 'source-map' : '',
     module: moduleCSS(ENV, PATHS),
     plugins: [
+      // define manually because @silverstripe/webpack-config.pluginCSS puts all css output files in a `styles` sub-dir.
       new ExtractTextPlugin({
         filename: '[name].css',
         allChunks: true,

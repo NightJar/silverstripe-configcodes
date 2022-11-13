@@ -1,5 +1,10 @@
-import React, { forwardRef, useState } from 'react';
+import React, { useState } from 'react';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useShortcodes } from 'lib/hookShortcodes';
+import { loadComponent } from 'admin/lib/Injector';
+// import SingleSelectField from 'admin/components/SingleSelectField/SingleSelectField';
+import TextField from 'admin/components/TextField/TextField';
+import Button from 'admin/components/Button/Button';
 
 const serialiseForm = (form) => {
   const data = new FormData(form);
@@ -19,78 +24,77 @@ const serialiseForm = (form) => {
   return config;
 };
 
-export default forwardRef(({ isEditing }, dialogRef) => {
+const makeSentenceCase = (string) => {
+  const sentenceCase = (character, indexInString) => indexInString === 0 ? character.toUpperCase() : character;
+  const wordSeparators = /\+|\.|-/g
+  return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
+};
+
+export default ({ isOpen, close, editing }) => {
   const shortcodeDescriptors = useShortcodes();
-  const [config, setConfig] = useState(isEditing ? null : { shortcode: Object.keys(shortcodeDescriptors)[0] });
-  const { shortcode: selectedCode, attributes = {} } = config;
-  console.log('render with: ', config);
-  const updateConfig = (form) => {
-    const newConfig = serialiseForm(form);
-    setConfig(newConfig);
-    console.log('newconf:', newConfig);
+  const [selectedCode, setSelectedCode] = useState(null);
+  const { shortcode, attributes = {}, content } = {
+    ...editing,
+    shortcode: selectedCode || (editing && editing.shortcode) || Object.keys(shortcodeDescriptors)[0]
   };
+  console.log('render with: ', selectedCode, editing);
+  const actions = {
+    CANCEL: () => close(false),
+    REMOVE: () => close(true),
+    APPLY: (event) => close(serialiseForm(event.target.form)),
+  };
+  const cancelSubmission = (event) => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    return false;
+  };
+  const contentRequired = shortcodeDescriptors[shortcode].content;
+  const contentDisabled = contentRequired === null;
+  const SingleSelectField = loadComponent('SingleSelectField');
   return (
-    <dialog
-      ref={dialogRef}
-      onClose={() => console.log('close', dialogRef.current.returnValue)}
-      onCancel={() => dialogRef.current.returnValue = 'false'} // eslint-disable-line no-return-assign,no-param-reassign
-    >
-      {/* <div className="modal-dialog"> */}
-      <div className="modal-header">
-        <h5 className="modal-title">{isEditing ? 'Edit' : 'Insert'} Shortcode</h5>
-        <button className="close" aria-label="Close" type="button" onClick={() => dialogRef.current.close('false')}>
-          <span aria-hidden>×</span>
-        </button>
-      </div>
-      <form method="dialog" onChange={(e) => console.log('targets', e.target) || updateConfig(e.target.form)}>
-        <fieldset className="modal-body">
-          <legend>Attributes</legend>
-          <div className="field text form-group">
-            <label className="form__field-label" htmlFor="shortcode-selector">Shortcode</label>
-            <div className="form__field-holder">
-              <select id="shortcode-selector" name="shortcode" className="no-change-track">
-                {Object.keys(shortcodeDescriptors).map((name) => (
-                  <option value={name} selected={name === selectedCode || undefined}>{name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          {selectedCode && Object.entries(shortcodeDescriptors[selectedCode].parameters).map(([name, required]) => (
-            <div className="field text form-group">
-              <label className="form__field-label" htmlFor={`shortcode-attribute__${name}`}>{name}</label>
-              <div className="form__field-holder">
-                <input
-                  id={`shortcode-attribute__${name}`}
-                  name={`attributes.${name}`}
-                  value={attributes[name]}
-                  required={required || undefined}
-                  className="text no-change-track"
-                />
-              </div>
-            </div>
-          ))}
-        </fieldset>
-        <div className="modal-footer btn-group">
-          <button
-            type="submit"
-            className="btn btn-primary font-icon-down-circled"
-            value="false"
-            onClick={(e) => e.target.value = JSON.stringify(config)} // eslint-disable-line no-return-assign
-          >
-            Apply
-          </button>
-          {isEditing && <button
-            type="button"
-            className="btn btn-outline-danger font-icon-block"
-            value="true"
-            // prevent blocking by `required` attribute fields by directly closing (not submitting)
-            onClick={(e) => dialogRef.current.close(e.target.value)}
-          >
-            Remove
-          </button>}
-        </div>
+    <Modal isOpen={isOpen} toggle={actions.CANCEL}>
+      <ModalHeader toggle={actions.CANCEL}>{editing ? 'Edit' : 'Insert'} Shortcode</ModalHeader>
+      <form onSubmit={cancelSubmission}>
+        <ModalBody>
+          <SingleSelectField
+            id="shortcode-selector"
+            name="shortcode"
+            title="Shortcode"
+            source={Object.keys(shortcodeDescriptors).map((name) => ({ title: name, value: name }))}
+            value={shortcode}
+            extraClass="no-change-track"
+            onChange={(e) => setSelectedCode(e.target.value)}
+          />
+          <TextField
+            id="shortcode-content"
+            name="content"
+            title="Content"
+            value={content}
+            extraClass="no-change-track"
+            disabled={contentDisabled}
+            required={contentRequired}
+            message={contentDisabled && { type: 'info', value: 'This shortcode does not accept content' }}
+          />
+          <fieldset>
+            <legend>Attributes</legend>
+            {shortcode && Object.entries(shortcodeDescriptors[shortcode].parameters).map(([name, required]) => (
+              <TextField
+                key={shortcode + name}
+                id={`shortcode-attribute__${name}`}
+                name={`attributes.${name}`}
+                title={makeSentenceCase(name)}
+                required={required || undefined}
+                value={attributes[name]}
+                extraClass="no-change-track"
+              />
+            ))}
+          </fieldset>
+        </ModalBody>
+        <ModalFooter>
+          <Button icon="down-circled" color="primary" onClick={actions.APPLY}>Apply</Button>
+          {editing && <Button icon="block" outline color="danger" onClick={actions.REMOVE}>Remove</Button>}
+        </ModalFooter>
       </form>
-      {/* </div> */}
-    </dialog>
+    </Modal>
   );
-});
+}; // TODO: inject() this component with `admin` component dependencies

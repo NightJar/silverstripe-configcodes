@@ -1,27 +1,34 @@
 /* global window */
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { useFocused, useSlate } from 'slate-react';
 import ShortcodeEditor from 'components/ShortcodeEditor';
 import { ButtonGroup, ButtonToolbar } from 'reactstrap'; // eslint-disable-line import/no-extraneous-dependencies
+import { removeShortcode } from 'lib/shortcodeTransforms';
 import Tip from 'admin/components/Tip/Tip';
 import Button from 'admin/components/Button/Button';
+import { Node } from 'slate';
 
 export default ({ blockId: editableElementId }) => {
-  const dialog = useRef();
+  const [editorIsOpen, setEditorOpen] = useState(false);
   const editor = useSlate();
   const isFocused = useFocused();
-  const openModal = () => {
-    const menuDialog = dialog.current;
-    const { selection } = editor;
-
-    if (menuDialog && selection && isFocused) {
-      menuDialog.showModal();
+  const closeModal = (amendment) => {
+    setEditorOpen(false);
+    if (!amendment) {
+      return;
     }
+    return (amendment === true) ? removeShortcode(editor) : console.log(amendment);// applyShortcode();
   };
 
   const preventFocusSteal = (event) => event.preventDefault();
 
   const cursorInShortcode = editor.hasShortcode();
+
+  const selectedCode = !cursorInShortcode ? null : {
+    shortcode: cursorInShortcode[0].shortcode,
+    attributes: cursorInShortcode[0].attributes,
+    content: Node.string(cursorInShortcode[0]),
+  };
 
   return (
     <ButtonToolbar>
@@ -32,15 +39,17 @@ export default ({ blockId: editableElementId }) => {
           outline
           disabled={!isFocused}
           onMouseDown={preventFocusSteal}
-          onClick={openModal}
+          onClick={() => setEditorOpen(true)}
         >
           {cursorInShortcode ? 'Edit' : 'Add'} shortcode
         </Button>
         <Button
           icon="block"
+          noText
           outline
           disabled={!(isFocused && cursorInShortcode)}
           onMouseDown={preventFocusSteal}
+          onClick={() => closeModal(true)}
         >
           Remove shortcode
         </Button>
@@ -48,9 +57,10 @@ export default ({ blockId: editableElementId }) => {
           id={`${editableElementId}__help`}
           content="Press Alt+M to enter shortcode"
           icon="white-question"
+          fieldTitle={`${editableElementId} editor help`}
         />
       </ButtonGroup>
-      <ShortcodeEditor isEditing={cursorInShortcode} ref={dialog} />
+      <ShortcodeEditor isOpen={editorIsOpen} close={closeModal} editing={cursorInShortcode && selectedCode} />
     </ButtonToolbar>
   );
 };
