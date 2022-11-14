@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import React, { useState, useEffect } from 'react';
+import { Alert, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useShortcodes } from 'lib/hookShortcodes';
 import { loadComponent } from 'admin/lib/Injector';
-// import SingleSelectField from 'admin/components/SingleSelectField/SingleSelectField';
-import TextField from 'admin/components/TextField/TextField';
+// import SingleSelectField from 'admin/components/SingleSelectField/SingleSelectField'; // this isn't externalised!
+import withFieldHolder from 'admin/components/FieldHolder/FieldHolder';
+import TextField, { Component as BaseTextField } from 'admin/components/TextField/TextField';
 import Button from 'admin/components/Button/Button';
 
 const serialiseForm = (form) => {
   const data = new FormData(form);
   const config = {};
   for (const [name, value] of data) { // eslint-disable-line no-restricted-syntax
-    console.log(name);
     const configPath = name.split('.');
     const configField = configPath.pop();
     let configContext = config;
@@ -30,14 +30,37 @@ const makeSentenceCase = (string) => {
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
-export default ({ isOpen, close, editing }) => {
+const withNoInvalidation = (Field) => (suppliedProps) => {
+  const amendedProps = {
+    ...suppliedProps
+  };
+  if (suppliedProps.extraClass) {
+    amendedProps.extraClass = suppliedProps.extraClass.split(' ').filter((c) => c !== 'is-invalid').join(' ');
+  }
+  return <Field {...amendedProps} />;
+};
+
+const ContentField = withFieldHolder(withNoInvalidation(BaseTextField));
+
+export default ({ isOpen, close, editing, ...injectedComponents }) => {
+  const SingleSelectField = loadComponent('SingleSelectField');
+  // const { Button, TextField, SingleSelectField } = injectedComponents;
   const shortcodeDescriptors = useShortcodes();
   const [selectedCode, setSelectedCode] = useState(null);
   const { shortcode, attributes = {}, content } = {
     ...editing,
-    shortcode: selectedCode || (editing && editing.shortcode) || Object.keys(shortcodeDescriptors)[0]
+    shortcode: selectedCode || editing.shortcode || Object.keys(shortcodeDescriptors)[0]
   };
-  console.log('render with: ', selectedCode, editing);
+  console.log('render with: ', selectedCode, editing, attributes['yeahok']); // TODO: why so many renders? Does it even matter?
+  const contentRequired = shortcodeDescriptors[shortcode].content;
+  const contentDisabled = contentRequired === null;
+  const NoContentWarning = () => (
+    <Alert color={content ? 'warning' : 'info'} tag='p'>
+      Content is not accepted by the {shortcode} shortcode.
+      {content && <br />}
+      {content && ` It will be deleted when applying this configuration.`}
+    </Alert>
+  );
   const actions = {
     CANCEL: () => close(false),
     REMOVE: () => close(true),
@@ -48,12 +71,9 @@ export default ({ isOpen, close, editing }) => {
     event.stopImmediatePropagation();
     return false;
   };
-  const contentRequired = shortcodeDescriptors[shortcode].content;
-  const contentDisabled = contentRequired === null;
-  const SingleSelectField = loadComponent('SingleSelectField');
   return (
     <Modal isOpen={isOpen} toggle={actions.CANCEL}>
-      <ModalHeader toggle={actions.CANCEL}>{editing ? 'Edit' : 'Insert'} Shortcode</ModalHeader>
+      <ModalHeader toggle={actions.CANCEL}>{editing.shortcode ? 'Edit' : 'Insert'} Shortcode</ModalHeader>
       <form onSubmit={cancelSubmission}>
         <ModalBody>
           <SingleSelectField
@@ -65,7 +85,7 @@ export default ({ isOpen, close, editing }) => {
             extraClass="no-change-track"
             onChange={(e) => setSelectedCode(e.target.value)}
           />
-          <TextField
+          <ContentField
             id="shortcode-content"
             name="content"
             title="Content"
@@ -73,7 +93,7 @@ export default ({ isOpen, close, editing }) => {
             extraClass="no-change-track"
             disabled={contentDisabled}
             required={contentRequired}
-            message={contentDisabled && { type: 'info', value: 'This shortcode does not accept content' }}
+            message={contentDisabled ? { type: 'info', value: { react: NoContentWarning() } } : undefined}
           />
           <fieldset>
             <legend>Attributes</legend>
@@ -92,7 +112,7 @@ export default ({ isOpen, close, editing }) => {
         </ModalBody>
         <ModalFooter>
           <Button icon="down-circled" color="primary" onClick={actions.APPLY}>Apply</Button>
-          {editing && <Button icon="block" outline color="danger" onClick={actions.REMOVE}>Remove</Button>}
+          {editing.shortcode && <Button icon="block" outline color="danger" onClick={actions.REMOVE}>Remove</Button>}
         </ModalFooter>
       </form>
     </Modal>

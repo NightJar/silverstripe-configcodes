@@ -6,7 +6,7 @@ import { ButtonGroup, ButtonToolbar } from 'reactstrap'; // eslint-disable-line 
 import { removeShortcode } from 'lib/shortcodeTransforms';
 import Tip from 'admin/components/Tip/Tip';
 import Button from 'admin/components/Button/Button';
-import { Node } from 'slate';
+import { Node, Range } from 'slate';
 
 export default ({ blockId: editableElementId }) => {
   const [editorIsOpen, setEditorOpen] = useState(false);
@@ -23,8 +23,8 @@ export default ({ blockId: editableElementId }) => {
   const preventFocusSteal = (event) => event.preventDefault();
 
   const cursorInShortcode = editor.hasShortcode();
-
-  const selectedCode = !cursorInShortcode ? null : {
+  const selectedText = editor.selection && Range.isExpanded(editor.selection) && Node.string({ children: editor.getFragment() });
+  const editing = !cursorInShortcode ? { content: selectedText || undefined } : {
     shortcode: cursorInShortcode[0].shortcode,
     attributes: cursorInShortcode[0].attributes,
     content: Node.string(cursorInShortcode[0]),
@@ -60,7 +60,7 @@ export default ({ blockId: editableElementId }) => {
           fieldTitle={`${editableElementId} editor help`}
         />
       </ButtonGroup>
-      <ShortcodeEditor isOpen={editorIsOpen} close={closeModal} editing={cursorInShortcode && selectedCode} />
+      <ShortcodeEditor isOpen={editorIsOpen} close={closeModal} editing={editing} />
     </ButtonToolbar>
   );
 };

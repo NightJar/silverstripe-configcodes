@@ -74,7 +74,7 @@
 "use strict";
 
 
-var _jquery = __webpack_require__(7);
+var _jquery = __webpack_require__(8);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
@@ -240,7 +240,7 @@ var _reactstrap = __webpack_require__(2);
 
 var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
 
-var _Tip = __webpack_require__(6);
+var _Tip = __webpack_require__(7);
 
 var _Tip2 = _interopRequireDefault(_Tip);
 
@@ -275,8 +275,8 @@ exports.default = function (_ref) {
   };
 
   var cursorInShortcode = editor.hasShortcode();
-
-  var selectedCode = !cursorInShortcode ? null : {
+  var selectedText = editor.selection && _slate.Range.isExpanded(editor.selection) && _slate.Node.string({ children: editor.getFragment() });
+  var editing = !cursorInShortcode ? { content: selectedText || undefined } : {
     shortcode: cursorInShortcode[0].shortcode,
     attributes: cursorInShortcode[0].attributes,
     content: _slate.Node.string(cursorInShortcode[0])
@@ -324,7 +324,7 @@ exports.default = function (_ref) {
         fieldTitle: editableElementId + ' editor help'
       })
     ),
-    _react2.default.createElement(_ShortcodeEditor2.default, { isOpen: editorIsOpen, close: closeModal, editing: cursorInShortcode && selectedCode })
+    _react2.default.createElement(_ShortcodeEditor2.default, { isOpen: editorIsOpen, close: closeModal, editing: editing })
   );
 };
 
@@ -482,7 +482,11 @@ var _hookShortcodes = __webpack_require__("./client/src/lib/hookShortcodes.js");
 
 var _Injector = __webpack_require__(1);
 
-var _TextField = __webpack_require__(5);
+var _FieldHolder = __webpack_require__(5);
+
+var _FieldHolder2 = _interopRequireDefault(_FieldHolder);
+
+var _TextField = __webpack_require__(6);
 
 var _TextField2 = _interopRequireDefault(_TextField);
 
@@ -491,6 +495,8 @@ var _Button = __webpack_require__(3);
 var _Button2 = _interopRequireDefault(_Button);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 var serialiseForm = function serialiseForm(form) {
   var data = new FormData(form);
@@ -508,7 +514,6 @@ var serialiseForm = function serialiseForm(form) {
       var name = _ref2[0];
       var value = _ref2[1];
 
-      console.log(name);
       var configPath = name.split('.');
       var configField = configPath.pop();
       var configContext = config;
@@ -545,10 +550,27 @@ var makeSentenceCase = function makeSentenceCase(string) {
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
+var withNoInvalidation = function withNoInvalidation(Field) {
+  return function (suppliedProps) {
+    var amendedProps = _extends({}, suppliedProps);
+    if (suppliedProps.extraClass) {
+      amendedProps.extraClass = suppliedProps.extraClass.split(' ').filter(function (c) {
+        return c !== 'is-invalid';
+      }).join(' ');
+    }
+    return _react2.default.createElement(Field, amendedProps);
+  };
+};
+
+var ContentField = (0, _FieldHolder2.default)(withNoInvalidation(_TextField.Component));
+
 exports.default = function (_ref3) {
   var isOpen = _ref3.isOpen,
       close = _ref3.close,
-      editing = _ref3.editing;
+      editing = _ref3.editing,
+      injectedComponents = _objectWithoutProperties(_ref3, ['isOpen', 'close', 'editing']);
+
+  var SingleSelectField = (0, _Injector.loadComponent)('SingleSelectField');
 
   var shortcodeDescriptors = (0, _hookShortcodes.useShortcodes)();
 
@@ -558,14 +580,27 @@ exports.default = function (_ref3) {
       setSelectedCode = _useState2[1];
 
   var _editing$shortcode = _extends({}, editing, {
-    shortcode: selectedCode || editing && editing.shortcode || Object.keys(shortcodeDescriptors)[0]
+    shortcode: selectedCode || editing.shortcode || Object.keys(shortcodeDescriptors)[0]
   }),
       shortcode = _editing$shortcode.shortcode,
       _editing$shortcode$at = _editing$shortcode.attributes,
       attributes = _editing$shortcode$at === undefined ? {} : _editing$shortcode$at,
       content = _editing$shortcode.content;
 
-  console.log('render with: ', selectedCode, editing);
+  console.log('render with: ', selectedCode, editing, attributes['yeahok']);
+  var contentRequired = shortcodeDescriptors[shortcode].content;
+  var contentDisabled = contentRequired === null;
+  var NoContentWarning = function NoContentWarning() {
+    return _react2.default.createElement(
+      _reactstrap.Alert,
+      { color: content ? 'warning' : 'info', tag: 'p' },
+      'Content is not accepted by the ',
+      shortcode,
+      ' shortcode.',
+      content && _react2.default.createElement('br', null),
+      content && ' It will be deleted when applying this configuration.'
+    );
+  };
   var actions = {
     CANCEL: function CANCEL() {
       return close(false);
@@ -582,16 +617,13 @@ exports.default = function (_ref3) {
     event.stopImmediatePropagation();
     return false;
   };
-  var contentRequired = shortcodeDescriptors[shortcode].content;
-  var contentDisabled = contentRequired === null;
-  var SingleSelectField = (0, _Injector.loadComponent)('SingleSelectField');
   return _react2.default.createElement(
     _reactstrap.Modal,
     { isOpen: isOpen, toggle: actions.CANCEL },
     _react2.default.createElement(
       _reactstrap.ModalHeader,
       { toggle: actions.CANCEL },
-      editing ? 'Edit' : 'Insert',
+      editing.shortcode ? 'Edit' : 'Insert',
       ' Shortcode'
     ),
     _react2.default.createElement(
@@ -613,7 +645,7 @@ exports.default = function (_ref3) {
             return setSelectedCode(e.target.value);
           }
         }),
-        _react2.default.createElement(_TextField2.default, {
+        _react2.default.createElement(ContentField, {
           id: 'shortcode-content',
           name: 'content',
           title: 'Content',
@@ -621,7 +653,7 @@ exports.default = function (_ref3) {
           extraClass: 'no-change-track',
           disabled: contentDisabled,
           required: contentRequired,
-          message: contentDisabled && { type: 'info', value: 'This shortcode does not accept content' }
+          message: contentDisabled ? { type: 'info', value: { react: NoContentWarning() } } : undefined
         }),
         _react2.default.createElement(
           'fieldset',
@@ -656,7 +688,7 @@ exports.default = function (_ref3) {
           { icon: 'down-circled', color: 'primary', onClick: actions.APPLY },
           'Apply'
         ),
-        editing && _react2.default.createElement(
+        editing.shortcode && _react2.default.createElement(
           _Button2.default,
           { icon: 'block', outline: true, color: 'danger', onClick: actions.REMOVE },
           'Remove'
@@ -15070,18 +15102,25 @@ module.exports = ReactDom;
 /***/ 5:
 /***/ (function(module, exports) {
 
-module.exports = TextField;
+module.exports = FieldHolder;
 
 /***/ }),
 
 /***/ 6:
 /***/ (function(module, exports) {
 
-module.exports = Tip;
+module.exports = TextField;
 
 /***/ }),
 
 /***/ 7:
+/***/ (function(module, exports) {
+
+module.exports = Tip;
+
+/***/ }),
+
+/***/ 8:
 /***/ (function(module, exports) {
 
 module.exports = jQuery;
