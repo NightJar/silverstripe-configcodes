@@ -184,6 +184,32 @@ window.document.addEventListener('DOMContentLoaded', function () {
 
 /***/ }),
 
+/***/ "./client/src/components/ContentField.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _FieldHolder = __webpack_require__(6);
+
+var _FieldHolder2 = _interopRequireDefault(_FieldHolder);
+
+var _withNoInvalidation = __webpack_require__("./client/src/components/higher-order/withNoInvalidation.js");
+
+var _withNoInvalidation2 = _interopRequireDefault(_withNoInvalidation);
+
+var _TextField = __webpack_require__(5);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = (0, _FieldHolder2.default)((0, _withNoInvalidation2.default)(_TextField.Component));
+
+/***/ }),
+
 /***/ "./client/src/components/Element.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -236,6 +262,10 @@ var _ShortcodeEditor = __webpack_require__("./client/src/components/ShortcodeEdi
 
 var _ShortcodeEditor2 = _interopRequireDefault(_ShortcodeEditor);
 
+var _ToolbarButton = __webpack_require__("./client/src/components/ToolbarButton.js");
+
+var _ToolbarButton2 = _interopRequireDefault(_ToolbarButton);
+
 var _reactstrap = __webpack_require__(2);
 
 var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
@@ -243,10 +273,6 @@ var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransf
 var _Tip = __webpack_require__(7);
 
 var _Tip2 = _interopRequireDefault(_Tip);
-
-var _Button = __webpack_require__(3);
-
-var _Button2 = _interopRequireDefault(_Button);
 
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
@@ -288,40 +314,34 @@ exports.default = function (_ref) {
     _react2.default.createElement(
       _reactstrap.ButtonGroup,
       null,
-      _react2.default.createElement(
-        _Button2.default,
-        {
-          icon: cursorInShortcode ? 'edit' : 'edit-write',
-          noText: true,
-          outline: true,
-          disabled: !isFocused,
-          onMouseDown: preventFocusSteal,
-          onClick: function onClick() {
-            return setEditorOpen(true);
-          }
+      _react2.default.createElement(_ToolbarButton2.default, {
+        icon: cursorInShortcode ? 'edit' : 'edit-write',
+        noText: true,
+        outline: true,
+        disabled: !isFocused,
+        onMouseDown: preventFocusSteal,
+        onClick: function onClick() {
+          return setEditorOpen(true);
         },
-        cursorInShortcode ? 'Edit' : 'Add',
-        ' shortcode'
-      ),
-      _react2.default.createElement(
-        _Button2.default,
-        {
-          icon: 'block',
-          noText: true,
-          outline: true,
-          disabled: !(isFocused && cursorInShortcode),
-          onMouseDown: preventFocusSteal,
-          onClick: function onClick() {
-            return closeModal(true);
-          }
+        'aria-label': (cursorInShortcode ? 'Edit' : 'Add') + ' shortcode'
+      }),
+      _react2.default.createElement(_ToolbarButton2.default, {
+        icon: 'block',
+        noText: true,
+        outline: true,
+        disabled: !(isFocused && cursorInShortcode),
+        onMouseDown: preventFocusSteal,
+        onClick: function onClick() {
+          return closeModal(true);
         },
-        'Remove shortcode'
-      ),
+        'aria-label': 'Remove shortcode'
+      }),
       _react2.default.createElement(_Tip2.default, {
         id: editableElementId + '__help',
         content: 'Press Alt+M to enter shortcode',
         icon: 'white-question',
-        fieldTitle: editableElementId + ' editor help'
+        fieldTitle: editableElementId + ' editor help',
+        tabIndex: '-1'
       })
     ),
     _react2.default.createElement(_ShortcodeEditor2.default, { isOpen: editorIsOpen, close: closeModal, editing: editing })
@@ -482,11 +502,11 @@ var _hookShortcodes = __webpack_require__("./client/src/lib/hookShortcodes.js");
 
 var _Injector = __webpack_require__(1);
 
-var _FieldHolder = __webpack_require__(5);
+var _ContentField = __webpack_require__("./client/src/components/ContentField.js");
 
-var _FieldHolder2 = _interopRequireDefault(_FieldHolder);
+var _ContentField2 = _interopRequireDefault(_ContentField);
 
-var _TextField = __webpack_require__(6);
+var _TextField = __webpack_require__(5);
 
 var _TextField2 = _interopRequireDefault(_TextField);
 
@@ -550,20 +570,6 @@ var makeSentenceCase = function makeSentenceCase(string) {
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
-var withNoInvalidation = function withNoInvalidation(Field) {
-  return function (suppliedProps) {
-    var amendedProps = _extends({}, suppliedProps);
-    if (suppliedProps.extraClass) {
-      amendedProps.extraClass = suppliedProps.extraClass.split(' ').filter(function (c) {
-        return c !== 'is-invalid';
-      }).join(' ');
-    }
-    return _react2.default.createElement(Field, amendedProps);
-  };
-};
-
-var ContentField = (0, _FieldHolder2.default)(withNoInvalidation(_TextField.Component));
-
 exports.default = function (_ref3) {
   var isOpen = _ref3.isOpen,
       close = _ref3.close,
@@ -587,7 +593,6 @@ exports.default = function (_ref3) {
       attributes = _editing$shortcode$at === undefined ? {} : _editing$shortcode$at,
       content = _editing$shortcode.content;
 
-  console.log('render with: ', selectedCode, editing, attributes['yeahok']);
   var contentRequired = shortcodeDescriptors[shortcode].content;
   var contentDisabled = contentRequired === null;
   var NoContentWarning = function NoContentWarning() {
@@ -645,7 +650,7 @@ exports.default = function (_ref3) {
             return setSelectedCode(e.target.value);
           }
         }),
-        _react2.default.createElement(ContentField, {
+        _react2.default.createElement(_ContentField2.default, {
           id: 'shortcode-content',
           name: 'content',
           title: 'Content',
@@ -653,7 +658,7 @@ exports.default = function (_ref3) {
           extraClass: 'no-change-track',
           disabled: contentDisabled,
           required: contentRequired,
-          message: contentDisabled ? { type: 'info', value: { react: NoContentWarning() } } : undefined
+          message: contentDisabled ? { type: content ? 'warning' : 'info', value: { react: NoContentWarning() } } : undefined
         }),
         _react2.default.createElement(
           'fieldset',
@@ -692,6 +697,11 @@ exports.default = function (_ref3) {
           _Button2.default,
           { icon: 'block', outline: true, color: 'danger', onClick: actions.REMOVE },
           'Remove'
+        ),
+        _react2.default.createElement(
+          _Button2.default,
+          { color: 'subdued', onClick: actions.CANCEL },
+          'Cancel'
         )
       )
     )
@@ -733,6 +743,86 @@ var ShortcodeElement = function ShortcodeElement(_ref) {
 };
 
 exports.default = ShortcodeElement;
+
+/***/ }),
+
+/***/ "./client/src/components/ToolbarButton.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _reactstrap = __webpack_require__(2);
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+exports.default = function (props) {
+  var ariaLabel = props['aria-label'],
+      noText = props.noText,
+      icon = props.icon,
+      _props$className = props.className,
+      className = _props$className === undefined ? '' : _props$className,
+      _props$tabIndex = props.tabIndex,
+      tabIndex = _props$tabIndex === undefined ? '-1' : _props$tabIndex,
+      buttonProps = _objectWithoutProperties(props, ['aria-label', 'noText', 'icon', 'className', 'tabIndex']);
+
+  if (noText && !ariaLabel) {
+    throw new Error('Cannot create a button with no accessible name. If using `noText`, also specify `aria-label`');
+  }
+  var classes = {
+    icon: 'font-icon-' + icon,
+    noText: 'btn--no-text'
+  };
+  var amendedProps = _extends({}, buttonProps, {
+    className: [].concat(_toConsumableArray(className.split(' ')), _toConsumableArray(Object.keys(classes).filter(function (trigger) {
+      return props[trigger];
+    }).map(function (trigger) {
+      return classes[trigger];
+    }))).join(' '),
+    tabIndex: tabIndex
+  });
+  return React.createElement(_reactstrap.Button, _extends({}, amendedProps, { 'aria-label': ariaLabel }));
+};
+
+/***/ }),
+
+/***/ "./client/src/components/higher-order/withNoInvalidation.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (Field) {
+  return function (suppliedProps) {
+    var amendedProps = _extends({}, suppliedProps);
+    if (suppliedProps.extraClass) {
+      amendedProps.extraClass = suppliedProps.extraClass.split(' ').filter(function (c) {
+        return c !== 'is-invalid';
+      }).join(' ');
+    }
+    return _react2.default.createElement(Field, amendedProps);
+  };
+};
 
 /***/ }),
 
@@ -15102,14 +15192,14 @@ module.exports = ReactDom;
 /***/ 5:
 /***/ (function(module, exports) {
 
-module.exports = FieldHolder;
+module.exports = TextField;
 
 /***/ }),
 
 /***/ 6:
 /***/ (function(module, exports) {
 
-module.exports = TextField;
+module.exports = FieldHolder;
 
 /***/ }),
 

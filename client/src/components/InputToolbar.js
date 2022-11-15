@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { useFocused, useSlate } from 'slate-react';
 import ShortcodeEditor from 'components/ShortcodeEditor';
+import ToolbarButton from 'components/ToolbarButton';
 import { ButtonGroup, ButtonToolbar } from 'reactstrap'; // eslint-disable-line import/no-extraneous-dependencies
 import { removeShortcode } from 'lib/shortcodeTransforms';
 import Tip from 'admin/components/Tip/Tip';
-import Button from 'admin/components/Button/Button';
 import { Node, Range } from 'slate';
 
 export default ({ blockId: editableElementId }) => {
@@ -33,31 +33,30 @@ export default ({ blockId: editableElementId }) => {
   return (
     <ButtonToolbar>
       <ButtonGroup>
-        <Button
+        <ToolbarButton
           icon={cursorInShortcode ? 'edit' : 'edit-write'}
           noText
           outline
           disabled={!isFocused}
           onMouseDown={preventFocusSteal}
           onClick={() => setEditorOpen(true)}
-        >
-          {cursorInShortcode ? 'Edit' : 'Add'} shortcode
-        </Button>
-        <Button
+          aria-label={`${cursorInShortcode ? 'Edit' : 'Add'} shortcode`}
+        />
+        <ToolbarButton
           icon="block"
           noText
           outline
           disabled={!(isFocused && cursorInShortcode)}
           onMouseDown={preventFocusSteal}
           onClick={() => closeModal(true)}
-        >
-          Remove shortcode
-        </Button>
+          aria-label="Remove shortcode"
+        />
         <Tip
           id={`${editableElementId}__help`}
           content="Press Alt+M to enter shortcode"
           icon="white-question"
           fieldTitle={`${editableElementId} editor help`}
+          tabIndex="-1"
         />
       </ButtonGroup>
       <ShortcodeEditor isOpen={editorIsOpen} close={closeModal} editing={editing} />

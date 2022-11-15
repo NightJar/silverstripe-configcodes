@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Alert, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useShortcodes } from 'lib/hookShortcodes';
 import { loadComponent } from 'admin/lib/Injector';
+import ContentField from 'components/ContentField';
 // import SingleSelectField from 'admin/components/SingleSelectField/SingleSelectField'; // this isn't externalised!
-import withFieldHolder from 'admin/components/FieldHolder/FieldHolder';
-import TextField, { Component as BaseTextField } from 'admin/components/TextField/TextField';
+import TextField from 'admin/components/TextField/TextField';
 import Button from 'admin/components/Button/Button';
 
 const serialiseForm = (form) => {
@@ -30,18 +30,6 @@ const makeSentenceCase = (string) => {
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
-const withNoInvalidation = (Field) => (suppliedProps) => {
-  const amendedProps = {
-    ...suppliedProps
-  };
-  if (suppliedProps.extraClass) {
-    amendedProps.extraClass = suppliedProps.extraClass.split(' ').filter((c) => c !== 'is-invalid').join(' ');
-  }
-  return <Field {...amendedProps} />;
-};
-
-const ContentField = withFieldHolder(withNoInvalidation(BaseTextField));
-
 export default ({ isOpen, close, editing, ...injectedComponents }) => {
   const SingleSelectField = loadComponent('SingleSelectField');
   // const { Button, TextField, SingleSelectField } = injectedComponents;
@@ -51,7 +39,6 @@ export default ({ isOpen, close, editing, ...injectedComponents }) => {
     ...editing,
     shortcode: selectedCode || editing.shortcode || Object.keys(shortcodeDescriptors)[0]
   };
-  console.log('render with: ', selectedCode, editing, attributes['yeahok']); // TODO: why so many renders? Does it even matter?
   const contentRequired = shortcodeDescriptors[shortcode].content;
   const contentDisabled = contentRequired === null;
   const NoContentWarning = () => (
@@ -93,7 +80,11 @@ export default ({ isOpen, close, editing, ...injectedComponents }) => {
             extraClass="no-change-track"
             disabled={contentDisabled}
             required={contentRequired}
-            message={contentDisabled ? { type: 'info', value: { react: NoContentWarning() } } : undefined}
+            message={
+              contentDisabled
+                ? { type: content ? 'warning' : 'info', value: { react: NoContentWarning() } }
+                : undefined
+            }
           />
           <fieldset>
             <legend>Attributes</legend>
@@ -113,8 +104,15 @@ export default ({ isOpen, close, editing, ...injectedComponents }) => {
         <ModalFooter>
           <Button icon="down-circled" color="primary" onClick={actions.APPLY}>Apply</Button>
           {editing.shortcode && <Button icon="block" outline color="danger" onClick={actions.REMOVE}>Remove</Button>}
+          <Button color="subdued" onClick={actions.CANCEL}>Cancel</Button>
         </ModalFooter>
       </form>
     </Modal>
   );
-}; // TODO: inject() this component with `admin` component dependencies
+};
+// TODO: inject() this component with `admin` component dependencies.
+// Should we though? TextField base Component isn't registered with Injector - which would make transforms only apply
+// to 'some' fields, and be weird & inconsistant. Plus applying HOCs (aka decorators) via injection means they have to
+// be done on render/instantiation - seems like it might be a performance hit.
+// We could export ContentField and register it with Injector though... None of the fields are directly registered,
+// they're all FieldHolder'd. This would be consistent...

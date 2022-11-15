@@ -28,9 +28,10 @@ jsResolveConfig.alias = {
 const jsExternals = {
   ...externalJS(ENV, PATHS),
   'admin/lib/Injector': 'Injector',
+  // Used directly (without Injector) to build ContentField:
   'admin/components/TextField/TextField': 'TextField',
   'admin/components/FieldHolder/FieldHolder': 'FieldHolder',
-  // because using Injector we probably don't need these:
+  // If we are using Injector.inject then we probably don't need these:
   'admin/components/Tip/Tip': 'Tip',
   'admin/components/Button/Button': 'Button',
   'admin/components/SingleSelectField/SingleSelectField': 'SingleSelectField',
