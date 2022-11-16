@@ -82,9 +82,9 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactDom = __webpack_require__(4);
+var _reactDom = __webpack_require__(3);
 
-var _Injector = __webpack_require__(1);
+var _Injector = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -131,7 +131,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _Injector = __webpack_require__(1);
+var _Injector = __webpack_require__(2);
 
 var _Injector2 = _interopRequireDefault(_Injector);
 
@@ -202,7 +202,7 @@ var _withNoInvalidation = __webpack_require__("./client/src/components/higher-or
 
 var _withNoInvalidation2 = _interopRequireDefault(_withNoInvalidation);
 
-var _TextField = __webpack_require__(5);
+var _TextField = __webpack_require__(4);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -266,7 +266,7 @@ var _ToolbarButton = __webpack_require__("./client/src/components/ToolbarButton.
 
 var _ToolbarButton2 = _interopRequireDefault(_ToolbarButton);
 
-var _reactstrap = __webpack_require__(2);
+var _reactstrap = __webpack_require__(1);
 
 var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
 
@@ -391,7 +391,7 @@ var _withShortcodes = __webpack_require__("./client/src/lib/withShortcodes.js");
 
 var _withShortcodes2 = _interopRequireDefault(_withShortcodes);
 
-var _reactstrap = __webpack_require__(2);
+var _reactstrap = __webpack_require__(1);
 
 var _hookShortcodes = __webpack_require__("./client/src/lib/hookShortcodes.js");
 
@@ -496,21 +496,21 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactstrap = __webpack_require__(2);
+var _reactstrap = __webpack_require__(1);
 
 var _hookShortcodes = __webpack_require__("./client/src/lib/hookShortcodes.js");
 
-var _Injector = __webpack_require__(1);
+var _Injector = __webpack_require__(2);
 
 var _ContentField = __webpack_require__("./client/src/components/ContentField.js");
 
 var _ContentField2 = _interopRequireDefault(_ContentField);
 
-var _TextField = __webpack_require__(5);
+var _TextField = __webpack_require__(4);
 
 var _TextField2 = _interopRequireDefault(_TextField);
 
-var _Button = __webpack_require__(3);
+var _Button = __webpack_require__(5);
 
 var _Button2 = _interopRequireDefault(_Button);
 
@@ -570,6 +570,24 @@ var makeSentenceCase = function makeSentenceCase(string) {
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
+var buildMessage = function buildMessage(shortcode, isWarning) {
+  var type = isWarning ? 'warning' : 'info';
+  var message = ['Content is not accepted by the ' + shortcode + ' shortcode.', _react2.default.createElement('br', { key: 'br' }), ' It will be deleted when applying this configuration.'];
+
+  var props = {
+    color: type,
+    tag: 'p',
+    children: isWarning ? message : [message.shift()]
+  };
+
+  return {
+    type: type,
+    value: {
+      react: _react2.default.createElement(_reactstrap.Alert, props)
+    }
+  };
+};
+
 exports.default = function (_ref3) {
   var isOpen = _ref3.isOpen,
       close = _ref3.close,
@@ -595,17 +613,6 @@ exports.default = function (_ref3) {
 
   var contentRequired = shortcodeDescriptors[shortcode].content;
   var contentDisabled = contentRequired === null;
-  var NoContentWarning = function NoContentWarning() {
-    return _react2.default.createElement(
-      _reactstrap.Alert,
-      { color: content ? 'warning' : 'info', tag: 'p' },
-      'Content is not accepted by the ',
-      shortcode,
-      ' shortcode.',
-      content && _react2.default.createElement('br', null),
-      content && ' It will be deleted when applying this configuration.'
-    );
-  };
   var actions = {
     CANCEL: function CANCEL() {
       return close(false);
@@ -658,7 +665,7 @@ exports.default = function (_ref3) {
           extraClass: 'no-change-track',
           disabled: contentDisabled,
           required: contentRequired,
-          message: contentDisabled ? { type: content ? 'warning' : 'info', value: { react: NoContentWarning() } } : undefined
+          message: contentDisabled ? buildMessage(shortcode, content) : undefined
         }),
         _react2.default.createElement(
           'fieldset',
@@ -758,7 +765,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _reactstrap = __webpack_require__(2);
+var _reactstrap = __webpack_require__(1);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -3753,7 +3760,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_slate__ = __webpack_require__("./node_modules/slate/dist/index.es.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey__ = __webpack_require__("./node_modules/slate-react/node_modules/is-hotkey/lib/index.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_is_hotkey___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_is_hotkey__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_react_dom___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_react_dom__);
 
 
@@ -15164,35 +15171,35 @@ module.exports = React;
 /***/ 1:
 /***/ (function(module, exports) {
 
-module.exports = Injector;
+module.exports = Reactstrap;
 
 /***/ }),
 
 /***/ 2:
 /***/ (function(module, exports) {
 
-module.exports = Reactstrap;
+module.exports = Injector;
 
 /***/ }),
 
 /***/ 3:
 /***/ (function(module, exports) {
 
-module.exports = Button;
+module.exports = ReactDom;
 
 /***/ }),
 
 /***/ 4:
 /***/ (function(module, exports) {
 
-module.exports = ReactDom;
+module.exports = TextField;
 
 /***/ }),
 
 /***/ 5:
 /***/ (function(module, exports) {
 
-module.exports = TextField;
+module.exports = Button;
 
 /***/ }),
 

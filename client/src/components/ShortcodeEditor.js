@@ -30,6 +30,28 @@ const makeSentenceCase = (string) => {
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
+const buildMessage = (shortcode, isWarning) => {
+  const type = isWarning ? 'warning' : 'info';
+  const message = [
+    `Content is not accepted by the ${shortcode} shortcode.`,
+    <br key="br" />,
+    ' It will be deleted when applying this configuration.',
+  ];
+
+  const props = {
+    color: type,
+    tag: 'p',
+    children: isWarning ? message : [message.shift()],
+  };
+
+  return {
+    type,
+    value: {
+      react: <Alert {...props} />
+    }
+  };
+};
+
 export default ({ isOpen, close, editing, ...injectedComponents }) => {
   const SingleSelectField = loadComponent('SingleSelectField');
   // const { Button, TextField, SingleSelectField } = injectedComponents;
@@ -41,13 +63,6 @@ export default ({ isOpen, close, editing, ...injectedComponents }) => {
   };
   const contentRequired = shortcodeDescriptors[shortcode].content;
   const contentDisabled = contentRequired === null;
-  const NoContentWarning = () => (
-    <Alert color={content ? 'warning' : 'info'} tag='p'>
-      Content is not accepted by the {shortcode} shortcode.
-      {content && <br />}
-      {content && ` It will be deleted when applying this configuration.`}
-    </Alert>
-  );
   const actions = {
     CANCEL: () => close(false),
     REMOVE: () => close(true),
@@ -80,11 +95,7 @@ export default ({ isOpen, close, editing, ...injectedComponents }) => {
             extraClass="no-change-track"
             disabled={contentDisabled}
             required={contentRequired}
-            message={
-              contentDisabled
-                ? { type: content ? 'warning' : 'info', value: { react: NoContentWarning() } }
-                : undefined
-            }
+            message={contentDisabled ? buildMessage(shortcode, content) : undefined}
           />
           <fieldset>
             <legend>Attributes</legend>
