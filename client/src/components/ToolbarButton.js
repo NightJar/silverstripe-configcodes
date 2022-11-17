@@ -1,4 +1,7 @@
+import React from 'react';
 import { Button } from 'reactstrap';
+
+const preventFocusSteal = (event) => event.preventDefault();
 
 /*
 The `admin` components Button violoates proptypes by passing `children` to `aria-label` which expects `string`.
@@ -18,9 +21,9 @@ export default (props) => {
   if (noText && !ariaLabel) {
     throw new Error('Cannot create a button with no accessible name. If using `noText`, also specify `aria-label`');
   }
-  const classes= {
+  const classes = {
     icon: `font-icon-${icon}`,
-    noText: `btn--no-text`,
+    noText: 'btn--no-text',
   };
   const amendedProps = {
     ...buttonProps,
@@ -31,6 +34,7 @@ export default (props) => {
         .map((trigger) => classes[trigger])
     ].join(' '),
     tabIndex,
+    onMouseDown: preventFocusSteal,
   };
   return (<Button {...amendedProps} aria-label={ariaLabel} />);
 };

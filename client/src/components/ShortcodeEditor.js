@@ -25,8 +25,8 @@ const serialiseForm = (form) => {
 };
 
 const makeSentenceCase = (string) => {
-  const sentenceCase = (character, indexInString) => indexInString === 0 ? character.toUpperCase() : character;
-  const wordSeparators = /\+|\.|-/g
+  const sentenceCase = (character, indexInString) => (indexInString === 0 ? character.toUpperCase() : character);
+  const wordSeparators = /\+|\.|-/g;
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
@@ -52,7 +52,7 @@ const buildMessage = (shortcode, isWarning) => {
   };
 };
 
-export default ({ isOpen, close, editing, ...injectedComponents }) => {
+export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
   const SingleSelectField = loadComponent('SingleSelectField');
   // const { Button, TextField, SingleSelectField } = injectedComponents;
   const shortcodeDescriptors = useShortcodes();

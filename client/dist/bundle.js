@@ -288,17 +288,6 @@ exports.default = function (_ref) {
 
   var editor = (0, _slateReact.useSlate)();
   var isFocused = (0, _slateReact.useFocused)();
-  var closeModal = function closeModal(amendment) {
-    setEditorOpen(false);
-    if (!amendment) {
-      return;
-    }
-    return amendment === true ? (0, _shortcodeTransforms.removeShortcode)(editor) : console.log(amendment);
-  };
-
-  var preventFocusSteal = function preventFocusSteal(event) {
-    return event.preventDefault();
-  };
 
   var cursorInShortcode = editor.hasShortcode();
   var selectedText = editor.selection && _slate.Range.isExpanded(editor.selection) && _slate.Node.string({ children: editor.getFragment() });
@@ -308,29 +297,44 @@ exports.default = function (_ref) {
     content: _slate.Node.string(cursorInShortcode[0])
   };
 
+  var closeModal = function closeModal(amendment) {
+    setEditorOpen(false);
+    console.log(amendment);
+    if (!amendment) {
+      return null;
+    } else if (amendment === true) {
+      return (0, _shortcodeTransforms.removeShortcode)(editor);
+    } else if (cursorInShortcode) {
+      return (0, _shortcodeTransforms.updateShortcode)(editor, amendment);
+    }
+    return (0, _shortcodeTransforms.applyShortcode)(editor, amendment);
+  };
+
   return _react2.default.createElement(
     _reactstrap.ButtonToolbar,
     null,
     _react2.default.createElement(
       _reactstrap.ButtonGroup,
       null,
-      _react2.default.createElement(_ToolbarButton2.default, {
-        icon: cursorInShortcode ? 'edit' : 'edit-write',
-        noText: true,
-        outline: true,
-        disabled: !isFocused,
-        onMouseDown: preventFocusSteal,
-        onClick: function onClick() {
-          return setEditorOpen(true);
+      _react2.default.createElement(
+        _ToolbarButton2.default,
+        {
+          icon: cursorInShortcode ? 'edit' : 'edit-write',
+          noText: true,
+          outline: true,
+          disabled: !isFocused,
+          onClick: function onClick() {
+            return setEditorOpen(true);
+          },
+          'aria-label': (cursorInShortcode ? 'Edit' : 'Add') + ' shortcode'
         },
-        'aria-label': (cursorInShortcode ? 'Edit' : 'Add') + ' shortcode'
-      }),
+        _react2.default.createElement(_ShortcodeEditor2.default, { isOpen: editorIsOpen, close: closeModal, editing: editing })
+      ),
       _react2.default.createElement(_ToolbarButton2.default, {
         icon: 'block',
         noText: true,
         outline: true,
         disabled: !(isFocused && cursorInShortcode),
-        onMouseDown: preventFocusSteal,
         onClick: function onClick() {
           return closeModal(true);
         },
@@ -343,8 +347,7 @@ exports.default = function (_ref) {
         fieldTitle: editableElementId + ' editor help',
         tabIndex: '-1'
       })
-    ),
-    _react2.default.createElement(_ShortcodeEditor2.default, { isOpen: editorIsOpen, close: closeModal, editing: editing })
+    )
   );
 };
 
@@ -516,8 +519,6 @@ var _Button2 = _interopRequireDefault(_Button);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
 var serialiseForm = function serialiseForm(form) {
   var data = new FormData(form);
   var config = {};
@@ -591,8 +592,7 @@ var buildMessage = function buildMessage(shortcode, isWarning) {
 exports.default = function (_ref3) {
   var isOpen = _ref3.isOpen,
       close = _ref3.close,
-      editing = _ref3.editing,
-      injectedComponents = _objectWithoutProperties(_ref3, ['isOpen', 'close', 'editing']);
+      editing = _ref3.editing;
 
   var SingleSelectField = (0, _Injector.loadComponent)('SingleSelectField');
 
@@ -765,11 +765,21 @@ Object.defineProperty(exports, "__esModule", {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
 var _reactstrap = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+var preventFocusSteal = function preventFocusSteal(event) {
+  return event.preventDefault();
+};
 
 exports.default = function (props) {
   var ariaLabel = props['aria-label'],
@@ -794,9 +804,10 @@ exports.default = function (props) {
     }).map(function (trigger) {
       return classes[trigger];
     }))).join(' '),
-    tabIndex: tabIndex
+    tabIndex: tabIndex,
+    onMouseDown: preventFocusSteal
   });
-  return React.createElement(_reactstrap.Button, _extends({}, amendedProps, { 'aria-label': ariaLabel }));
+  return _react2.default.createElement(_reactstrap.Button, _extends({}, amendedProps, { 'aria-label': ariaLabel }));
 };
 
 /***/ }),
@@ -1030,8 +1041,20 @@ exports.removeShortcode = exports.updateShortcode = exports.applyShortcode = und
 
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
-var applyShortcode = exports.applyShortcode = function applyShortcode(editor, shortcode) {
-  return _slate.Range.isExpanded(editor.selection) && _slate.Transforms.wrapNodes(editor, { type: 'shortcode', shortcode: shortcode }, {
+var applyShortcode = exports.applyShortcode = function applyShortcode(editor, _ref) {
+  var shortcode = _ref.shortcode,
+      attributes = _ref.attributes,
+      text = _ref.content;
+
+  var shortcodeSlateElement = {
+    type: 'shortcode',
+    shortcode: shortcode,
+    attributes: attributes
+  };
+  if (text) {
+    shortcodeSlateElement.children = [{ text: text }];
+  }
+  return _slate.Range.isExpanded(editor.selection) && _slate.Transforms.wrapNodes(editor, shortcodeSlateElement, {
     split: true,
     match: function match(node) {
       return !editor.isShortcode(node);
