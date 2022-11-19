@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { Alert, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useShortcodes } from 'lib/hookShortcodes';
 import { loadComponent } from 'admin/lib/Injector';
-import ContentField from 'components/ContentField';
+import UncontrolledTextField from 'components/UncontrolledTextField';
 // import SingleSelectField from 'admin/components/SingleSelectField/SingleSelectField'; // this isn't externalised!
-import TextField from 'admin/components/TextField/TextField';
 import Button from 'admin/components/Button/Button';
 
 const serialiseForm = (form) => {
@@ -30,18 +29,19 @@ const makeSentenceCase = (string) => {
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
-const buildMessage = (shortcode, isWarning) => {
-  const type = isWarning ? 'warning' : 'info';
+const buildMessage = (shortcode, selectedContent) => {
+  const type = selectedContent ? 'warning' : 'info';
   const message = [
     `Content is not accepted by the ${shortcode} shortcode.`,
     <br key="br" />,
-    ' It will be deleted when applying this configuration.',
+    ' Selected content (as follows) will be deleted when applying this configuration: ',
+    <q key="selectedContent" className="shortcode__selected-content">{selectedContent}</q>,
   ];
 
   const props = {
     color: type,
     tag: 'p',
-    children: isWarning ? message : [message.shift()],
+    children: selectedContent ? message : [message.shift()],
   };
 
   return {
@@ -54,7 +54,7 @@ const buildMessage = (shortcode, isWarning) => {
 
 export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
   const SingleSelectField = loadComponent('SingleSelectField');
-  // const { Button, TextField, SingleSelectField } = injectedComponents;
+  // const { Button, SingleSelectField, UncontrolledTextField } = injectedComponents;
   const shortcodeDescriptors = useShortcodes();
   const [selectedCode, setSelectedCode] = useState(null);
   const { shortcode, attributes = {}, content } = {
@@ -87,11 +87,11 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
             extraClass="no-change-track"
             onChange={(e) => setSelectedCode(e.target.value)}
           />
-          <ContentField
+          <UncontrolledTextField
             id="shortcode-content"
             name="content"
             title="Content"
-            value={content}
+            defaultValue={content}
             extraClass="no-change-track"
             disabled={contentDisabled}
             required={contentRequired}
@@ -100,13 +100,13 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
           <fieldset>
             <legend>Attributes</legend>
             {shortcode && Object.entries(shortcodeDescriptors[shortcode].parameters).map(([name, required]) => (
-              <TextField
+              <UncontrolledTextField
                 key={shortcode + name}
                 id={`shortcode-attribute__${name}`}
                 name={`attributes.${name}`}
                 title={makeSentenceCase(name)}
                 required={required || undefined}
-                value={attributes[name]}
+                defaultValue={attributes[name]}
                 extraClass="no-change-track"
               />
             ))}
@@ -125,5 +125,5 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
 // Should we though? TextField base Component isn't registered with Injector - which would make transforms only apply
 // to 'some' fields, and be weird & inconsistant. Plus applying HOCs (aka decorators) via injection means they have to
 // be done on render/instantiation - seems like it might be a performance hit.
-// We could export ContentField and register it with Injector though... None of the fields are directly registered,
-// they're all FieldHolder'd. This would be consistent...
+// We could export UncontrolledTextField and register it with Injector though...
+// None of the fields are directly registered, they're all FieldHolder'd. This would be consistent.

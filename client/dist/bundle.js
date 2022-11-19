@@ -184,32 +184,6 @@ window.document.addEventListener('DOMContentLoaded', function () {
 
 /***/ }),
 
-/***/ "./client/src/components/ContentField.js":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _FieldHolder = __webpack_require__(6);
-
-var _FieldHolder2 = _interopRequireDefault(_FieldHolder);
-
-var _withNoInvalidation = __webpack_require__("./client/src/components/higher-order/withNoInvalidation.js");
-
-var _withNoInvalidation2 = _interopRequireDefault(_withNoInvalidation);
-
-var _TextField = __webpack_require__(4);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = (0, _FieldHolder2.default)((0, _withNoInvalidation2.default)(_TextField.Component));
-
-/***/ }),
-
 /***/ "./client/src/components/Element.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -505,15 +479,11 @@ var _hookShortcodes = __webpack_require__("./client/src/lib/hookShortcodes.js");
 
 var _Injector = __webpack_require__(2);
 
-var _ContentField = __webpack_require__("./client/src/components/ContentField.js");
+var _UncontrolledTextField = __webpack_require__("./client/src/components/UncontrolledTextField.js");
 
-var _ContentField2 = _interopRequireDefault(_ContentField);
+var _UncontrolledTextField2 = _interopRequireDefault(_UncontrolledTextField);
 
-var _TextField = __webpack_require__(4);
-
-var _TextField2 = _interopRequireDefault(_TextField);
-
-var _Button = __webpack_require__(5);
+var _Button = __webpack_require__(4);
 
 var _Button2 = _interopRequireDefault(_Button);
 
@@ -571,14 +541,18 @@ var makeSentenceCase = function makeSentenceCase(string) {
   return string.replaceAll(wordSeparators, ' ').split('').map(sentenceCase).join('');
 };
 
-var buildMessage = function buildMessage(shortcode, isWarning) {
-  var type = isWarning ? 'warning' : 'info';
-  var message = ['Content is not accepted by the ' + shortcode + ' shortcode.', _react2.default.createElement('br', { key: 'br' }), ' It will be deleted when applying this configuration.'];
+var buildMessage = function buildMessage(shortcode, selectedContent) {
+  var type = selectedContent ? 'warning' : 'info';
+  var message = ['Content is not accepted by the ' + shortcode + ' shortcode.', _react2.default.createElement('br', { key: 'br' }), ' Selected content (as follows) will be deleted when applying this configuration: ', _react2.default.createElement(
+    'q',
+    { key: 'selectedContent', className: 'shortcode__selected-content' },
+    selectedContent
+  )];
 
   var props = {
     color: type,
     tag: 'p',
-    children: isWarning ? message : [message.shift()]
+    children: selectedContent ? message : [message.shift()]
   };
 
   return {
@@ -657,11 +631,11 @@ exports.default = function (_ref3) {
             return setSelectedCode(e.target.value);
           }
         }),
-        _react2.default.createElement(_ContentField2.default, {
+        _react2.default.createElement(_UncontrolledTextField2.default, {
           id: 'shortcode-content',
           name: 'content',
           title: 'Content',
-          value: content,
+          defaultValue: content,
           extraClass: 'no-change-track',
           disabled: contentDisabled,
           required: contentRequired,
@@ -680,13 +654,13 @@ exports.default = function (_ref3) {
                 name = _ref5[0],
                 required = _ref5[1];
 
-            return _react2.default.createElement(_TextField2.default, {
+            return _react2.default.createElement(_UncontrolledTextField2.default, {
               key: shortcode + name,
               id: 'shortcode-attribute__' + name,
               name: 'attributes.' + name,
               title: makeSentenceCase(name),
               required: required || undefined,
-              value: attributes[name],
+              defaultValue: attributes[name],
               extraClass: 'no-change-track'
             });
           })
@@ -812,6 +786,32 @@ exports.default = function (props) {
 
 /***/ }),
 
+/***/ "./client/src/components/UncontrolledTextField.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _FieldHolder = __webpack_require__(5);
+
+var _FieldHolder2 = _interopRequireDefault(_FieldHolder);
+
+var _withNoInvalidation = __webpack_require__("./client/src/components/higher-order/withNoInvalidation.js");
+
+var _withNoInvalidation2 = _interopRequireDefault(_withNoInvalidation);
+
+var _reactstrap = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = (0, _FieldHolder2.default)((0, _withNoInvalidation2.default)(_reactstrap.Input));
+
+/***/ }),
+
 /***/ "./client/src/components/higher-order/withNoInvalidation.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -830,14 +830,23 @@ var _react2 = _interopRequireDefault(_react);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 exports.default = function (Field) {
   return function (suppliedProps) {
-    var amendedProps = _extends({}, suppliedProps);
+    var fieldHolderSpecificProps = ['extraClass', 'leftTitle', 'rightTitle', 'description', 'hideLabels', 'noHolder', 'message', 'data'];
+    var amendedProps = Object.keys(suppliedProps).filter(function (propName) {
+      return !fieldHolderSpecificProps.includes(propName);
+    }).reduce(function (domSafeProps, prop) {
+      return _extends({}, domSafeProps, _defineProperty({}, prop, suppliedProps[prop]));
+    }, {});
+
     if (suppliedProps.extraClass) {
-      amendedProps.extraClass = suppliedProps.extraClass.split(' ').filter(function (c) {
+      amendedProps.className = amendedProps.className.split(' ').concat(suppliedProps.extraClass.split(' ').filter(function (c) {
         return c !== 'is-invalid';
-      }).join(' ');
+      })).join(' ');
     }
+
     return _react2.default.createElement(Field, amendedProps);
   };
 };
@@ -15215,18 +15224,11 @@ module.exports = ReactDom;
 /***/ 4:
 /***/ (function(module, exports) {
 
-module.exports = TextField;
-
-/***/ }),
-
-/***/ 5:
-/***/ (function(module, exports) {
-
 module.exports = Button;
 
 /***/ }),
 
-/***/ 6:
+/***/ 5:
 /***/ (function(module, exports) {
 
 module.exports = FieldHolder;
