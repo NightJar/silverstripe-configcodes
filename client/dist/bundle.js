@@ -74,7 +74,7 @@
 "use strict";
 
 
-var _jquery = __webpack_require__(8);
+var _jquery = __webpack_require__(7);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
@@ -244,7 +244,7 @@ var _reactstrap = __webpack_require__(1);
 
 var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
 
-var _Tip = __webpack_require__(7);
+var _Tip = __webpack_require__(6);
 
 var _Tip2 = _interopRequireDefault(_Tip);
 
@@ -595,7 +595,7 @@ exports.default = function (_ref3) {
       return close(true);
     },
     APPLY: function APPLY(event) {
-      return close(serialiseForm(event.target.form));
+      return event.target.form.reportValidity() ? close(serialiseForm(event.target.form)) : true;
     }
   };
   var cancelSubmission = function cancelSubmission(event) {
@@ -671,7 +671,7 @@ exports.default = function (_ref3) {
         null,
         _react2.default.createElement(
           _Button2.default,
-          { icon: 'down-circled', color: 'primary', onClick: actions.APPLY },
+          { type: 'submit', icon: 'down-circled', color: 'primary', onClick: actions.APPLY },
           'Apply'
         ),
         editing.shortcode && _react2.default.createElement(
@@ -15235,14 +15235,14 @@ module.exports = FieldHolder;
 
 /***/ }),
 
-/***/ 7:
+/***/ 6:
 /***/ (function(module, exports) {
 
 module.exports = Tip;
 
 /***/ }),
 
-/***/ 8:
+/***/ 7:
 /***/ (function(module, exports) {
 
 module.exports = jQuery;

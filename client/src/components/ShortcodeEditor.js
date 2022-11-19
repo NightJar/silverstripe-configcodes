@@ -66,7 +66,11 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
   const actions = {
     CANCEL: () => close(false),
     REMOVE: () => close(true),
-    APPLY: (event) => close(serialiseForm(event.target.form)),
+    APPLY: (event) => (
+      event.target.form.reportValidity()
+        ? close(serialiseForm(event.target.form))
+        : true // do not cancel native validation events, etc. by returning false
+    ),
   };
   const cancelSubmission = (event) => {
     event.preventDefault();
@@ -113,7 +117,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
           </fieldset>
         </ModalBody>
         <ModalFooter>
-          <Button icon="down-circled" color="primary" onClick={actions.APPLY}>Apply</Button>
+          <Button type="submit" icon="down-circled" color="primary" onClick={actions.APPLY}>Apply</Button>
           {editing.shortcode && <Button icon="block" outline color="danger" onClick={actions.REMOVE}>Remove</Button>}
           <Button color="subdued" onClick={actions.CANCEL}>Cancel</Button>
         </ModalFooter>
