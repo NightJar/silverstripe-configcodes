@@ -25,15 +25,18 @@ export default ({ blockId: editableElementId }) => {
 
   const closeModal = (amendment) => {
     setEditorOpen(false);
-    console.log(amendment);
-    if (!amendment) {
-      return null;
-    } else if (amendment === true) {
-      return removeShortcode(editor);
-    } else if (cursorInShortcode) {
-      return updateShortcode(editor, amendment);
+
+    if (amendment) {
+      if (amendment === true) {
+        removeShortcode(editor);
+      } else if (cursorInShortcode) {
+        updateShortcode(editor, amendment);
+      } else {
+        applyShortcode(editor, amendment);
+      }
     }
-    return applyShortcode(editor, amendment);
+
+    return true;
   };
 
   return (

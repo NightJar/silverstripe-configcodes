@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'reactstrap';
+import { Button } from 'reactstrap'; // eslint-disable-line import/no-extraneous-dependencies
 
 const preventFocusSteal = (event) => event.preventDefault();
 

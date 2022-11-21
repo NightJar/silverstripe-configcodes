@@ -1,34 +1,53 @@
-import { Transforms, Range } from 'slate';
+import { Editor, Range, Transforms } from 'slate';
 
-// TODO: this presumes a text range is selected - no good for point insertion (no content support), nor altered content
-export const applyShortcode = (editor, { shortcode, attributes, content: text }) => {
-  const shortcodeSlateElement = {
-    type: 'shortcode',
-    shortcode,
-    attributes,
-  };
-  if (text) {
-    shortcodeSlateElement.children = [{ text }];
-  }
-  return Range.isExpanded(editor.selection) && Transforms.wrapNodes(
+const convertToShortcode = (editor, text, shortcodeSettings) => {
+  Transforms.wrapNodes(
     editor,
-    shortcodeSlateElement,
+    shortcodeSettings,
     {
       split: true,
       match: (node) => !editor.isShortcode(node),
     }
   );
+  Editor.insertText(editor, text);
 };
 
-export const updateShortcode = (editor, shortcodeSettings) => Transforms.setNodes(editor, shortcodeSettings, {
-  match: (node) => editor.isShortcode(node),
-});
+const insertShortcode = (editor, shortcodeSettings) => Transforms.insertNodes(editor, shortcodeSettings);
 
-export const removeShortcode = (editor) => Transforms.unwrapNodes(editor, {
-  match: (node) => editor.isShortcode(node),
-});
+export const applyShortcode = (editor, { shortcode, attributes, content: text = '' }) => {
+  const shortcodeSlateElement = {
+    type: 'shortcode',
+    shortcode,
+    attributes,
+  };
+  return Range.isExpanded(editor.selection)
+    ? convertToShortcode(editor, text, shortcodeSlateElement)
+    : insertShortcode(editor, { ...shortcodeSlateElement, children: [{ text }] });
+};
 
-// TODO: swap testing harcode for actual editor opening
+export const updateShortcode = (editor, { shortcode, attributes, content: text = '' }) => {
+  Transforms.setNodes(
+    editor,
+    {
+      shortcode,
+      attributes,
+    },
+    {
+      match: (node) => editor.isShortcode(node),
+    }
+  );
+  const [, shortcodePath] = editor.hasShortcode();
+  Transforms.insertText(editor, text, { at: shortcodePath });
+};
+
+export const removeShortcode = (editor) => Transforms.unwrapNodes(
+  editor,
+  {
+    match: (node) => editor.isShortcode(node),
+  }
+);
+
+// TODO: swap testing hardode for actual editor opening
 const openShortcodeConfigurator = (editor) => applyShortcode(editor, 'maori');
 
 // toggle for shortcode

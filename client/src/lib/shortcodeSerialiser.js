@@ -2,7 +2,7 @@ import { parse } from '@bbob/parser';
 import { Node, Element, Text } from 'slate';
 
 const createSlateNode = {
-  fromShortcodeNode: ({ tag, attrs: attributes, content }) => ({
+  fromParserNode: ({ tag, attrs: attributes, content }) => ({
     type: 'shortcode',
     shortcode: tag,
     attributes,
@@ -21,7 +21,7 @@ export const toSlateNodeTree = (input, validCodes) => {
   return codeNodes.map(
     (node) => (
       typeof node === 'object' && typeof node.tag === 'string' && node.tag
-        ? createSlateNode.fromShortcodeNode(node)
+        ? createSlateNode.fromParserNode(node)
         : createSlateNode.fromString(node)
     )
   );

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Alert, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useShortcodes } from 'lib/hookShortcodes';
 import { loadComponent } from 'admin/lib/Injector';
@@ -68,27 +69,27 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
     REMOVE: () => close(true),
     APPLY: (event) => (
       event.target.form.reportValidity()
-        ? close(serialiseForm(event.target.form))
+        ? close(serialiseForm(event.target.form)) && setSelectedCode(null)
         : true // do not cancel native validation events, etc. by returning false
     ),
   };
   const cancelSubmission = (event) => {
     event.preventDefault();
-    event.stopImmediatePropagation();
+    event.nativeEvent.stopImmediatePropagation();
     return false;
   };
   return (
     <Modal isOpen={isOpen} toggle={actions.CANCEL}>
       <ModalHeader toggle={actions.CANCEL}>{editing.shortcode ? 'Edit' : 'Insert'} Shortcode</ModalHeader>
-      <form onSubmit={cancelSubmission}>
+      <form onSubmit={cancelSubmission} className="shortcode-editor">
         <ModalBody>
           <SingleSelectField
             id="shortcode-selector"
             name="shortcode"
             title="Shortcode"
-            source={Object.keys(shortcodeDescriptors).map((name) => ({ title: name, value: name }))}
+            source={Object.keys(shortcodeDescriptors).map((name) => ({ title: makeSentenceCase(name), value: name }))}
             value={shortcode}
-            extraClass="no-change-track"
+            extraClass="shortcode-editor__shortcode no-change-track"
             onChange={(e) => setSelectedCode(e.target.value)}
           />
           <UncontrolledTextField
@@ -96,7 +97,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
             name="content"
             title="Content"
             defaultValue={content}
-            extraClass="no-change-track"
+            className="shortcode-editor__content no-change-track"
             disabled={contentDisabled}
             required={contentRequired}
             message={contentDisabled ? buildMessage(shortcode, content) : undefined}
@@ -111,7 +112,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
                 title={makeSentenceCase(name)}
                 required={required || undefined}
                 defaultValue={attributes[name]}
-                extraClass="no-change-track"
+                className="shortcode-editor__attribute no-change-track"
               />
             ))}
           </fieldset>

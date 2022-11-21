@@ -273,15 +273,18 @@ exports.default = function (_ref) {
 
   var closeModal = function closeModal(amendment) {
     setEditorOpen(false);
-    console.log(amendment);
-    if (!amendment) {
-      return null;
-    } else if (amendment === true) {
-      return (0, _shortcodeTransforms.removeShortcode)(editor);
-    } else if (cursorInShortcode) {
-      return (0, _shortcodeTransforms.updateShortcode)(editor, amendment);
+
+    if (amendment) {
+      if (amendment === true) {
+        (0, _shortcodeTransforms.removeShortcode)(editor);
+      } else if (cursorInShortcode) {
+        (0, _shortcodeTransforms.updateShortcode)(editor, amendment);
+      } else {
+        (0, _shortcodeTransforms.applyShortcode)(editor, amendment);
+      }
     }
-    return (0, _shortcodeTransforms.applyShortcode)(editor, amendment);
+
+    return true;
   };
 
   return _react2.default.createElement(
@@ -595,12 +598,12 @@ exports.default = function (_ref3) {
       return close(true);
     },
     APPLY: function APPLY(event) {
-      return event.target.form.reportValidity() ? close(serialiseForm(event.target.form)) : true;
+      return event.target.form.reportValidity() ? close(serialiseForm(event.target.form)) && setSelectedCode(null) : true;
     }
   };
   var cancelSubmission = function cancelSubmission(event) {
     event.preventDefault();
-    event.stopImmediatePropagation();
+    event.nativeEvent.stopImmediatePropagation();
     return false;
   };
   return _react2.default.createElement(
@@ -614,7 +617,7 @@ exports.default = function (_ref3) {
     ),
     _react2.default.createElement(
       'form',
-      { onSubmit: cancelSubmission },
+      { onSubmit: cancelSubmission, className: 'shortcode-editor' },
       _react2.default.createElement(
         _reactstrap.ModalBody,
         null,
@@ -623,10 +626,10 @@ exports.default = function (_ref3) {
           name: 'shortcode',
           title: 'Shortcode',
           source: Object.keys(shortcodeDescriptors).map(function (name) {
-            return { title: name, value: name };
+            return { title: makeSentenceCase(name), value: name };
           }),
           value: shortcode,
-          extraClass: 'no-change-track',
+          extraClass: 'shortcode-editor__shortcode no-change-track',
           onChange: function onChange(e) {
             return setSelectedCode(e.target.value);
           }
@@ -636,7 +639,7 @@ exports.default = function (_ref3) {
           name: 'content',
           title: 'Content',
           defaultValue: content,
-          extraClass: 'no-change-track',
+          className: 'shortcode-editor__content no-change-track',
           disabled: contentDisabled,
           required: contentRequired,
           message: contentDisabled ? buildMessage(shortcode, content) : undefined
@@ -661,7 +664,7 @@ exports.default = function (_ref3) {
               title: makeSentenceCase(name),
               required: required || undefined,
               defaultValue: attributes[name],
-              extraClass: 'no-change-track'
+              className: 'shortcode-editor__attribute no-change-track'
             });
           })
         )
@@ -972,7 +975,7 @@ var _parser = __webpack_require__("./node_modules/@bbob/parser/dist/index.js");
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 var createSlateNode = {
-  fromShortcodeNode: function fromShortcodeNode(_ref) {
+  fromParserNode: function fromParserNode(_ref) {
     var tag = _ref.tag,
         attributes = _ref.attrs,
         content = _ref.content;
@@ -996,7 +999,7 @@ var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, 
   var parserOptions = { onlyAllowTags: validCodes };
   var codeNodes = (0, _parser.parse)(input, parserOptions);
   return codeNodes.map(function (node) {
-    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && typeof node.tag === 'string' && node.tag ? createSlateNode.fromShortcodeNode(node) : createSlateNode.fromString(node);
+    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && typeof node.tag === 'string' && node.tag ? createSlateNode.fromParserNode(node) : createSlateNode.fromString(node);
   });
 };
 
@@ -1048,35 +1051,60 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.removeShortcode = exports.updateShortcode = exports.applyShortcode = undefined;
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
+
+var convertToShortcode = function convertToShortcode(editor, text, shortcodeSettings) {
+  _slate.Transforms.wrapNodes(editor, shortcodeSettings, {
+    split: true,
+    match: function match(node) {
+      return !editor.isShortcode(node);
+    }
+  });
+  _slate.Editor.insertText(editor, text);
+};
+
+var insertShortcode = function insertShortcode(editor, shortcodeSettings) {
+  return _slate.Transforms.insertNodes(editor, shortcodeSettings);
+};
 
 var applyShortcode = exports.applyShortcode = function applyShortcode(editor, _ref) {
   var shortcode = _ref.shortcode,
       attributes = _ref.attributes,
-      text = _ref.content;
+      _ref$content = _ref.content,
+      text = _ref$content === undefined ? '' : _ref$content;
 
   var shortcodeSlateElement = {
     type: 'shortcode',
     shortcode: shortcode,
     attributes: attributes
   };
-  if (text) {
-    shortcodeSlateElement.children = [{ text: text }];
-  }
-  return _slate.Range.isExpanded(editor.selection) && _slate.Transforms.wrapNodes(editor, shortcodeSlateElement, {
-    split: true,
-    match: function match(node) {
-      return !editor.isShortcode(node);
-    }
-  });
+  return _slate.Range.isExpanded(editor.selection) ? convertToShortcode(editor, text, shortcodeSlateElement) : insertShortcode(editor, _extends({}, shortcodeSlateElement, { children: [{ text: text }] }));
 };
 
-var updateShortcode = exports.updateShortcode = function updateShortcode(editor, shortcodeSettings) {
-  return _slate.Transforms.setNodes(editor, shortcodeSettings, {
+var updateShortcode = exports.updateShortcode = function updateShortcode(editor, _ref2) {
+  var shortcode = _ref2.shortcode,
+      attributes = _ref2.attributes,
+      _ref2$content = _ref2.content,
+      text = _ref2$content === undefined ? '' : _ref2$content;
+
+  _slate.Transforms.setNodes(editor, {
+    shortcode: shortcode,
+    attributes: attributes
+  }, {
     match: function match(node) {
       return editor.isShortcode(node);
     }
   });
+
+  var _editor$hasShortcode = editor.hasShortcode(),
+      _editor$hasShortcode2 = _slicedToArray(_editor$hasShortcode, 2),
+      shortcodePath = _editor$hasShortcode2[1];
+
+  _slate.Transforms.insertText(editor, text, { at: shortcodePath });
 };
 
 var removeShortcode = exports.removeShortcode = function removeShortcode(editor) {
