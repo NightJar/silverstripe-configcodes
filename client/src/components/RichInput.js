@@ -3,12 +3,13 @@ import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import { withHistory } from 'slate-history';
 import { toStorableString, toSlateNodeTree } from 'lib/shortcodeSerialiser';
-import InputToolbar from 'components/InputToolbar';
+import Toolbar from 'components/Toolbar';
 import Element from 'components/Element';
-import detectKeyboardShortcut, { cloneKeyboardEvent } from 'lib/keyboard';
+import hotKeys, { cloneKeyboardEvent } from 'lib/keyboard';
 import withShortcodes from 'lib/withShortcodes';
 import { InputGroup, InputGroupAddon } from 'reactstrap'; // eslint-disable-line import/no-extraneous-dependencies
 import { ShortcodeConfig } from '../lib/hookShortcodes';
+import { HotKeyRegistrar } from '../lib/hookHotkeys';
 
 const makeLabelsFocusEditor = (input, targetId) => {
   input.labels.forEach((label) => label.addEventListener('click', (event) => {
@@ -35,8 +36,8 @@ export const RichInput = ({ linkedInput, shortcodeConfig }) => {
   makeLabelsFocusEditor(linkedInput, editableElementId);
   const readOnly = (linkedInput.disabled || linkedInput.readOnly) || undefined;
   const isMultiline = linkedInput.type === 'textarea';
-  const keyboardShortcutHandler = detectKeyboardShortcut(editor);
-  const keyHandler = isMultiline ? keyboardShortcutHandler : (event) => {
+  const { registerHotKey, handleHotKey } = hotKeys();
+  const keyHandler = isMultiline ? handleHotKey : (event) => {
     if (event.key.toLowerCase() === 'enter') {
       // Trigger any handlers on the original input
       // if the event did not get preventDefault called on it (dispatchEvent returns false if preventDefault is called)
@@ -52,7 +53,7 @@ export const RichInput = ({ linkedInput, shortcodeConfig }) => {
       // never break to a new line.
       event.preventDefault();
     }
-    keyboardShortcutHandler(event);
+    handleHotKey(event);
   };
   const block = 'shortcodable-input';
   const classes = ['disabled', 'readOnly']
@@ -75,7 +76,9 @@ export const RichInput = ({ linkedInput, shortcodeConfig }) => {
         />
         <InputGroupAddon addonType="append">
           <ShortcodeConfig.Provider value={shortcodeConfig}>
-            <InputToolbar blockId={editableElementId} />
+            <HotKeyRegistrar.Provider value={registerHotKey}>
+              <Toolbar blockId={editableElementId} />
+            </HotKeyRegistrar.Provider>
           </ShortcodeConfig.Provider>
         </InputGroupAddon>
       </InputGroup>

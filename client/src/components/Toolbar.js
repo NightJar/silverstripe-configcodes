@@ -49,6 +49,7 @@ export default ({ blockId: editableElementId }) => {
           disabled={!isFocused}
           onClick={() => setEditorOpen(true)}
           aria-label={`${cursorInShortcode ? 'Edit' : 'Add'} shortcode`}
+          hotKey="Alt+S"
         >
           <ShortcodeEditor isOpen={editorIsOpen} close={closeModal} editing={editing} />
         </ToolbarButton>
@@ -59,6 +60,7 @@ export default ({ blockId: editableElementId }) => {
           disabled={!(isFocused && cursorInShortcode)}
           onClick={() => closeModal(true)}
           aria-label="Remove shortcode"
+          hotKey="Alt+Shift+S"
         />
         <Tip
           id={`${editableElementId}__help`}
@@ -66,6 +68,7 @@ export default ({ blockId: editableElementId }) => {
           icon="white-question"
           fieldTitle={`${editableElementId} editor help`}
           tabIndex="-1"
+          hotKey="alt+k"
         />
       </ButtonGroup>
     </ButtonToolbar>

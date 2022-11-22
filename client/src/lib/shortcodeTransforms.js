@@ -46,17 +46,3 @@ export const removeShortcode = (editor) => Transforms.unwrapNodes(
     match: (node) => editor.isShortcode(node),
   }
 );
-
-// TODO: swap testing hardode for actual editor opening
-const openShortcodeConfigurator = (editor) => applyShortcode(editor, 'maori');
-
-// toggle for shortcode
-export default (editor) => {
-  if (editor.hasShortcode()) {
-    return removeShortcode(editor);
-  }
-  if (Range.isExpanded(editor.selection)) {
-    return openShortcodeConfigurator(editor);
-  }
-  return null;
-};

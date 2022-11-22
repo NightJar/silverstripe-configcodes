@@ -1,15 +1,35 @@
-import isHotKey from 'is-hotkey';
-import addEditOrRemoveShortcode from 'lib/shortcodeTransforms';
+import { parseHotkey, isHotkey } from 'is-hotkey';
 
-const isShortcodeHotkey = isHotKey('alt+m');
+export default () => {
+  const hotKeyRegister = {};
 
-export default (editor) => {
-  const handleHotKey = (event) => {
-    event.preventDefault();
-    addEditOrRemoveShortcode(editor);
+  const isRegisteredHotKey = (keyPressConfig) => Object.keys(hotKeyRegister).find(
+    (registeredCombo) => hotKeyRegister[registeredCombo].matches(keyPressConfig)
+  );
+
+  const registerHotKey = (keyCombo, handler) => {
+    const keyPressConfig = parseHotkey(keyCombo);
+    const exists = isRegisteredHotKey(keyPressConfig);
+    if (exists !== undefined) {
+      const as = keyCombo === exists ? '' : ` as ${exists}`
+      throw new Error(`Duplicate hot key registration - ${keyCombo} already exists${as}`);
+    }
+    hotKeyRegister[keyCombo] = { matches: isHotkey(keyCombo), handler};
+    return () => delete hotKeyRegister[keyCombo];
   };
 
-  return (event) => isShortcodeHotkey(event) && handleHotKey(event);
+  const handleHotKey = (event) => {
+    const keyCombo = isRegisteredHotKey(event)
+    if (keyCombo) {
+      event.preventDefault();
+      hotKeyRegister[keyCombo].handler(event);
+    }
+  };
+
+  return {
+    registerHotKey,
+    handleHotKey,
+  }
 };
 
 export const cloneKeyboardEvent = ({

@@ -214,122 +214,6 @@ exports.default = function (elementProps) {
 
 /***/ }),
 
-/***/ "./client/src/components/InputToolbar.js":
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _react = __webpack_require__(0);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _slateReact = __webpack_require__("./node_modules/slate-react/dist/index.es.js");
-
-var _ShortcodeEditor = __webpack_require__("./client/src/components/ShortcodeEditor.js");
-
-var _ShortcodeEditor2 = _interopRequireDefault(_ShortcodeEditor);
-
-var _ToolbarButton = __webpack_require__("./client/src/components/ToolbarButton.js");
-
-var _ToolbarButton2 = _interopRequireDefault(_ToolbarButton);
-
-var _reactstrap = __webpack_require__(1);
-
-var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
-
-var _Tip = __webpack_require__(6);
-
-var _Tip2 = _interopRequireDefault(_Tip);
-
-var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function (_ref) {
-  var editableElementId = _ref.blockId;
-
-  var _useState = (0, _react.useState)(false),
-      _useState2 = _slicedToArray(_useState, 2),
-      editorIsOpen = _useState2[0],
-      setEditorOpen = _useState2[1];
-
-  var editor = (0, _slateReact.useSlate)();
-  var isFocused = (0, _slateReact.useFocused)();
-
-  var cursorInShortcode = editor.hasShortcode();
-  var selectedText = editor.selection && _slate.Range.isExpanded(editor.selection) && _slate.Node.string({ children: editor.getFragment() });
-  var editing = !cursorInShortcode ? { content: selectedText || undefined } : {
-    shortcode: cursorInShortcode[0].shortcode,
-    attributes: cursorInShortcode[0].attributes,
-    content: _slate.Node.string(cursorInShortcode[0])
-  };
-
-  var closeModal = function closeModal(amendment) {
-    setEditorOpen(false);
-
-    if (amendment) {
-      if (amendment === true) {
-        (0, _shortcodeTransforms.removeShortcode)(editor);
-      } else if (cursorInShortcode) {
-        (0, _shortcodeTransforms.updateShortcode)(editor, amendment);
-      } else {
-        (0, _shortcodeTransforms.applyShortcode)(editor, amendment);
-      }
-    }
-
-    return true;
-  };
-
-  return _react2.default.createElement(
-    _reactstrap.ButtonToolbar,
-    null,
-    _react2.default.createElement(
-      _reactstrap.ButtonGroup,
-      null,
-      _react2.default.createElement(
-        _ToolbarButton2.default,
-        {
-          icon: cursorInShortcode ? 'edit' : 'edit-write',
-          noText: true,
-          outline: true,
-          disabled: !isFocused,
-          onClick: function onClick() {
-            return setEditorOpen(true);
-          },
-          'aria-label': (cursorInShortcode ? 'Edit' : 'Add') + ' shortcode'
-        },
-        _react2.default.createElement(_ShortcodeEditor2.default, { isOpen: editorIsOpen, close: closeModal, editing: editing })
-      ),
-      _react2.default.createElement(_ToolbarButton2.default, {
-        icon: 'block',
-        noText: true,
-        outline: true,
-        disabled: !(isFocused && cursorInShortcode),
-        onClick: function onClick() {
-          return closeModal(true);
-        },
-        'aria-label': 'Remove shortcode'
-      }),
-      _react2.default.createElement(_Tip2.default, {
-        id: editableElementId + '__help',
-        content: 'Press Alt+M to enter shortcode',
-        icon: 'white-question',
-        fieldTitle: editableElementId + ' editor help',
-        tabIndex: '-1'
-      })
-    )
-  );
-};
-
-/***/ }),
-
 /***/ "./client/src/components/RichInput.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -355,9 +239,9 @@ var _slateHistory = __webpack_require__("./node_modules/slate-history/dist/index
 
 var _shortcodeSerialiser = __webpack_require__("./client/src/lib/shortcodeSerialiser.js");
 
-var _InputToolbar = __webpack_require__("./client/src/components/InputToolbar.js");
+var _Toolbar = __webpack_require__("./client/src/components/Toolbar.js");
 
-var _InputToolbar2 = _interopRequireDefault(_InputToolbar);
+var _Toolbar2 = _interopRequireDefault(_Toolbar);
 
 var _Element = __webpack_require__("./client/src/components/Element.js");
 
@@ -374,6 +258,8 @@ var _withShortcodes2 = _interopRequireDefault(_withShortcodes);
 var _reactstrap = __webpack_require__(1);
 
 var _hookShortcodes = __webpack_require__("./client/src/lib/hookShortcodes.js");
+
+var _hookHotkeys = __webpack_require__("./client/src/lib/hookHotkeys.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -408,8 +294,12 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
   makeLabelsFocusEditor(linkedInput, editableElementId);
   var readOnly = linkedInput.disabled || linkedInput.readOnly || undefined;
   var isMultiline = linkedInput.type === 'textarea';
-  var keyboardShortcutHandler = (0, _keyboard2.default)(editor);
-  var keyHandler = isMultiline ? keyboardShortcutHandler : function (event) {
+
+  var _hotKeys = (0, _keyboard2.default)(),
+      registerHotKey = _hotKeys.registerHotKey,
+      handleHotKey = _hotKeys.handleHotKey;
+
+  var keyHandler = isMultiline ? handleHotKey : function (event) {
     if (event.key.toLowerCase() === 'enter') {
       if (linkedInput.dispatchEvent((0, _keyboard.cloneKeyboardEvent)(event.nativeEvent))) {
         linkedInput.form.querySelector('input[type=submit],button[type=submit],input[type=image]').click();
@@ -417,7 +307,7 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
 
       event.preventDefault();
     }
-    keyboardShortcutHandler(event);
+    handleHotKey(event);
   };
   var block = 'shortcodable-input';
   var classes = ['disabled', 'readOnly'].filter(function (state) {
@@ -449,7 +339,11 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
         _react2.default.createElement(
           _hookShortcodes.ShortcodeConfig.Provider,
           { value: shortcodeConfig },
-          _react2.default.createElement(_InputToolbar2.default, { blockId: editableElementId })
+          _react2.default.createElement(
+            _hookHotkeys.HotKeyRegistrar.Provider,
+            { value: registerHotKey },
+            _react2.default.createElement(_Toolbar2.default, { blockId: editableElementId })
+          )
         )
       )
     )
@@ -730,6 +624,125 @@ exports.default = ShortcodeElement;
 
 /***/ }),
 
+/***/ "./client/src/components/Toolbar.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _react = __webpack_require__(0);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _slateReact = __webpack_require__("./node_modules/slate-react/dist/index.es.js");
+
+var _ShortcodeEditor = __webpack_require__("./client/src/components/ShortcodeEditor.js");
+
+var _ShortcodeEditor2 = _interopRequireDefault(_ShortcodeEditor);
+
+var _ToolbarButton = __webpack_require__("./client/src/components/ToolbarButton.js");
+
+var _ToolbarButton2 = _interopRequireDefault(_ToolbarButton);
+
+var _reactstrap = __webpack_require__(1);
+
+var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
+
+var _Tip = __webpack_require__(6);
+
+var _Tip2 = _interopRequireDefault(_Tip);
+
+var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (_ref) {
+  var editableElementId = _ref.blockId;
+
+  var _useState = (0, _react.useState)(false),
+      _useState2 = _slicedToArray(_useState, 2),
+      editorIsOpen = _useState2[0],
+      setEditorOpen = _useState2[1];
+
+  var editor = (0, _slateReact.useSlate)();
+  var isFocused = (0, _slateReact.useFocused)();
+
+  var cursorInShortcode = editor.hasShortcode();
+  var selectedText = editor.selection && _slate.Range.isExpanded(editor.selection) && _slate.Node.string({ children: editor.getFragment() });
+  var editing = !cursorInShortcode ? { content: selectedText || undefined } : {
+    shortcode: cursorInShortcode[0].shortcode,
+    attributes: cursorInShortcode[0].attributes,
+    content: _slate.Node.string(cursorInShortcode[0])
+  };
+
+  var closeModal = function closeModal(amendment) {
+    setEditorOpen(false);
+
+    if (amendment) {
+      if (amendment === true) {
+        (0, _shortcodeTransforms.removeShortcode)(editor);
+      } else if (cursorInShortcode) {
+        (0, _shortcodeTransforms.updateShortcode)(editor, amendment);
+      } else {
+        (0, _shortcodeTransforms.applyShortcode)(editor, amendment);
+      }
+    }
+
+    return true;
+  };
+
+  return _react2.default.createElement(
+    _reactstrap.ButtonToolbar,
+    null,
+    _react2.default.createElement(
+      _reactstrap.ButtonGroup,
+      null,
+      _react2.default.createElement(
+        _ToolbarButton2.default,
+        {
+          icon: cursorInShortcode ? 'edit' : 'edit-write',
+          noText: true,
+          outline: true,
+          disabled: !isFocused,
+          onClick: function onClick() {
+            return setEditorOpen(true);
+          },
+          'aria-label': (cursorInShortcode ? 'Edit' : 'Add') + ' shortcode',
+          hotKey: 'Alt+S'
+        },
+        _react2.default.createElement(_ShortcodeEditor2.default, { isOpen: editorIsOpen, close: closeModal, editing: editing })
+      ),
+      _react2.default.createElement(_ToolbarButton2.default, {
+        icon: 'block',
+        noText: true,
+        outline: true,
+        disabled: !(isFocused && cursorInShortcode),
+        onClick: function onClick() {
+          return closeModal(true);
+        },
+        'aria-label': 'Remove shortcode',
+        hotKey: 'Alt+Shift+S'
+      }),
+      _react2.default.createElement(_Tip2.default, {
+        id: editableElementId + '__help',
+        content: 'Press Alt+M to enter shortcode',
+        icon: 'white-question',
+        fieldTitle: editableElementId + ' editor help',
+        tabIndex: '-1',
+        hotKey: 'alt+k'
+      })
+    )
+  );
+};
+
+/***/ }),
+
 /***/ "./client/src/components/ToolbarButton.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -747,6 +760,8 @@ var _react = __webpack_require__(0);
 var _react2 = _interopRequireDefault(_react);
 
 var _reactstrap = __webpack_require__(1);
+
+var _hookHotkeys = __webpack_require__("./client/src/lib/hookHotkeys.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -766,8 +781,14 @@ exports.default = function (props) {
       className = _props$className === undefined ? '' : _props$className,
       _props$tabIndex = props.tabIndex,
       tabIndex = _props$tabIndex === undefined ? '-1' : _props$tabIndex,
-      buttonProps = _objectWithoutProperties(props, ['aria-label', 'noText', 'icon', 'className', 'tabIndex']);
+      hotKey = props.hotKey,
+      onClick = props.onClick,
+      buttonProps = _objectWithoutProperties(props, ['aria-label', 'noText', 'icon', 'className', 'tabIndex', 'hotKey', 'onClick']);
 
+  var registerHotKey = (0, _hookHotkeys.useHotKey)();
+  (0, _react.useEffect)(function () {
+    return hotKey && onClick && registerHotKey(hotKey, onClick);
+  }, [hotKey, onClick]);
   if (noText && !ariaLabel) {
     throw new Error('Cannot create a button with no accessible name. If using `noText`, also specify `aria-label`');
   }
@@ -782,6 +803,7 @@ exports.default = function (props) {
       return classes[trigger];
     }))).join(' '),
     tabIndex: tabIndex,
+    onClick: onClick,
     onMouseDown: preventFocusSteal
   });
   return _react2.default.createElement(_reactstrap.Button, _extends({}, amendedProps, { 'aria-label': ariaLabel }));
@@ -856,6 +878,27 @@ exports.default = function (Field) {
 
 /***/ }),
 
+/***/ "./client/src/lib/hookHotkeys.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useHotKey = exports.HotKeyRegistrar = undefined;
+
+var _react = __webpack_require__(0);
+
+var HotKeyRegistrar = exports.HotKeyRegistrar = (0, _react.createContext)(null);
+
+var useHotKey = exports.useHotKey = function useHotKey() {
+  return (0, _react.useContext)(HotKeyRegistrar);
+};
+
+/***/ }),
+
 /***/ "./client/src/lib/hookShortcodes.js":
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -892,24 +935,39 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _isHotkey = __webpack_require__("./node_modules/is-hotkey/lib/index.js");
 
-var _isHotkey2 = _interopRequireDefault(_isHotkey);
+exports.default = function () {
+  var hotKeyRegister = {};
 
-var _shortcodeTransforms = __webpack_require__("./client/src/lib/shortcodeTransforms.js");
-
-var _shortcodeTransforms2 = _interopRequireDefault(_shortcodeTransforms);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var isShortcodeHotkey = (0, _isHotkey2.default)('alt+m');
-
-exports.default = function (editor) {
-  var handleHotKey = function handleHotKey(event) {
-    event.preventDefault();
-    (0, _shortcodeTransforms2.default)(editor);
+  var isRegisteredHotKey = function isRegisteredHotKey(keyPressConfig) {
+    return Object.keys(hotKeyRegister).find(function (registeredCombo) {
+      return hotKeyRegister[registeredCombo].matches(keyPressConfig);
+    });
   };
 
-  return function (event) {
-    return isShortcodeHotkey(event) && handleHotKey(event);
+  var registerHotKey = function registerHotKey(keyCombo, handler) {
+    var keyPressConfig = (0, _isHotkey.parseHotkey)(keyCombo);
+    var exists = isRegisteredHotKey(keyPressConfig);
+    if (exists !== undefined) {
+      var as = keyCombo === exists ? '' : ' as ' + exists;
+      throw new Error('Duplicate hot key registration - ' + keyCombo + ' already exists' + as);
+    }
+    hotKeyRegister[keyCombo] = { matches: (0, _isHotkey.isHotkey)(keyCombo), handler: handler };
+    return function () {
+      return delete hotKeyRegister[keyCombo];
+    };
+  };
+
+  var handleHotKey = function handleHotKey(event) {
+    var keyCombo = isRegisteredHotKey(event);
+    if (keyCombo) {
+      event.preventDefault();
+      hotKeyRegister[keyCombo].handler(event);
+    }
+  };
+
+  return {
+    registerHotKey: registerHotKey,
+    handleHotKey: handleHotKey
   };
 };
 
@@ -1113,20 +1171,6 @@ var removeShortcode = exports.removeShortcode = function removeShortcode(editor)
       return editor.isShortcode(node);
     }
   });
-};
-
-var openShortcodeConfigurator = function openShortcodeConfigurator(editor) {
-  return applyShortcode(editor, 'maori');
-};
-
-exports.default = function (editor) {
-  if (editor.hasShortcode()) {
-    return removeShortcode(editor);
-  }
-  if (_slate.Range.isExpanded(editor.selection)) {
-    return openShortcodeConfigurator(editor);
-  }
-  return null;
 };
 
 /***/ }),
