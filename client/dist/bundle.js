@@ -74,7 +74,7 @@
 "use strict";
 
 
-var _jquery = __webpack_require__(7);
+var _jquery = __webpack_require__(8);
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
@@ -384,6 +384,8 @@ var _Button = __webpack_require__(4);
 
 var _Button2 = _interopRequireDefault(_Button);
 
+var _translations = __webpack_require__("./client/src/lib/translations.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var serialiseForm = function serialiseForm(form) {
@@ -440,7 +442,7 @@ var makeSentenceCase = function makeSentenceCase(string) {
 
 var buildMessage = function buildMessage(shortcode, selectedContent) {
   var type = selectedContent ? 'warning' : 'info';
-  var message = ['Content is not accepted by the ' + shortcode + ' shortcode.', _react2.default.createElement('br', { key: 'br' }), ' Selected content (as follows) will be deleted when applying this configuration: ', _react2.default.createElement(
+  var message = [(0, _translations._tinject)('CONTENT_NOTICE', { shortcode: shortcode }), _react2.default.createElement('br', { key: 'br' }), (0, _translations._tinject)('CONTENT_WARNING', { shortcode: shortcode }), _react2.default.createElement(
     'q',
     { key: 'selectedContent', className: 'shortcode__selected-content' },
     selectedContent
@@ -506,8 +508,7 @@ exports.default = function (_ref3) {
     _react2.default.createElement(
       _reactstrap.ModalHeader,
       { toggle: actions.CANCEL },
-      editing.shortcode ? 'Edit' : 'Insert',
-      ' Shortcode'
+      (0, _translations._tinject)('EDITOR_TITLE', { verb: (0, _translations._tinject)(editing.shortcode ? 'VERB_EDIT' : 'VERB_ADD') })
     ),
     _react2.default.createElement(
       'form',
@@ -518,7 +519,7 @@ exports.default = function (_ref3) {
         _react2.default.createElement(SingleSelectField, {
           id: 'shortcode-selector',
           name: 'shortcode',
-          title: 'Shortcode',
+          title: (0, _translations._tinject)('FIELD_SHORTCODE'),
           source: Object.keys(shortcodeDescriptors).map(function (name) {
             return { title: makeSentenceCase(name), value: name };
           }),
@@ -531,7 +532,7 @@ exports.default = function (_ref3) {
         _react2.default.createElement(_UncontrolledTextField2.default, {
           id: 'shortcode-content',
           name: 'content',
-          title: 'Content',
+          title: (0, _translations._tinject)('FIELD_CONTENT'),
           defaultValue: content,
           className: 'shortcode-editor__content no-change-track',
           disabled: contentDisabled,
@@ -544,7 +545,7 @@ exports.default = function (_ref3) {
           _react2.default.createElement(
             'legend',
             null,
-            'Attributes'
+            (0, _translations._tinject)('EDITOR_ATTRIBUTES')
           ),
           shortcode && Object.entries(shortcodeDescriptors[shortcode].parameters).map(function (_ref4) {
             var _ref5 = _slicedToArray(_ref4, 2),
@@ -569,17 +570,17 @@ exports.default = function (_ref3) {
         _react2.default.createElement(
           _Button2.default,
           { type: 'submit', icon: 'down-circled', color: 'primary', onClick: actions.APPLY },
-          'Apply'
+          (0, _translations._tinject)('ACTIONS_APPLY')
         ),
         editing.shortcode && _react2.default.createElement(
           _Button2.default,
           { icon: 'block', outline: true, color: 'danger', onClick: actions.REMOVE },
-          'Remove'
+          (0, _translations._tinject)('ACTIONS_REMOVE')
         ),
         _react2.default.createElement(
           _Button2.default,
           { color: 'subdued', onClick: actions.CANCEL },
-          'Cancel'
+          (0, _translations._tinject)('ACTIONS_CANCEL')
         )
       )
     )
@@ -660,6 +661,8 @@ var _Tip2 = _interopRequireDefault(_Tip);
 
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
+var _translations = __webpack_require__("./client/src/lib/translations.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function (_ref) {
@@ -713,7 +716,7 @@ exports.default = function (_ref) {
           onClick: function onClick() {
             return setEditorOpen(true);
           },
-          'aria-label': (cursorInShortcode ? 'Edit' : 'Add') + ' shortcode',
+          'aria-label': (0, _translations._tinject)('TOOLBAR_ACTION', { verb: (0, _translations._tinject)(cursorInShortcode ? 'VERB_EDIT' : 'VERB_ADD') }),
           hotKey: 'Alt+S'
         },
         _react2.default.createElement(_ShortcodeEditor2.default, { isOpen: editorIsOpen, close: closeModal, editing: editing })
@@ -726,7 +729,7 @@ exports.default = function (_ref) {
         onClick: function onClick() {
           return closeModal(true);
         },
-        'aria-label': 'Remove shortcode',
+        'aria-label': (0, _translations._tinject)('TOOLBAR_ACTION', { verb: (0, _translations._tinject)('VERB_REMOVE') }),
         hotKey: 'Alt+Shift+S'
       }),
       _react2.default.createElement(_Tip2.default, {
@@ -735,7 +738,8 @@ exports.default = function (_ref) {
         icon: 'white-question',
         fieldTitle: editableElementId + ' editor help',
         tabIndex: '-1',
-        hotKey: 'alt+k'
+        hotKey: 'alt+k',
+        'aria-label': (0, _translations._tinject)('TOOLBAR_HELP')
       })
     )
   );
@@ -1172,6 +1176,68 @@ var removeShortcode = exports.removeShortcode = function removeShortcode(editor)
     }
   });
 };
+
+/***/ }),
+
+/***/ "./client/src/lib/translations.js":
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports._tinject = exports.DICTIONARY = undefined;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _i18n = __webpack_require__(7);
+
+var _i18n2 = _interopRequireDefault(_i18n);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var moduleName = 'Shortcodable';
+
+var entity = function entity(id) {
+  return moduleName + '.' + id.toUpperCase();
+};
+
+var verbs = {
+  VERB_ADD: 'Add',
+  VERB_EDIT: 'Edit',
+  VERB_REMOVE: 'Remove'
+};
+
+var buttons = {
+  TOOLBAR_ACTION: '{verb} shortcode',
+  TOOLBAR_HELP: 'Shortcode editor help'
+};
+
+var editorControls = {
+  EDITOR_TITLE: '{verb} Shortcode',
+  FIELD_SHORTCODE: 'Shortcode',
+  FIELD_CONTENT: 'Content',
+  CONTENT_NOTICE: 'Content is not accepted by the {shortcode} shortcode.',
+  CONTENT_WARNING: ' Selected content (as follows) will be deleted when applying this configuration: ',
+  EDITOR_ATTRIBUTES: 'Attributes',
+  ACTIONS_APPLY: 'Apply',
+  ACTIONS_REMOVE: 'Remove',
+  ACTIONS_CANCEL: 'Cancel'
+};
+
+var DICTIONARY = exports.DICTIONARY = _extends({}, verbs, buttons, editorControls);
+
+var _tinject = exports._tinject = function _tinject(entry, params) {
+  return (0, _i18n.inject)(_i18n2.default._t(entity(entry), DICTIONARY[entry]), params || {});
+};
+
+exports.default = Object.keys(DICTIONARY).reduce(function (table, entry) {
+  return _extends({}, table, _defineProperty({}, entity(entry), DICTIONARY[entry]));
+}, {});
 
 /***/ }),
 
@@ -15315,6 +15381,13 @@ module.exports = Tip;
 /***/ }),
 
 /***/ 7:
+/***/ (function(module, exports) {
+
+module.exports = i18n;
+
+/***/ }),
+
+/***/ 8:
 /***/ (function(module, exports) {
 
 module.exports = jQuery;

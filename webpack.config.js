@@ -27,6 +27,7 @@ jsResolveConfig.alias = {
 
 const jsExternals = {
   ...externalJS(ENV, PATHS),
+  'admin/i18n': 'i18n',
   'admin/lib/Injector': 'Injector',
   // Used directly (without Injector) to build ContentField:
   'admin/components/TextField/TextField': 'TextField',

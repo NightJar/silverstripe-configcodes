@@ -21,5 +21,5 @@ Allow text fields to hold and process short codes.
 [ ] FIX: Tip doesn't do what it does in a React context - it won't close without re-clicking the button that opens it.
 [ ] Figure out how aria-describedBy can reference the popover visual help - can't happen with Tip because it doesn't render the content by default.
 [ ] How is the accessibility on the toolbar? Does it matter, if we hint on shortcut keys elsewhere? All functionality is available via the Editor - so as long as that opens with a tooltip it should be OK, right?
-[ ] support translations
+[x] support translations
 [ ] shortcodes that do not accept content should probably be 'void' elements (Slate)

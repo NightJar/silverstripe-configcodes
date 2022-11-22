@@ -7,6 +7,7 @@ import { ButtonGroup, ButtonToolbar } from 'reactstrap'; // eslint-disable-line 
 import { applyShortcode, updateShortcode, removeShortcode } from 'lib/shortcodeTransforms';
 import Tip from 'admin/components/Tip/Tip';
 import { Node, Range } from 'slate';
+import { _tinject } from '../lib/translations';
 
 export default ({ blockId: editableElementId }) => {
   const [editorIsOpen, setEditorOpen] = useState(false);
@@ -48,7 +49,7 @@ export default ({ blockId: editableElementId }) => {
           outline
           disabled={!isFocused}
           onClick={() => setEditorOpen(true)}
-          aria-label={`${cursorInShortcode ? 'Edit' : 'Add'} shortcode`}
+          aria-label={_tinject('TOOLBAR_ACTION', { verb: _tinject(cursorInShortcode ? 'VERB_EDIT' : 'VERB_ADD') })}
           hotKey="Alt+S"
         >
           <ShortcodeEditor isOpen={editorIsOpen} close={closeModal} editing={editing} />
@@ -59,7 +60,7 @@ export default ({ blockId: editableElementId }) => {
           outline
           disabled={!(isFocused && cursorInShortcode)}
           onClick={() => closeModal(true)}
-          aria-label="Remove shortcode"
+          aria-label={_tinject('TOOLBAR_ACTION', { verb: _tinject('VERB_REMOVE') })}
           hotKey="Alt+Shift+S"
         />
         <Tip
@@ -69,6 +70,7 @@ export default ({ blockId: editableElementId }) => {
           fieldTitle={`${editableElementId} editor help`}
           tabIndex="-1"
           hotKey="alt+k"
+          aria-label={_tinject('TOOLBAR_HELP')}
         />
       </ButtonGroup>
     </ButtonToolbar>

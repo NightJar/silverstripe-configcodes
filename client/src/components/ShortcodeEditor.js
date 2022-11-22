@@ -6,6 +6,7 @@ import { loadComponent } from 'admin/lib/Injector';
 import UncontrolledTextField from 'components/UncontrolledTextField';
 // import SingleSelectField from 'admin/components/SingleSelectField/SingleSelectField'; // this isn't externalised!
 import Button from 'admin/components/Button/Button';
+import { _tinject } from '../lib/translations';
 
 const serialiseForm = (form) => {
   const data = new FormData(form);
@@ -33,9 +34,9 @@ const makeSentenceCase = (string) => {
 const buildMessage = (shortcode, selectedContent) => {
   const type = selectedContent ? 'warning' : 'info';
   const message = [
-    `Content is not accepted by the ${shortcode} shortcode.`,
+    _tinject('CONTENT_NOTICE', { shortcode }),
     <br key="br" />,
-    ' Selected content (as follows) will be deleted when applying this configuration: ',
+    _tinject('CONTENT_WARNING', { shortcode }),
     <q key="selectedContent" className="shortcode__selected-content">{selectedContent}</q>,
   ];
 
@@ -80,13 +81,15 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
   };
   return (
     <Modal isOpen={isOpen} toggle={actions.CANCEL}>
-      <ModalHeader toggle={actions.CANCEL}>{editing.shortcode ? 'Edit' : 'Insert'} Shortcode</ModalHeader>
+      <ModalHeader toggle={actions.CANCEL}>
+        {_tinject('EDITOR_TITLE', { verb: _tinject(editing.shortcode ? 'VERB_EDIT' : 'VERB_ADD') })}
+      </ModalHeader>
       <form onSubmit={cancelSubmission} className="shortcode-editor">
         <ModalBody>
           <SingleSelectField
             id="shortcode-selector"
             name="shortcode"
-            title="Shortcode"
+            title={_tinject('FIELD_SHORTCODE')}
             source={Object.keys(shortcodeDescriptors).map((name) => ({ title: makeSentenceCase(name), value: name }))}
             value={shortcode}
             extraClass="shortcode-editor__shortcode no-change-track"
@@ -95,7 +98,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
           <UncontrolledTextField
             id="shortcode-content"
             name="content"
-            title="Content"
+            title={_tinject('FIELD_CONTENT')}
             defaultValue={content}
             className="shortcode-editor__content no-change-track"
             disabled={contentDisabled}
@@ -103,7 +106,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
             message={contentDisabled ? buildMessage(shortcode, content) : undefined}
           />
           <fieldset>
-            <legend>Attributes</legend>
+            <legend>{_tinject('EDITOR_ATTRIBUTES')}</legend>
             {shortcode && Object.entries(shortcodeDescriptors[shortcode].parameters).map(([name, required]) => (
               <UncontrolledTextField
                 key={shortcode + name}
@@ -118,9 +121,13 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
           </fieldset>
         </ModalBody>
         <ModalFooter>
-          <Button type="submit" icon="down-circled" color="primary" onClick={actions.APPLY}>Apply</Button>
-          {editing.shortcode && <Button icon="block" outline color="danger" onClick={actions.REMOVE}>Remove</Button>}
-          <Button color="subdued" onClick={actions.CANCEL}>Cancel</Button>
+          <Button type="submit" icon="down-circled" color="primary" onClick={actions.APPLY}>
+            {_tinject('ACTIONS_APPLY')}
+          </Button>
+          {editing.shortcode &&
+            <Button icon="block" outline color="danger" onClick={actions.REMOVE}>{_tinject('ACTIONS_REMOVE')}</Button>
+          }
+          <Button color="subdued" onClick={actions.CANCEL}>{_tinject('ACTIONS_CANCEL')}</Button>
         </ModalFooter>
       </form>
     </Modal>
