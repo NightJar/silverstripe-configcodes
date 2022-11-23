@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Alert, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useShortcodes } from 'lib/hookShortcodes';
-import { loadComponent } from 'admin/lib/Injector';
+import { loadComponent } from 'admin/lib/Injector'; // eslint-disable-line import/no-unresolved, import/extensions
 import UncontrolledTextField from 'components/UncontrolledTextField';
-// import SingleSelectField from 'admin/components/SingleSelectField/SingleSelectField'; // this isn't externalised!
-import Button from 'admin/components/Button/Button';
 import { _tinject } from '../lib/translations';
+// import SingleSelectField from 'admin/components/SingleSelectField/SingleSelectField'; // this isn't externalised!
+import Button from 'admin/components/Button/Button'; // eslint-disable-line import/no-unresolved, import/extensions
 
 const serialiseForm = (form) => {
   const data = new FormData(form);

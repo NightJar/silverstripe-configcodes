@@ -380,11 +380,11 @@ var _UncontrolledTextField = __webpack_require__("./client/src/components/Uncont
 
 var _UncontrolledTextField2 = _interopRequireDefault(_UncontrolledTextField);
 
+var _translations = __webpack_require__("./client/src/lib/translations.js");
+
 var _Button = __webpack_require__(4);
 
 var _Button2 = _interopRequireDefault(_Button);
-
-var _translations = __webpack_require__("./client/src/lib/translations.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -950,6 +950,9 @@ exports.default = function () {
 
   var registerHotKey = function registerHotKey(keyCombo, handler) {
     var keyPressConfig = (0, _isHotkey.parseHotkey)(keyCombo);
+    if (keyPressConfig.altKey || keyPressConfig.ctrlKey || keyPressConfig.metaKey || keyPressConfig.shiftKey) {
+      console && console.warn('Hot keys should always use modifiers - see WCAG 2.1 criterion 2.4.1');
+    }
     var exists = isRegisteredHotKey(keyPressConfig);
     if (exists !== undefined) {
       var as = keyCombo === exists ? '' : ' as ' + exists;
@@ -962,10 +965,12 @@ exports.default = function () {
   };
 
   var handleHotKey = function handleHotKey(event) {
-    var keyCombo = isRegisteredHotKey(event);
-    if (keyCombo) {
-      event.preventDefault();
-      hotKeyRegister[keyCombo].handler(event);
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+      var keyCombo = isRegisteredHotKey(event);
+      if (keyCombo) {
+        event.preventDefault();
+        hotKeyRegister[keyCombo].handler(event);
+      }
     }
   };
 
