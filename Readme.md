@@ -23,3 +23,4 @@ Allow text fields to hold and process short codes.
 [ ] How is the accessibility on the toolbar? Does it matter, if we hint on shortcut keys elsewhere? All functionality is available via the Editor - so as long as that opens with a tooltip it should be OK, right?
 [x] support translations
 [ ] shortcodes that do not accept content should probably be 'void' elements (Slate)
+[ ] demarcate invalid editor fields

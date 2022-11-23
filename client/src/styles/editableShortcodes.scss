@@ -39,7 +39,6 @@
 
 .shortcodable-input {
   &:not([aria-multiline]) {
-    white-space: nowrap !important;
     overflow-x: scroll;
     overflow-y: visible;
     scrollbar-width: 0;
@@ -75,6 +74,10 @@
   border-left: 3px solid $gray-300;
   padding-left: 0.5em;
   margin-top: 0.5em;
+}
+
+.shortcode-editor__attribute:invalid {
+  border-color: red;
 }
 
 .btn-subdued:hover {
