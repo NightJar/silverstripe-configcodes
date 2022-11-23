@@ -69,21 +69,28 @@
 //   }
 }
 
-.shortcode__selected-content {
-  display: block;
-  border-left: 3px solid $gray-300;
-  padding-left: 0.5em;
-  margin-top: 0.5em;
-}
+.shortcode-editor {
+  &__selected-content {
+    display: block;
+    border-left: 3px solid $gray-300;
+    padding-left: 0.5em;
+    margin-top: 0.5em;
+  }
 
-.shortcode-editor__attribute:invalid {
-  border-color: red;
+  &__field--required label::after {
+    color: $red;
+    content: "required";
+    font-size: 0.8em;
+    margin-left: 1em;
+  }
 }
 
 .btn-subdued:hover {
   background: $gray-100;
 }
 
+// Fix CMS site title (top left) where extra span elements aren't expected.
+// E.g. we apply a `lang` shortcode to a section in SiteConfig.Title
 .cms-sitename .cms-sitename__title span {
   display: inline;
   padding-left: 0;

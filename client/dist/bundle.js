@@ -444,7 +444,7 @@ var buildMessage = function buildMessage(shortcode, selectedContent) {
   var type = selectedContent ? 'warning' : 'info';
   var message = [(0, _translations._tinject)('CONTENT_NOTICE', { shortcode: shortcode }), _react2.default.createElement('br', { key: 'br' }), (0, _translations._tinject)('CONTENT_WARNING', { shortcode: shortcode }), _react2.default.createElement(
     'q',
-    { key: 'selectedContent', className: 'shortcode__selected-content' },
+    { key: 'selectedContent', className: 'shortcode-editor__selected-content' },
     selectedContent
   )];
 
@@ -524,7 +524,7 @@ exports.default = function (_ref3) {
             return { title: makeSentenceCase(name), value: name };
           }),
           value: shortcode,
-          extraClass: 'shortcode-editor__shortcode no-change-track',
+          extraClass: 'shortcode-editor__field shortcode-editor__field--shortcode no-change-track',
           onChange: function onChange(e) {
             return setSelectedCode(e.target.value);
           }
@@ -534,7 +534,8 @@ exports.default = function (_ref3) {
           name: 'content',
           title: (0, _translations._tinject)('FIELD_CONTENT'),
           defaultValue: content,
-          className: 'shortcode-editor__content no-change-track',
+          className: 'shortcode-editor__field shortcode-editor__field--content no-change-track',
+          extraClass: contentRequired ? 'shortcode-editor__field--required' : undefined,
           disabled: contentDisabled,
           required: contentRequired,
           message: contentDisabled ? buildMessage(shortcode, content) : undefined
@@ -559,7 +560,8 @@ exports.default = function (_ref3) {
               title: makeSentenceCase(name),
               required: required || undefined,
               defaultValue: attributes[name],
-              className: 'shortcode-editor__attribute no-change-track'
+              extraClass: required ? 'shortcode-editor__field--required' : undefined,
+              className: 'shortcode-editor__field shortcode-editor__field--attribute no-change-track'
             });
           })
         )

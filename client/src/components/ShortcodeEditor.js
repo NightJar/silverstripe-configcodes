@@ -37,7 +37,7 @@ const buildMessage = (shortcode, selectedContent) => {
     _tinject('CONTENT_NOTICE', { shortcode }),
     <br key="br" />,
     _tinject('CONTENT_WARNING', { shortcode }),
-    <q key="selectedContent" className="shortcode__selected-content">{selectedContent}</q>,
+    <q key="selectedContent" className="shortcode-editor__selected-content">{selectedContent}</q>,
   ];
 
   const props = {
@@ -92,7 +92,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
             title={_tinject('FIELD_SHORTCODE')}
             source={Object.keys(shortcodeDescriptors).map((name) => ({ title: makeSentenceCase(name), value: name }))}
             value={shortcode}
-            extraClass="shortcode-editor__shortcode no-change-track"
+            extraClass="shortcode-editor__field shortcode-editor__field--shortcode no-change-track"
             onChange={(e) => setSelectedCode(e.target.value)}
           />
           <UncontrolledTextField
@@ -100,7 +100,8 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
             name="content"
             title={_tinject('FIELD_CONTENT')}
             defaultValue={content}
-            className="shortcode-editor__content no-change-track"
+            className="shortcode-editor__field shortcode-editor__field--content no-change-track"
+            extraClass={contentRequired ? 'shortcode-editor__field--required' : undefined}
             disabled={contentDisabled}
             required={contentRequired}
             message={contentDisabled ? buildMessage(shortcode, content) : undefined}
@@ -115,7 +116,8 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
                 title={makeSentenceCase(name)}
                 required={required || undefined}
                 defaultValue={attributes[name]}
-                className="shortcode-editor__attribute no-change-track"
+                extraClass={required ? 'shortcode-editor__field--required' : undefined}
+                className="shortcode-editor__field shortcode-editor__field--attribute no-change-track"
               />
             ))}
           </fieldset>
