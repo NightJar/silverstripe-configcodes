@@ -19,7 +19,6 @@ const makeLabelsFocusEditor = (input, targetId) => {
 };
 
 export const RichInput = ({ linkedInput, shortcodeConfig }) => {
-  const validCodes = Object.keys(shortcodeConfig);
   const [editor] = useState(() => withReact(withHistory(withShortcodes(createEditor()))));
   // Unmentioned constraints on the slate document tree (via documentation) as at 2022-10-21:
   // - Editor node MUST have Element children only.
@@ -28,9 +27,9 @@ export const RichInput = ({ linkedInput, shortcodeConfig }) => {
   // It may be to do with e.g. withHistory, but I've not looked too hard. Trial & error has discovered the above.
   // This is why the node tree output is wrapped in an Element interface here.
   // Without this, errors are silent and content simply disappears when attempting to type (in whole or part).
-  const initialValue = useMemo(() => [{ children: toSlateNodeTree(linkedInput.value, validCodes) }], []);
+  const initialValue = useMemo(() => [{ children: toSlateNodeTree(linkedInput.value, shortcodeConfig) }], []);
   const storeValueForSubmit = (updatedContent) => editor.isContentChanging() && linkedInput.setRangeText(
-    toStorableString(updatedContent, validCodes), 0, linkedInput.value.length
+    toStorableString(updatedContent, shortcodeConfig), 0, linkedInput.value.length
   );
   const editableElementId = `shortcodable-${linkedInput.id}`;
   makeLabelsFocusEditor(linkedInput, editableElementId);

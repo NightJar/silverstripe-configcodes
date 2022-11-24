@@ -2,16 +2,18 @@ import { parse } from '@bbob/parser';
 import { Node, Element, Text } from 'slate';
 
 const createSlateNode = {
-  fromParserNode: ({ tag, attrs: attributes, content }) => ({
+  fromParserNode: ({ tag, attrs: attributes, content }, shortcodeDefinitions) => ({
     type: 'shortcode',
     shortcode: tag,
     attributes,
+    selfclosing: shortcodeDefinitions[tag].content === null || undefined,
     children: [{ text: content ? content.join() : '' }],
   }),
   fromString: (text) => ({ text }),
 };
 
-export const toSlateNodeTree = (input, validCodes) => {
+export const toSlateNodeTree = (input, shortcodeDefinitions) => {
+  const validCodes = Object.keys(shortcodeDefinitions);
   if (!validCodes || validCodes.length === 0 || !input) {
     return [createSlateNode.fromString(input)];
   }
@@ -21,14 +23,15 @@ export const toSlateNodeTree = (input, validCodes) => {
   return codeNodes.map(
     (node) => (
       typeof node === 'object' && typeof node.tag === 'string' && node.tag
-        ? createSlateNode.fromParserNode(node)
+        ? createSlateNode.fromParserNode(node, shortcodeDefinitions)
         : createSlateNode.fromString(node)
     )
   );
 };
 
 const toStringFromSlate = {
-  shortcodeElement: (node) => {
+  textNode: (node) => Node.string(node),
+  shortcodeElement: (node, shortcodeDefinitions) => {
     const { shortcode: code, attributes = {} } = node;
     const stringifyAttribute = (key) => {
       const value = attributes[key];
@@ -41,18 +44,17 @@ const toStringFromSlate = {
     );
     return `[${code}${attributesString}]${Node.string(node)}[/${code}]`;
   },
-  textNode: (node) => Node.string(node),
-  elementNode: (node) => (
+  elementNode: (node, shortcodeDefinitions) => (
     Element.isElementType(node, 'shortcode')
-      ? toStringFromSlate.shortcodeElement(node)
-      : toStorableString(node.children) // eslint-disable-line no-use-before-define
+      ? toStringFromSlate.shortcodeElement(node, shortcodeDefinitions)
+      : toStorableString(node.children, shortcodeDefinitions) // eslint-disable-line no-use-before-define
   ),
 };
 
-export const toStorableString = (tree) => tree.reduce(
+export const toStorableString = (tree, shortcodeDefinitions) => tree.reduce(
   (value, node) => value + (Text.isText(node)
     ? toStringFromSlate.textNode(node)
-    : toStringFromSlate.elementNode(node)
+    : toStringFromSlate.elementNode(node, shortcodeDefinitions)
   ),
   ''
 );

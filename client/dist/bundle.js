@@ -276,8 +276,6 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
   var linkedInput = _ref.linkedInput,
       shortcodeConfig = _ref.shortcodeConfig;
 
-  var validCodes = Object.keys(shortcodeConfig);
-
   var _useState = (0, _react.useState)(function () {
     return (0, _slateReact.withReact)((0, _slateHistory.withHistory)((0, _withShortcodes2.default)((0, _slate.createEditor)())));
   }),
@@ -285,10 +283,10 @@ var RichInput = exports.RichInput = function RichInput(_ref) {
       editor = _useState2[0];
 
   var initialValue = (0, _react.useMemo)(function () {
-    return [{ children: (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, validCodes) }];
+    return [{ children: (0, _shortcodeSerialiser.toSlateNodeTree)(linkedInput.value, shortcodeConfig) }];
   }, []);
   var storeValueForSubmit = function storeValueForSubmit(updatedContent) {
-    return editor.isContentChanging() && linkedInput.setRangeText((0, _shortcodeSerialiser.toStorableString)(updatedContent, validCodes), 0, linkedInput.value.length);
+    return editor.isContentChanging() && linkedInput.setRangeText((0, _shortcodeSerialiser.toStorableString)(updatedContent, shortcodeConfig), 0, linkedInput.value.length);
   };
   var editableElementId = 'shortcodable-' + linkedInput.id;
   makeLabelsFocusEditor(linkedInput, editableElementId);
@@ -494,7 +492,7 @@ exports.default = function (_ref3) {
       return close(true);
     },
     APPLY: function APPLY(event) {
-      return event.target.form.reportValidity() ? close(serialiseForm(event.target.form)) && setSelectedCode(null) : true;
+      return event.target.form.reportValidity() ? close(serialiseForm(event.target.form)) : true;
     }
   };
   var cancelSubmission = function cancelSubmission(event) {
@@ -504,7 +502,9 @@ exports.default = function (_ref3) {
   };
   return _react2.default.createElement(
     _reactstrap.Modal,
-    { isOpen: isOpen, toggle: actions.CANCEL },
+    { isOpen: isOpen, toggle: actions.CANCEL, onClosed: function onClosed() {
+        return setSelectedCode(null);
+      } },
     _react2.default.createElement(
       _reactstrap.ModalHeader,
       { toggle: actions.CANCEL },
@@ -540,6 +540,7 @@ exports.default = function (_ref3) {
           required: contentRequired,
           message: contentDisabled ? buildMessage(shortcode, content) : undefined
         }),
+        contentDisabled && _react2.default.createElement('input', { type: 'hidden', name: 'selfclosing', value: 'true' }),
         _react2.default.createElement(
           'fieldset',
           null,
@@ -607,18 +608,33 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _slateReact = __webpack_require__("./node_modules/slate-react/dist/index.es.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var ShortcodeElement = function ShortcodeElement(_ref) {
-  var shortcode = _ref.element.shortcode,
+  var _ref$element = _ref.element,
+      shortcode = _ref$element.shortcode,
+      _ref$element$attribut = _ref$element.attributes,
+      shortcodeAttributes = _ref$element$attribut === undefined ? {} : _ref$element$attribut,
+      _ref$element$selfclos = _ref$element.selfclosing,
+      selfclosing = _ref$element$selfclos === undefined ? '' : _ref$element$selfclos,
       attributes = _ref.attributes,
       children = _ref.children;
+
+  var selected = (0, _slateReact.useSelected)();
+  var focused = (0, _slateReact.useFocused)();
+  var selectedClass = selfclosing && selected && focused ? ' shortcode--selected' : '';
   return _react2.default.createElement(
     'span',
     _extends({
-      className: 'shortcode shortcode--' + shortcode,
+      className: 'shortcode shortcode--type-' + shortcode + (selfclosing && ' shortcode--selfclosing') + selectedClass,
       'data-shortcode': shortcode
-    }, attributes),
+    }, Object.keys(shortcodeAttributes).reduce(function (c, i) {
+      return _extends({}, c, _defineProperty({}, 'data-attribute-' + i, shortcodeAttributes[i]));
+    }, {}), attributes),
     children
   );
 };
@@ -1044,7 +1060,7 @@ var _parser = __webpack_require__("./node_modules/@bbob/parser/dist/index.js");
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 var createSlateNode = {
-  fromParserNode: function fromParserNode(_ref) {
+  fromParserNode: function fromParserNode(_ref, shortcodeDefinitions) {
     var tag = _ref.tag,
         attributes = _ref.attrs,
         content = _ref.content;
@@ -1052,6 +1068,7 @@ var createSlateNode = {
       type: 'shortcode',
       shortcode: tag,
       attributes: attributes,
+      selfclosing: shortcodeDefinitions[tag].content === null || undefined,
       children: [{ text: content ? content.join() : '' }]
     };
   },
@@ -1060,7 +1077,8 @@ var createSlateNode = {
   }
 };
 
-var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, validCodes) {
+var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, shortcodeDefinitions) {
+  var validCodes = Object.keys(shortcodeDefinitions);
   if (!validCodes || validCodes.length === 0 || !input) {
     return [createSlateNode.fromString(input)];
   }
@@ -1068,12 +1086,15 @@ var toSlateNodeTree = exports.toSlateNodeTree = function toSlateNodeTree(input, 
   var parserOptions = { onlyAllowTags: validCodes };
   var codeNodes = (0, _parser.parse)(input, parserOptions);
   return codeNodes.map(function (node) {
-    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && typeof node.tag === 'string' && node.tag ? createSlateNode.fromParserNode(node) : createSlateNode.fromString(node);
+    return (typeof node === 'undefined' ? 'undefined' : _typeof(node)) === 'object' && typeof node.tag === 'string' && node.tag ? createSlateNode.fromParserNode(node, shortcodeDefinitions) : createSlateNode.fromString(node);
   });
 };
 
 var toStringFromSlate = {
-  shortcodeElement: function shortcodeElement(node) {
+  textNode: function textNode(node) {
+    return _slate.Node.string(node);
+  },
+  shortcodeElement: function shortcodeElement(node, shortcodeDefinitions) {
     var code = node.shortcode,
         _node$attributes = node.attributes,
         attributes = _node$attributes === undefined ? {} : _node$attributes;
@@ -1088,17 +1109,14 @@ var toStringFromSlate = {
     }, '');
     return '[' + code + attributesString + ']' + _slate.Node.string(node) + '[/' + code + ']';
   },
-  textNode: function textNode(node) {
-    return _slate.Node.string(node);
-  },
-  elementNode: function elementNode(node) {
-    return _slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeElement(node) : toStorableString(node.children);
+  elementNode: function elementNode(node, shortcodeDefinitions) {
+    return _slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeElement(node, shortcodeDefinitions) : toStorableString(node.children, shortcodeDefinitions);
   }
 };
 
-var toStorableString = exports.toStorableString = function toStorableString(tree) {
+var toStorableString = exports.toStorableString = function toStorableString(tree, shortcodeDefinitions) {
   return tree.reduce(function (value, node) {
-    return value + (_slate.Text.isText(node) ? toStringFromSlate.textNode(node) : toStringFromSlate.elementNode(node));
+    return value + (_slate.Text.isText(node) ? toStringFromSlate.textNode(node) : toStringFromSlate.elementNode(node, shortcodeDefinitions));
   }, '');
 };
 
@@ -1126,6 +1144,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
 var convertToShortcode = function convertToShortcode(editor, text, shortcodeSettings) {
   _slate.Transforms.wrapNodes(editor, shortcodeSettings, {
     split: true,
@@ -1140,30 +1160,24 @@ var insertShortcode = function insertShortcode(editor, shortcodeSettings) {
   return _slate.Transforms.insertNodes(editor, shortcodeSettings);
 };
 
-var applyShortcode = exports.applyShortcode = function applyShortcode(editor, _ref) {
-  var shortcode = _ref.shortcode,
-      attributes = _ref.attributes,
-      _ref$content = _ref.content,
-      text = _ref$content === undefined ? '' : _ref$content;
+var applyShortcode = function applyShortcode(editor, _ref) {
+  var _ref$content = _ref.content,
+      text = _ref$content === undefined ? '' : _ref$content,
+      shortcodeSettings = _objectWithoutProperties(_ref, ['content']);
 
-  var shortcodeSlateElement = {
-    type: 'shortcode',
-    shortcode: shortcode,
-    attributes: attributes
-  };
+  var shortcodeSlateElement = _extends({
+    type: 'shortcode'
+  }, shortcodeSettings);
   return _slate.Range.isExpanded(editor.selection) ? convertToShortcode(editor, text, shortcodeSlateElement) : insertShortcode(editor, _extends({}, shortcodeSlateElement, { children: [{ text: text }] }));
 };
 
-var updateShortcode = exports.updateShortcode = function updateShortcode(editor, _ref2) {
-  var shortcode = _ref2.shortcode,
-      attributes = _ref2.attributes,
-      _ref2$content = _ref2.content,
-      text = _ref2$content === undefined ? '' : _ref2$content;
+exports.applyShortcode = applyShortcode;
+var updateShortcode = function updateShortcode(editor, _ref2) {
+  var _ref2$content = _ref2.content,
+      text = _ref2$content === undefined ? '' : _ref2$content,
+      shortcodeSettings = _objectWithoutProperties(_ref2, ['content']);
 
-  _slate.Transforms.setNodes(editor, {
-    shortcode: shortcode,
-    attributes: attributes
-  }, {
+  _slate.Transforms.setNodes(editor, shortcodeSettings, {
     match: function match(node) {
       return editor.isShortcode(node);
     }
@@ -1176,6 +1190,7 @@ var updateShortcode = exports.updateShortcode = function updateShortcode(editor,
   _slate.Transforms.insertText(editor, text, { at: shortcodePath });
 };
 
+exports.updateShortcode = updateShortcode;
 var removeShortcode = exports.removeShortcode = function removeShortcode(editor) {
   return _slate.Transforms.unwrapNodes(editor, {
     match: function match(node) {
@@ -1263,7 +1278,8 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
 
 exports.default = function (editor) {
-  var originalIsInline = editor.isInline;
+  var originalIsInline = editor.isInline,
+      orignialIsVoid = editor.isVoid;
 
   return Object.assign(editor, {
     isShortcode: function isShortcode(element) {
@@ -1271,6 +1287,9 @@ exports.default = function (editor) {
     },
     isInline: function isInline(element) {
       return editor.isShortcode(element) || originalIsInline(element);
+    },
+    isVoid: function isVoid(element) {
+      return editor.isShortcode(element) && element.selfclosing || orignialIsVoid(element);
     },
     isContentChanging: function isContentChanging() {
       return editor.operations.some(function (op) {

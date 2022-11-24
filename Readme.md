@@ -24,3 +24,4 @@ Allow text fields to hold and process short codes.
 [x] support translations
 [ ] shortcodes that do not accept content should probably be 'void' elements (Slate)
 [x] demarcate invalid editor fields
+[ ] ViewableData::obj() will cast a value that doesn't exist into a full value object and make it "truthy". Check in DataObjectPropertyDisplay::__construct that things exist as we expect.

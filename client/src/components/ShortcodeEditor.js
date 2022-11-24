@@ -70,7 +70,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
     REMOVE: () => close(true),
     APPLY: (event) => (
       event.target.form.reportValidity()
-        ? close(serialiseForm(event.target.form)) && setSelectedCode(null)
+        ? close(serialiseForm(event.target.form))
         : true // do not cancel native validation events, etc. by returning false
     ),
   };
@@ -80,7 +80,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
     return false;
   };
   return (
-    <Modal isOpen={isOpen} toggle={actions.CANCEL}>
+    <Modal isOpen={isOpen} toggle={actions.CANCEL} onClosed={() => setSelectedCode(null)}>
       <ModalHeader toggle={actions.CANCEL}>
         {_tinject('EDITOR_TITLE', { verb: _tinject(editing.shortcode ? 'VERB_EDIT' : 'VERB_ADD') })}
       </ModalHeader>
@@ -106,6 +106,7 @@ export default ({ isOpen, close, editing /* , ...injectedComponents */ }) => {
             required={contentRequired}
             message={contentDisabled ? buildMessage(shortcode, content) : undefined}
           />
+          {contentDisabled && <input type="hidden" name="selfclosing" value="true" />}
           <fieldset>
             <legend>{_tinject('EDITOR_ATTRIBUTES')}</legend>
             {shortcode && Object.entries(shortcodeDescriptors[shortcode].parameters).map(([name, required]) => (

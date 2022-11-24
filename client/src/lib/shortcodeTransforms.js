@@ -14,24 +14,20 @@ const convertToShortcode = (editor, text, shortcodeSettings) => {
 
 const insertShortcode = (editor, shortcodeSettings) => Transforms.insertNodes(editor, shortcodeSettings);
 
-export const applyShortcode = (editor, { shortcode, attributes, content: text = '' }) => {
+export const applyShortcode = (editor, { content: text = '', ...shortcodeSettings }) => {
   const shortcodeSlateElement = {
     type: 'shortcode',
-    shortcode,
-    attributes,
+    ...shortcodeSettings,
   };
   return Range.isExpanded(editor.selection)
     ? convertToShortcode(editor, text, shortcodeSlateElement)
     : insertShortcode(editor, { ...shortcodeSlateElement, children: [{ text }] });
 };
 
-export const updateShortcode = (editor, { shortcode, attributes, content: text = '' }) => {
+export const updateShortcode = (editor, { content: text = '', ...shortcodeSettings }) => {
   Transforms.setNodes(
     editor,
-    {
-      shortcode,
-      attributes,
-    },
+    shortcodeSettings,
     {
       match: (node) => editor.isShortcode(node),
     }

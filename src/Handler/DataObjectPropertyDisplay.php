@@ -38,7 +38,9 @@ class DataObjectPropertyDisplay implements Handler
 
     public function process(array $arguments = [], ?string $content = null): ?string
     {
-        $value = ($this->className)::get()->byId($arguments['id'])->obj($this->property);
+        $object = ($this->className)::get()->byId($arguments['id']);
+        var_dump($this->className, $this->property, $this->format, $object->hasMethod('getPrice'));die;
+        $value = $object->obj($this->property);
         $format = $this->format;
         if ($format && $value->hasMethod($format)) {
             return $value->$format();
