@@ -2,6 +2,7 @@
 
 namespace NZTA\ConfigCodes\Test\Handler;
 
+use DomainException;
 use InvalidArgumentException;
 use NZTA\ConfigCodes\Handler\DataObjectPropertyDisplay;
 use NZTA\ConfigCodes\Test\Fixture\Data\Reference;
@@ -23,9 +24,9 @@ class DataObjectPropertyDisplayTest extends SapphireTest
         $this->assertTrue($properties['id']);
     }
 
-    public function testDoesNotRequireContent()
+    public function testDoesNotAcceptContent()
     {
-        $this->assertFalse(DataObjectPropertyDisplay::getRequiresContent());
+        $this->assertNull(DataObjectPropertyDisplay::getRequiresContent());
     }
 
     public function testSubstitutesCorrectValue()
@@ -46,5 +47,12 @@ class DataObjectPropertyDisplayTest extends SapphireTest
     {
         $this->expectException(InvalidArgumentException::class);
         new DataObjectPropertyDisplay(Negative::class, 'ID');
+    }
+
+    public function testThrowsIfPropertyDoesNotExist()
+    {
+        $this->expectException(DomainException::class);
+        $handler = new DataObjectPropertyDisplay(Reference::class, 'ThisDoesNotExist');
+        $handler->process(['id' => 1]);
     }
 }
