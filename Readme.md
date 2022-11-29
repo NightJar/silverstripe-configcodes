@@ -22,6 +22,6 @@ Allow text fields to hold and process short codes.
 [ ] Figure out how aria-describedBy can reference the popover visual help - can't happen with Tip because it doesn't render the content by default.
 [ ] How is the accessibility on the toolbar? Does it matter, if we hint on shortcut keys elsewhere? All functionality is available via the Editor - so as long as that opens with a tooltip it should be OK, right?
 [x] support translations
-[ ] shortcodes that do not accept content should probably be 'void' elements (Slate)
+[x] shortcodes that do not accept content should probably be 'void' elements (Slate)
 [x] demarcate invalid editor fields
-[ ] ViewableData::obj() will cast a value that doesn't exist into a full value object and make it "truthy". Check in DataObjectPropertyDisplay::__construct that things exist as we expect.
+[x] ViewableData::obj() will cast a value that doesn't exist into a full value object and make it "truthy". Check in DataObjectPropertyDisplay::__construct that things exist as we expect.
