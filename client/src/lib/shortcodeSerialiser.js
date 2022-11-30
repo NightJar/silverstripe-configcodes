@@ -5,9 +5,9 @@ const createSlateNode = {
   fromParserNode: ({ tag, attrs: attributes, content }, shortcodeDefinitions) => ({
     type: 'shortcode',
     shortcode: tag,
-    attributes,
+    attributes: Object.keys(attributes).filter((v) => v).reduce((r, c) => ({ ...r, [c]: attributes[c] }), {}),
     selfclosing: shortcodeDefinitions[tag].content === null || undefined,
-    children: [{ text: content ? content.join() : '' }],
+    children: [{ text: content ? content.join('') : '' }],
   }),
   fromString: (text) => ({ text }),
 };
@@ -31,12 +31,12 @@ export const toSlateNodeTree = (input, shortcodeDefinitions) => {
 
 const toStringFromSlate = {
   textNode: (node) => Node.string(node),
-  shortcodeElement: (node, shortcodeDefinitions) => {
+  shortcodeElement: (node) => {
     const { shortcode: code, attributes = {} } = node;
     const stringifyAttribute = (key) => {
       const value = attributes[key];
       const needsQuotes = value.match(/\s/);
-      return ` ${key}=${needsQuotes ? `"${value}"` : value}`;
+      return `${key}=${needsQuotes ? `"${value}"` : value}`;
     };
     const attributesString = Object.keys(attributes).reduce(
       (prev, attribute) => `${prev} ${stringifyAttribute(attribute)}`,
@@ -46,7 +46,7 @@ const toStringFromSlate = {
   },
   elementNode: (node, shortcodeDefinitions) => (
     Element.isElementType(node, 'shortcode')
-      ? toStringFromSlate.shortcodeElement(node, shortcodeDefinitions)
+      ? toStringFromSlate.shortcodeElement(node)
       : toStorableString(node.children, shortcodeDefinitions) // eslint-disable-line no-use-before-define
   ),
 };

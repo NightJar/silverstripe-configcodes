@@ -25,3 +25,5 @@ Allow text fields to hold and process short codes.
 [x] shortcodes that do not accept content should probably be 'void' elements (Slate)
 [x] demarcate invalid editor fields
 [x] ViewableData::obj() will cast a value that doesn't exist into a full value object and make it "truthy". Check in DataObjectPropertyDisplay::__construct that things exist as we expect.
+[ ] Remove shortcode if it is empty and press backspace or delete
+[ ] Remove button should work on void type shortcodes

@@ -75,6 +75,7 @@
     overflow-y: visible;
     scrollbar-width: 0;
     -ms-overflow-style: none;
+    white-space: pre !important;
 
     &::-webkit-scrollbar {
       display: none;

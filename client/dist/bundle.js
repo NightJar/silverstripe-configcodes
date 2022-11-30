@@ -1055,9 +1055,13 @@ exports.toStorableString = exports.toSlateNodeTree = undefined;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _parser = __webpack_require__("./node_modules/@bbob/parser/dist/index.js");
 
 var _slate = __webpack_require__("./node_modules/slate/dist/index.es.js");
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var createSlateNode = {
   fromParserNode: function fromParserNode(_ref, shortcodeDefinitions) {
@@ -1067,9 +1071,13 @@ var createSlateNode = {
     return {
       type: 'shortcode',
       shortcode: tag,
-      attributes: attributes,
+      attributes: Object.keys(attributes).filter(function (v) {
+        return v;
+      }).reduce(function (r, c) {
+        return _extends({}, r, _defineProperty({}, c, attributes[c]));
+      }, {}),
       selfclosing: shortcodeDefinitions[tag].content === null || undefined,
-      children: [{ text: content ? content.join() : '' }]
+      children: [{ text: content ? content.join('') : '' }]
     };
   },
   fromString: function fromString(text) {
@@ -1094,7 +1102,7 @@ var toStringFromSlate = {
   textNode: function textNode(node) {
     return _slate.Node.string(node);
   },
-  shortcodeElement: function shortcodeElement(node, shortcodeDefinitions) {
+  shortcodeElement: function shortcodeElement(node) {
     var code = node.shortcode,
         _node$attributes = node.attributes,
         attributes = _node$attributes === undefined ? {} : _node$attributes;
@@ -1102,7 +1110,7 @@ var toStringFromSlate = {
     var stringifyAttribute = function stringifyAttribute(key) {
       var value = attributes[key];
       var needsQuotes = value.match(/\s/);
-      return ' ' + key + '=' + (needsQuotes ? '"' + value + '"' : value);
+      return key + '=' + (needsQuotes ? '"' + value + '"' : value);
     };
     var attributesString = Object.keys(attributes).reduce(function (prev, attribute) {
       return prev + ' ' + stringifyAttribute(attribute);
@@ -1110,7 +1118,7 @@ var toStringFromSlate = {
     return '[' + code + attributesString + ']' + _slate.Node.string(node) + '[/' + code + ']';
   },
   elementNode: function elementNode(node, shortcodeDefinitions) {
-    return _slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeElement(node, shortcodeDefinitions) : toStorableString(node.children, shortcodeDefinitions);
+    return _slate.Element.isElementType(node, 'shortcode') ? toStringFromSlate.shortcodeElement(node) : toStorableString(node.children, shortcodeDefinitions);
   }
 };
 
