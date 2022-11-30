@@ -65,7 +65,7 @@ export default ({ blockId: editableElementId }) => {
         />
         <Tip
           id={`${editableElementId}__help`}
-          content="Press Alt+M to enter shortcode"
+          content="Press Alt+S to bring up an editor to create, amend, or remove a shortcode"
           icon="white-question"
           fieldTitle={`${editableElementId} editor help`}
           tabIndex="-1"

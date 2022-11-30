@@ -41,4 +41,9 @@ export const removeShortcode = (editor) => Transforms.unwrapNodes(
   {
     match: (node) => editor.isShortcode(node),
   }
+) || Transforms.removeNodes(
+  editor,
+  {
+    match: (node) => editor.isShortcode(node)
+  }
 );

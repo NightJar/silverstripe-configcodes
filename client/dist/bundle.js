@@ -752,7 +752,7 @@ exports.default = function (_ref) {
       }),
       _react2.default.createElement(_Tip2.default, {
         id: editableElementId + '__help',
-        content: 'Press Alt+M to enter shortcode',
+        content: 'Press Alt+S to bring up an editor to create, amend, or remove a shortcode',
         icon: 'white-question',
         fieldTitle: editableElementId + ' editor help',
         tabIndex: '-1',
@@ -1201,6 +1201,10 @@ var updateShortcode = function updateShortcode(editor, _ref2) {
 exports.updateShortcode = updateShortcode;
 var removeShortcode = exports.removeShortcode = function removeShortcode(editor) {
   return _slate.Transforms.unwrapNodes(editor, {
+    match: function match(node) {
+      return editor.isShortcode(node);
+    }
+  }) || _slate.Transforms.removeNodes(editor, {
     match: function match(node) {
       return editor.isShortcode(node);
     }
