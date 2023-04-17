@@ -62,6 +62,25 @@ trait ShortcodableDBString
         return $this;
     }
 
+    /**
+     * Non-string values (e.g. via being used as default_cast) are supported by DBText (the default default_cast), where
+     * 0 will be detected as non-string and exists() will return false. However when shortcode parsing is enabled by
+     * default a trip through the parser sees 0 turn into '0', and exists() will inaccurately return true. This happens
+     * because DBString relies on RAW() by default, where as DBHTMLText does not. We can also work around this by
+     * relying on getValue instead of RAW.
+     *
+     * @see \SilverStripe\ORM\FieldType\DBString
+     * @see \SilverStripe\ORM\FieldType\DBHTMLText
+     *
+     * @return bool
+     */
+    public function exists(): bool
+    {
+        $value = $this->getValue();
+        // All truthy values and non-empty strings exist ('0' but not (int)0)
+        return $value || (is_string($value) && strlen($value));
+    }
+
     public function RAW(): ?string
     {
         return $this->processOutput($this->getValue()) ?? parent::RAW();

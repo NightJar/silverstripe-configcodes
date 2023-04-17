@@ -121,4 +121,16 @@ DESC;
         $standard->setValue('Example A <small>little</small> bit value');
         $this->assertSame($standard->RAW(), $shortcoded->RAW());
     }
+
+    public function testDefaultCastsExistCorrectlyWhenHavingNonStringValues()
+    {
+        $shortcoded = new ShortcodeText();
+        $standard = new DBText();
+        foreach ([true, false, 0, 1, 27] as $returnValueToCast) {
+            $this->assertSame(
+                $standard->setValue($returnValueToCast)->exists(),
+                $shortcoded->setValue($returnValueToCast)->exists()
+            );
+        }
+    }
 }
