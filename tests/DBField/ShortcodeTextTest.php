@@ -122,6 +122,19 @@ DESC;
         $this->assertSame($standard->RAW(), $shortcoded->RAW());
     }
 
+    public function testMultiLineTextIsBackwardsCompatibleWithParentClass()
+    {
+        $example = "Example Multi-Line Text.\n\nThe line breaks\nshould be preserved.";
+        $standard = new DBText();
+        $standard->setValue($example);
+        $shortcoded = new ShortcodeText();
+        $shortcoded->setValue($example);
+
+        $this->assertSame($standard->forTemplate(), $shortcoded->forTemplate());
+        $this->assertSame($standard->forTemplate(), $shortcoded->Full());
+        $this->assertSame($standard->Plain(), $shortcoded->Plain());
+    }
+
     public function testDefaultCastsExistCorrectlyWhenHavingNonStringValues()
     {
         $shortcoded = new ShortcodeText();

@@ -28,6 +28,11 @@ trait ShortcodablePlain
      * be introducing HTML via shortcodes we cannot copy this behaviour directly, but we should make allowance for it if
      * we are not processing shortcodes. This is done by the delegate functions, rather than here.
      *
+     * {@see SilverStripe\ORM\FieldTypes\DBString::forTemplate()} calls `nl2br` on its output. This is handled
+     * internally by the {@see self::Full()} method, but performed directly here on plain output (when
+     * default_full_output is false). Proper plain output can be obtained directly from {@see self::Plain()}, just as
+     * with the DBString class this functionality replaces.
+     *
      * @see self::Full()
      * @see self::Plain()
      *
@@ -35,7 +40,7 @@ trait ShortcodablePlain
      */
     public function forTemplate(): string
     {
-        return self::config()->default_full_output ? $this->Full() : $this->Plain();
+        return self::config()->default_full_output ? $this->Full() : nl2br($this->Plain());
     }
 
     /**
@@ -57,6 +62,9 @@ trait ShortcodablePlain
     {
         // shortcodes are not valid XML so should not be affected/escaped
         $htmlSafeValue = Convert::raw2xml($this->getValue());
+        // line breaks are added after escaping as they should persist to the output as well
+        // but they are inserted before parsing so they don't interfere with shortcode output
+        $htmlSafeValue = nl2br($htmlSafeValue);
         return $this->processOutput($htmlSafeValue) ?? $htmlSafeValue;
     }
 
