@@ -26,7 +26,7 @@ for the "[html]" product
 But it does a poor job describing it. Although someone has sneak a cheeky <b>bold tag</b> into it.
 DESC;
 
-    public function testShortcodeProcessingObeysDefaultOutputConfig()
+    public function testShortcodeProcessingObeysDefaultOutputConfig(): void
     {
         $descriptionField = new ShortcodeText();
         $descriptionField->setValue($this->testDescription);
@@ -57,7 +57,7 @@ DESC;
         );
     }
 
-    public function testFullOutput()
+    public function testFullOutput(): void
     {
         $descriptionField = new ShortcodeText();
         $descriptionField->setValue($this->testDescription);
@@ -65,7 +65,7 @@ DESC;
         $this->assertStringContainsString('A <small>little</small> bit', $descriptionField->Full());
     }
 
-    public function testPlainOutput()
+    public function testPlainOutput(): void
     {
         $descriptionField = new ShortcodeText();
         $descriptionField->setValue($this->testDescription);
@@ -76,7 +76,7 @@ DESC;
     /**
      * Don't surprise people when they enable this feature by changing output all over their site
      */
-    public function testOutputIsBackwardsCompatibleWithParentClass()
+    public function testOutputIsBackwardsCompatibleWithParentClass(): void
     {
         $shortcoded = new ShortcodeText();
         $standard = new DBText();
@@ -122,7 +122,7 @@ DESC;
         $this->assertSame($standard->RAW(), $shortcoded->RAW());
     }
 
-    public function testMultiLineTextIsBackwardsCompatibleWithParentClass()
+    public function testMultiLineTextIsBackwardsCompatibleWithParentClass(): void
     {
         $example = "Example Multi-Line Text.\n\nThe line breaks\nshould be preserved.";
         $standard = new DBText();
@@ -135,7 +135,7 @@ DESC;
         $this->assertSame($standard->Plain(), $shortcoded->Plain());
     }
 
-    public function testDefaultCastsExistCorrectlyWhenHavingNonStringValues()
+    public function testDefaultCastsExistCorrectlyWhenHavingNonStringValues(): void
     {
         $shortcoded = new ShortcodeText();
         $standard = new DBText();

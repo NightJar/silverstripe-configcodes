@@ -2,7 +2,6 @@
 
 namespace Nightjar\ConfigCodes\DBField;
 
-use SilverStripe\Core\Convert;
 use SilverStripe\View\Parsers\ShortcodeParser;
 
 trait ShortcodableDBString
@@ -10,42 +9,31 @@ trait ShortcodableDBString
     /**
      * Enable shortcode parsing on this field
      *
-     * Lacks type hint because it needs to be compatible with DBHTMLText
-     *
      * @see self::getProcessShortcodes()
      * @see self::setProcessShortcodes()
-     *
-     * @var bool
      */
-    protected $processShortcodes = false;
+    protected bool $processShortcodes = false;
 
     /**
      * The name of the shortcode parser to use.
      *
      * If unset (null) it will use the current active instance.
      * @see ShortcodeParser::get_active
-     *
-     * @var string|null
      */
     protected ?string $parserName = null;
 
     /**
      * Check if shortcodes are enabled
-     *
-     * @return bool
      */
-    public function getProcessShortcodes()
+    public function getProcessShortcodes(): bool
     {
         return $this->processShortcodes;
     }
 
     /**
      * Set shortcodes to be processed or not
-     *
-     * @param bool $process
-     * @return $this
      */
-    public function setProcessShortcodes($process)
+    public function setProcessShortcodes(bool $process): static
     {
         $this->processShortcodes = $process;
         return $this;
@@ -71,8 +59,6 @@ trait ShortcodableDBString
      *
      * @see \SilverStripe\ORM\FieldType\DBString
      * @see \SilverStripe\ORM\FieldType\DBHTMLText
-     *
-     * @return bool
      */
     public function exists(): bool
     {
@@ -88,16 +74,10 @@ trait ShortcodableDBString
 
     /**
      * Output content only if shortcode processing is enabled.
-     *
-     * @param string|null $value
-     * @return string|null
      */
     protected function processOutput(?string $value): ?string
     {
-        if (!is_null($value) && $this->getProcessShortcodes()) {
-            return $this->parseShortcodes($value);
-        }
-        return null;
+        return $value && $this->getProcessShortcodes() ? $this->parseShortcodes($value) : null;
     }
 
     /**
@@ -113,9 +93,6 @@ trait ShortcodableDBString
 
     /**
      * Parse shortcodes, do not evaluate if we should or not.
-     *
-     * @param string|null $value
-     * @return string
      */
     protected function parseShortcodes(?string $value): string
     {

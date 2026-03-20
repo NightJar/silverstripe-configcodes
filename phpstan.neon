@@ -1,0 +1,20 @@
+includes:
+    - vendor/cambis/silverstan/extension.neon
+parameters:
+    level: 6
+    paths:
+        - src
+        - tests
+        - _config.php
+    silverstan:
+        # A linting sniff, not a potential bug. There's no reason the message should be true - both fetch the same data.
+        disallowPropertyFetchOnConfigForClass:
+            enabled: false
+    ignoreErrors:
+        - # Doesn't matter - it's a temporary database used only for tests & destroyed afterward.
+            message: '#\$table_name#'
+            identifier: silverstan.configurationProperty.required
+            path: tests/Fixture/*
+        - # A linting sniff. Testing unknown configuration is a recipe for risky and inconsistent tests.
+            identifier: silverstan.injectable.useCreate
+            path: tests/*

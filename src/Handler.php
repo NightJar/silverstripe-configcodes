@@ -10,14 +10,12 @@ interface Handler
      * Array in the format:
      * parameter Name => Required (bool)
      *
-     * @return array
+     * @return array<string,bool>
      */
     public static function getParameters(): array;
 
     /**
      * Whether or not this handler relies on content being set
-     *
-     * @return bool|null null if the code does not accept content
      */
     public static function getRequiresContent(): ?bool;
 
@@ -26,11 +24,9 @@ interface Handler
      *
      * Returns the processed string or null on failure
      * @see HandlerBroker::handle_shortcode()
-     * @see ShortcodeParser::getShortcodeReplacementText()
+     * @see \Silverstripe\View\Parsers\ShortcodeParser::getShortcodeReplacementText()
      *
-     * @param array $arguments
-     * @param string $content
-     * @return string|null
+     * @param array<string,string|int> $arguments
      */
     public function process(array $arguments = [], ?string $content = null): ?string;
 }

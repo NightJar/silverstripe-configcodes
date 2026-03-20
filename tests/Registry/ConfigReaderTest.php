@@ -9,15 +9,11 @@ use SilverStripe\Dev\SapphireTest;
 
 class ConfigReaderTest extends SapphireTest
 {
-    protected static $extra_dataobjects = [
-        TestShortcode::class,
-    ];
-
     protected function setUp(): void
     {
         parent::setUp();
 
-        Config::inst()->set(ConfigReader::class, 'shortcodes', [
+        Config::modify()->set(ConfigReader::class, 'shortcodes', [
             'default' => [
                 'test' => TestShortcode::class,
             ],
@@ -29,7 +25,7 @@ class ConfigReaderTest extends SapphireTest
         ]);
     }
 
-    public function testListParsers()
+    public function testListParsers(): void
     {
         $this->assertSame(
             ['default', 'answers'],
@@ -37,7 +33,7 @@ class ConfigReaderTest extends SapphireTest
         );
     }
 
-    public function testGetCodesForParser()
+    public function testGetCodesForParser(): void
     {
         $this->assertSame(
             ['yes', 'no', 'maybe'],
@@ -45,7 +41,7 @@ class ConfigReaderTest extends SapphireTest
         );
     }
 
-    public function testGetHandlerForCode()
+    public function testGetHandlerForCode(): void
     {
         $this->assertInstanceOf(TestShortcode::class, (new ConfigReader())->getHandlerForCode('test'));
     }

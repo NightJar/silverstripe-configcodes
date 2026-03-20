@@ -2,7 +2,6 @@
 
 namespace Nightjar\ConfigCodes\Test\DBField;
 
-use Nightjar\ConfigCodes\DBField\ShortcodeVarchar;
 use Nightjar\ConfigCodes\HandlerBroker;
 use Nightjar\ConfigCodes\InstanceIdentifiableShortcodeParser;
 use Nightjar\ConfigCodes\Registry;
@@ -16,26 +15,30 @@ use SilverStripe\View\Parsers\ShortcodeParser;
 
 trait CommonFunctions
 {
+    private ?string $originalActiveParser;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $injector = Injector::inst();
         $injector->load([ShortcodeParser::class => InstanceIdentifiableShortcodeParser::class]);
-        $this->originalActiveParser = ShortcodeParser::get_active()->getInstanceName();
+        /** @var InstanceIdentifiableShortcodeParser $activeParser */
+        $activeParser = ShortcodeParser::get_active();
+        $this->originalActiveParser = $activeParser->getInstanceName();
         ShortcodeParser::set_active('test');
 
         $injector->registerService(
             new TestRegistry([
                 'test' => [
                     'test' => new TestShortcode(),
-                    'html' => new TestShortcode('A <small>little</small> bit')
+                    'html' => new TestShortcode('A <small>little</small> bit'),
                 ],
                 'answers' => [
                     'yes' => new TestHandler(new Affirmative(), 'substituteText'),
                     'no' => new TestHandler(new Negative(), 'deny'),
                     'maybe' => new TestHandler(new Negative(), 'possible'),
-                ]
+                ],
             ]),
             Registry::class
         );

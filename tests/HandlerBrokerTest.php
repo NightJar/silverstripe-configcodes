@@ -10,7 +10,6 @@ use Nightjar\ConfigCodes\Test\Fixture\Negative;
 use Nightjar\ConfigCodes\Test\Fixture\TestHandler;
 use Nightjar\ConfigCodes\Test\Fixture\TestRegistry;
 use Nightjar\ConfigCodes\Test\Fixture\TestShortcode;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\ORM\FieldType\DBHTMLText;
@@ -19,7 +18,7 @@ use SilverStripe\View\Parsers\ShortcodeParser;
 
 class HandlerBrokerTest extends SapphireTest
 {
-    private $originalActiveParser;
+    private string $originalActiveParser;
 
     protected function setUp(): void
     {
@@ -27,7 +26,9 @@ class HandlerBrokerTest extends SapphireTest
 
         $injector = Injector::inst();
         $injector->load([ShortcodeParser::class => InstanceIdentifiableShortcodeParser::class]);
-        $this->originalActiveParser = ShortcodeParser::get_active()->getInstanceName();
+        /** @var InstanceIdentifiableShortcodeParser $activeParser */
+        $activeParser = ShortcodeParser::get_active();
+        $this->originalActiveParser = $activeParser->getInstanceName();
         ShortcodeParser::set_active('test');
 
         $injector->registerService(
@@ -39,7 +40,7 @@ class HandlerBrokerTest extends SapphireTest
                     'yes' => new TestHandler(new Affirmative(), 'substituteText'),
                     'no' => new TestHandler(new Negative(), 'deny'),
                     'maybe' => new TestHandler(new Negative(), 'possible'),
-                ]
+                ],
             ]),
             Registry::class
         );
@@ -54,22 +55,25 @@ class HandlerBrokerTest extends SapphireTest
         parent::tearDown();
     }
 
-    public function testGetShortcodes()
+    public function testGetShortcodes(): void
     {
         $this->assertSame(['test', 'yes', 'no', 'maybe'], HandlerBroker::get_shortcodes());
     }
 
-    public function testHandleShortcode()
+    public function testHandleShortcode(): void
     {
+        /** @var InstanceIdentifiableShortcodeParser $activeParser */
+        $activeParser = ShortcodeParser::get_active();
         $this->assertSame(
             'The test title',
-            HandlerBroker::handle_shortcode([], null, ShortcodeParser::get_active(), 'test')
+            HandlerBroker::handle_shortcode([], null, $activeParser, 'test')
         );
     }
 
-    public function testUndefinedCodesReturnFalse()
+    public function testUndefinedCodesReturnFalse(): void
     {
         ShortcodeParser::set_active('undefined');
+        /** @var InstanceIdentifiableShortcodeParser $undefinedParser */
         $undefinedParser = ShortcodeParser::get_active();
         $this->assertFalse(HandlerBroker::handle_shortcode([], null, $undefinedParser, 'test'));
         $this->assertFalse(HandlerBroker::handle_shortcode([], null, $undefinedParser, 'yes'));
@@ -77,9 +81,10 @@ class HandlerBrokerTest extends SapphireTest
         $this->assertFalse(HandlerBroker::handle_shortcode([], null, $undefinedParser, 'no'));
     }
 
-    public function testHandleShortcodeIsLimitedByParserInstance()
+    public function testHandleShortcodeIsLimitedByParserInstance(): void
     {
         ShortcodeParser::set_active('undefined');
+        /** @var InstanceIdentifiableShortcodeParser $undefinedParser */
         $undefinedParser = ShortcodeParser::get_active();
         $this->assertNotSame('The test title', HandlerBroker::handle_shortcode([], null, $undefinedParser, 'test'));
         $this->assertNotSame('Yep.', HandlerBroker::handle_shortcode([], null, $undefinedParser, 'yes'));
@@ -87,6 +92,7 @@ class HandlerBrokerTest extends SapphireTest
         $this->assertNotSame('Nope', HandlerBroker::handle_shortcode([], null, $undefinedParser, 'no'));
 
         ShortcodeParser::set_active('answers');
+        /** @var InstanceIdentifiableShortcodeParser $answerParser */
         $answerParser = ShortcodeParser::get_active();
         $this->assertNotSame('The test title', HandlerBroker::handle_shortcode([], null, $answerParser, 'test'));
         $this->assertSame('Yep.', HandlerBroker::handle_shortcode([], null, $answerParser, 'yes'));
@@ -97,6 +103,7 @@ class HandlerBrokerTest extends SapphireTest
         $this->assertSame('Nope', HandlerBroker::handle_shortcode([], null, $answerParser, 'no'));
 
         ShortcodeParser::set_active('test');
+        /** @var InstanceIdentifiableShortcodeParser $testParser */
         $testParser = ShortcodeParser::get_active();
         $this->assertSame('The test title', HandlerBroker::handle_shortcode([], null, $testParser, 'test'));
         $this->assertNotSame('Yep.', HandlerBroker::handle_shortcode([], null, $testParser, 'yes'));
@@ -107,7 +114,7 @@ class HandlerBrokerTest extends SapphireTest
         $this->assertFalse(HandlerBroker::handle_shortcode([], null, $testParser, 'no'));
     }
 
-    public function testRegisterShortcodesAndIntegration()
+    public function testRegisterShortcodesAndIntegration(): void
     {
         HandlerBroker::register_shortcodes();
 

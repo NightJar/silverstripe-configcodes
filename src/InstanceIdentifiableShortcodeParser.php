@@ -4,21 +4,25 @@ namespace Nightjar\ConfigCodes;
 
 use SilverStripe\View\Parsers\ShortcodeParser;
 
+/**
+ * Default ShortcodeParser can reference different instances, but has no way of listing what is available.
+ * This subclass adds the ability to list out the names of instances
+ *
+ * @method self get_active()
+ */
 class InstanceIdentifiableShortcodeParser extends ShortcodeParser
 {
     /**
-     * Caches the instance name
-     *
-     * @var string|null
+     * Caches this instances name identifier
      */
-    protected $instanceIdentifier = null;
+    protected ?string $instanceIdentifier = null;
 
     /**
-     * @see ShortcodeParser::$active_instance
+     * Get active instance name
      *
-     * @return string
+     * @see ShortcodeParser::$active_instance
      */
-    public static function get_active_identifier()
+    public static function get_active_identifier(): string
     {
         return ShortcodeParser::$active_instance;
     }
@@ -27,11 +31,10 @@ class InstanceIdentifiableShortcodeParser extends ShortcodeParser
      * Get this instances name (stored under parent::$instances)
      *
      * Sets the cache variable if it is not already.
-     * Assumes that a single instance is registered under only one name.
-     *
-     * @return string
+     * Assumes that this instance is both registered, and registered under only one name.
+     * This instance may be the active one, but because active is only referenced by name we can't tell and must look-up
      */
-    public function getInstanceName()
+    public function getInstanceName(): ?string
     {
         if (!isset($this->instanceIdentifier)) {
             foreach (ShortcodeParser::$instances as $name => $instance) {

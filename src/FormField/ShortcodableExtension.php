@@ -6,13 +6,20 @@ use Nightjar\ConfigCodes\HandlerBroker;
 use Nightjar\ConfigCodes\InstanceIdentifiableShortcodeParser;
 use SilverStripe\Core\Extension;
 
+/**
+ * @extends Extension<\SilverStripe\Forms\FormField>
+ */
 class ShortcodableExtension extends Extension
 {
-    private static $default_classes = ['extrashortcodes'];
+    /**
+     * Merges with FormField.default_classes
+     * @config
+     */
+    private static array $default_classes = ['extrashortcodes'];
 
-    protected $shortcodeParserName = null;
+    protected ?string $shortcodeParserName = null;
 
-    public function setShortcodeParser(string $name)
+    public function setShortcodeParser(string $name): mixed
     {
         $this->shortcodeParserName = $name;
         return $this->owner;
@@ -29,16 +36,20 @@ class ShortcodableExtension extends Extension
      * @param string[] $attributes key value list that will become key="value" on render
      * @return string[]
      */
-    public function updateAttributes(&$attributes)
+    protected function updateAttributes(&$attributes)
     {
         $conf = $this->loadShortcodeConfiguration();
-        if ($conf) {
-            $attributes['data-shortcodes'] = json_encode($conf);
+        $encodedConf = json_encode($conf);
+        if ($conf && $encodedConf) {
+            $attributes['data-shortcodes'] = $encodedConf;
         }
         return $attributes;
     }
 
-    public function loadShortcodeConfiguration()
+    /**
+     * @return array<string, array{parameters:array<string,bool>, content:bool|null}>
+     */
+    public function loadShortcodeConfiguration(): array
     {
         $registry = HandlerBroker::get_registry();
         $codes = $registry->getCodesForParser(

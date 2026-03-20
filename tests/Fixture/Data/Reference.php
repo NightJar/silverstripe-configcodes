@@ -7,7 +7,7 @@ use SilverStripe\ORM\DataObject;
 
 class Reference extends DataObject implements TestOnly
 {
-    private static $db = [
+    private static array $db = [
         'Title' => 'Varchar',
     ];
 }

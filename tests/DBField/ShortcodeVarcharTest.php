@@ -6,8 +6,11 @@ use Nightjar\ConfigCodes\DBField\ShortcodeVarchar;
 use Nightjar\ConfigCodes\InstanceIdentifiableShortcodeParser;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\SapphireTest;
-use SilverStripe\View\ArrayData;
-use SilverStripe\View\SSViewer;
+use SilverStripe\Model\ArrayData;
+use SilverStripe\Model\ModelData;
+use SilverStripe\TemplateEngine\SSTemplateEngine;
+use SilverStripe\View\Parsers\ShortcodeParser;
+use SilverStripe\View\ViewLayerData;
 
 class ShortcodeVarcharTest extends SapphireTest
 {
@@ -21,56 +24,58 @@ class ShortcodeVarcharTest extends SapphireTest
         Config::modify()->set(ShortcodeVarchar::class, 'default_full_output', true);
     }
 
-    public function testShortcodeProcessing()
+    public function testShortcodeProcessing(): void
     {
-        $viewer = SSViewer::fromString('This is $Title.');
         $titleField = new ShortcodeVarchar('Title');
         $titleField->setValue('A test of the [test]')->setProcessShortcodes(true);
         $templateData = new ArrayData([
-            'Title' => $titleField
+            'Title' => $titleField,
         ]);
-        $result = $templateData->renderWith($viewer);
+        $result = $this->renderTemplateFromString('This is $Title.', $templateData);
         $this->assertSame('This is A test of the The test title.', $result);
     }
 
-    public function testShortcodesAreUnaffectedIfNotEnabled()
+    public function testShortcodesAreUnaffectedIfNotEnabled(): void
     {
-        $viewer = SSViewer::fromString('This is $Title.');
         $titleField = new ShortcodeVarchar('Title');
         $titleField->setValue('A test of the [test]');
         $templateData = new ArrayData([
-            'Title' => $titleField
+            'Title' => $titleField,
         ]);
-        $result = $templateData->renderWith($viewer);
+        $result = $this->renderTemplateFromString('This is $Title.', $templateData);
         $this->assertSame('This is A test of the [test].', $result);
     }
 
-    public function testTheActiveParserIsUsed()
+    public function testTheActiveParserIsUsed(): void
     {
-        $viewer = SSViewer::fromString('The $Title.');
         $titleField = new ShortcodeVarchar('Answer');
         $titleField->setValue('answer is [no]')->setProcessShortcodes(true);
         $templateData = new ArrayData([
-            'Title' => $titleField
+            'Title' => $titleField,
         ]);
-        $result = $templateData->renderWith($viewer);
+        $result = $this->renderTemplateFromString('The $Title.', $templateData);
         $this->assertSame('The answer is [no].', $result);
     }
 
-    public function testTheSpecificlySetParserDoesNotAffectTheGlobalActiveParser()
+    public function testTheSpecificlySetParserDoesNotAffectTheGlobalActiveParser(): void
     {
-        $viewer = SSViewer::fromString('The $Title');
         $titleField = new ShortcodeVarchar('Answer');
         $titleField->setValue('answer is [yes]')
             ->setProcessShortcodes(true)
             ->setParserName('answers');
         $templateData = new ArrayData([
-            'Title' => $titleField
+            'Title' => $titleField,
         ]);
-        $result = $templateData->renderWith($viewer);
+        $result = $this->renderTemplateFromString('The $Title', $templateData);
         $this->assertSame('The answer is Yep.', $result);
 
-        $globallyActiveParser = InstanceIdentifiableShortcodeParser::get_active();
+        /** @var InstanceIdentifiableShortcodeParser $globallyActiveParser */
+        $globallyActiveParser = ShortcodeParser::get_active();
         $this->assertSame('test', $globallyActiveParser->getInstanceName());
+    }
+
+    private function renderTemplateFromString(string $string, ModelData $data): string
+    {
+        return (new SSTemplateEngine())->renderString($string, new ViewLayerData($data));
     }
 }

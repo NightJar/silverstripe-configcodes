@@ -6,11 +6,12 @@ use Nightjar\ConfigCodes\Handler;
 
 class TestHandler implements Handler
 {
-    public function __construct(object $object, string $property)
-    {
-        $this->object = $object;
-        $this->property = $property;
+    public function __construct(
+        private object $object,
+        private string $property
+    ) {
     }
+
     public static function getParameters(): array
     {
         return [];

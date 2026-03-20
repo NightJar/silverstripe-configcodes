@@ -10,7 +10,7 @@ class ShortcodeHTMLTextTest extends SapphireTest
 {
     use CommonFunctions;
 
-    public function testPlainPreservesVerticalSpacing()
+    public function testPlainPreservesVerticalSpacing(): void
     {
         $shortcoded = new ShortcodeHTMLText();
         $standard = new DBHTMLText();

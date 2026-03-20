@@ -15,14 +15,14 @@ class InstanceIdentifiableShortcodeParserTest extends SapphireTest
         Injector::inst()->load([ShortcodeParser::class => InstanceIdentifiableShortcodeParser::class]);
     }
 
-    public function testGettingStaticActiveIdentifier()
+    public function testGettingStaticActiveIdentifier(): void
     {
         $this->assertSame('default', InstanceIdentifiableShortcodeParser::get_active_identifier());
         ShortcodeParser::set_active('Not the default');
         $this->assertSame('Not the default', InstanceIdentifiableShortcodeParser::get_active_identifier());
     }
 
-    public function testInstanceNameIsSetOnCreate()
+    public function testInstanceNameIsSetOnCreate(): void
     {
         ShortcodeParser::set_active('test');
         /** @var InstanceIdentifiableShortcodeParser $parser */
@@ -31,10 +31,12 @@ class InstanceIdentifiableShortcodeParserTest extends SapphireTest
         $this->assertSame('test', $parser->getInstanceName());
     }
 
-    public function testInstanceNameIsSetOnFetch()
+    public function testInstanceNameIsSetOnFetch(): void
     {
         ShortcodeParser::set_active('Alan');
+        /** @var InstanceIdentifiableShortcodeParser $alan */
         $alan = ShortcodeParser::get_active();
+        /** @var InstanceIdentifiableShortcodeParser $chris */
         $chris = ShortcodeParser::get('Christopher');
         $this->assertSame('Christopher', $chris->getInstanceName());
         $this->assertSame('Alan', $alan->getInstanceName(), 'Another instances name should not be affected');

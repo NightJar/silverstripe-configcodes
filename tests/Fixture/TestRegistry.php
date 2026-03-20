@@ -7,8 +7,14 @@ use Nightjar\ConfigCodes\Registry;
 
 class TestRegistry implements Registry
 {
-    private $registeredCodes = [];
+    /**
+     * @var array<string,array<string,Handler>>
+     */
+    private array $registeredCodes = [];
 
+    /**
+     * @param array<string,array<string,Handler>> $codeDefinitions
+     */
     public function __construct(array $codeDefinitions)
     {
         $this->registeredCodes = $codeDefinitions;

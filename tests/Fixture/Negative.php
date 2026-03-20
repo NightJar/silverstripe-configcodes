@@ -3,13 +3,13 @@
 namespace Nightjar\ConfigCodes\Test\Fixture;
 
 use SilverStripe\Dev\TestOnly;
-use SilverStripe\View\ViewableData;
+use SilverStripe\Model\ModelData;
 
-class Negative extends ViewableData implements TestOnly
+class Negative extends ModelData implements TestOnly
 {
-    public $possible = '<strong>Might</strong> do...';
+    public string $possible = '<strong>Might</strong> do...';
 
-    public function deny()
+    public function deny(): string
     {
         return 'Nope';
     }

@@ -19,9 +19,9 @@ class HandlerBroker implements ShortcodeHandler
      * But we'll implement it anyway. We cannot filter by parser name at this point though, so we'll just return
      * every code from all handlers configured on this class.
      *
-     * @return array
+     * @return string[]
      */
-    public static function get_shortcodes()
+    public static function get_shortcodes(): array
     {
         $registry = self::get_registry();
         $codes = [];
@@ -31,6 +31,14 @@ class HandlerBroker implements ShortcodeHandler
         return $codes;
     }
 
+    /**
+     * @inheritDoc
+     * @param array<string,string> $arguments
+     * @param ?string $content
+     * @param InstanceIdentifiableShortcodeParser $parser
+     * @param array{node?:\DOMAttr,element?:\DOMElement} $extra
+     * @return string|false
+     */
     public static function handle_shortcode($arguments, $content, $parser, $shortcode, $extra = [])
     {
         $parserName = $parser->getInstanceName();
@@ -45,12 +53,8 @@ class HandlerBroker implements ShortcodeHandler
 
     /**
      * registers a shortcode with the parser and how to handle it locally.
-     *
-     * @param string $code
-     * @param string $parserName
-     * @return void
      */
-    public static function register_shortcodes()
+    public static function register_shortcodes(): void
     {
         $registry = self::get_registry();
         foreach ($registry->listParsers() as $parserName) {

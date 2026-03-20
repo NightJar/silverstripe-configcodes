@@ -16,9 +16,9 @@ trait ShortcodablePlain
      * This only affects default output, e.g. $Title in a template. No matter the setting configured, it can be
      * overridden in templates via $Title.Full (include HTML) or $Title.Plain
      *
-     * @var boolean
+     * @config
      */
-    private static $default_full_output = false;
+    private static bool $default_full_output = false;
 
     /**
      * Return output for display in templates.
@@ -35,8 +35,6 @@ trait ShortcodablePlain
      *
      * @see self::Full()
      * @see self::Plain()
-     *
-     * @return string
      */
     public function forTemplate(): string
     {
@@ -55,8 +53,6 @@ trait ShortcodablePlain
      * default, which does the escaping on render via SilverStripe\ORM\FieldTypes\DBField::forTemplate()), but because
      * once we've processed shortocdes we've got no way to tell what should be escaped and what shouldn't, we must carry
      * out the escaping here directly, before processing shortcodes.
-     *
-     * @return string
      */
     public function Full(): string
     {
@@ -76,8 +72,6 @@ trait ShortcodablePlain
      * in HTML contexts, we can strip it out again.
      *
      * @see self::Full() Escapes user inputted HTML before we strip shortcode introduced HTML here.
-     *
-     * @return string
      */
     public function Plain(): string
     {
@@ -86,8 +80,6 @@ trait ShortcodablePlain
 
     /**
      * Parse shortcodes & give full output, regardless of whether processing is enabled or not.
-     *
-     * @return string
      */
     public function Parsed(): string
     {

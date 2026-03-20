@@ -6,7 +6,7 @@ use SilverStripe\Dev\TestOnly;
 
 class Affirmative implements TestOnly
 {
-    public function substituteText()
+    public function substituteText(): string
     {
         return 'Yep.';
     }
