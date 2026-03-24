@@ -18,7 +18,8 @@ trait ShortcodableHTML
      */
     public function Full(): string
     {
-        return $this->RAW();
+        $raw = $this->RAW();
+        return is_string($raw) ? $raw : '';
     }
 
     /**
@@ -26,6 +27,10 @@ trait ShortcodableHTML
      */
     public function Parsed(): string
     {
-        return $this->parseShortcodes($this->getValue());
+        $value = $this->getValue();
+        if (!is_string($value)) {
+            return '';
+        }
+        return $this->parseShortcodes($value);
     }
 }

@@ -69,7 +69,11 @@ trait ShortcodableDBString
 
     public function RAW(): ?string
     {
-        return $this->processOutput($this->getValue()) ?? parent::RAW();
+        $value = $this->getValue();
+        if (!is_string($value)) {
+            return is_string($raw = parent::RAW()) ? $raw : null;
+        }
+        return $this->processOutput($value) ?? parent::RAW();
     }
 
     /**

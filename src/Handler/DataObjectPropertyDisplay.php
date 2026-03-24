@@ -62,6 +62,6 @@ class DataObjectPropertyDisplay implements Handler
             return $value->$format();
         }
 
-        return $value;
+        return $value->getValue();
     }
 }
