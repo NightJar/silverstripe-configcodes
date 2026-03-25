@@ -7,6 +7,8 @@ use SilverStripe\ORM\DataObject;
 
 class Reference extends DataObject implements TestOnly
 {
+    private static string $table_name = 'ConfigCodes_Reference';
+
     private static array $db = [
         'Title' => 'Varchar',
     ];
