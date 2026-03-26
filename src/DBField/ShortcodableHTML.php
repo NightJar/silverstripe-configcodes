@@ -19,7 +19,11 @@ trait ShortcodableHTML
     public function Full(): string
     {
         $raw = $this->RAW();
-        return is_string($raw) ? $raw : '';
+        if (is_string($raw)) {
+            return $raw;
+        }
+        // See ShortcodablePlain::Full() for why scalar non-strings need handling
+        return is_scalar($raw) ? (string) $raw : '';
     }
 
     /**

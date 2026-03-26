@@ -71,6 +71,11 @@ trait ShortcodableDBString
     {
         $value = $this->getValue();
         if (!is_string($value)) {
+            // CMS 6's CastingService may route non-string values through this field when used as default_cast.
+            // Cast scalars to string; non-scalars (arrays, objects) fall back to parent which may return null.
+            if (is_scalar($value)) {
+                return (string) $value;
+            }
             return is_string($raw = parent::RAW()) ? $raw : null;
         }
         return $this->processOutput($value) ?? parent::RAW();
