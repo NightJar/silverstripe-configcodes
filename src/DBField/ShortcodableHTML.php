@@ -18,7 +18,12 @@ trait ShortcodableHTML
      */
     public function Full(): string
     {
-        return $this->RAW();
+        $raw = $this->RAW();
+        if (is_string($raw)) {
+            return $raw;
+        }
+        // See ShortcodablePlain::Full() for why scalar non-strings need handling
+        return is_scalar($raw) ? (string) $raw : '';
     }
 
     /**
@@ -26,6 +31,11 @@ trait ShortcodableHTML
      */
     public function Parsed(): string
     {
-        return $this->parseShortcodes($this->getValue());
+        $value = $this->getValue();
+        if (!is_string($value)) {
+            // See ShortcodablePlain::Full() for why scalar non-strings need handling
+            return is_scalar($value) ? (string) $value : '';
+        }
+        return $this->parseShortcodes($value);
     }
 }

@@ -56,12 +56,15 @@ class DataObjectPropertyDisplay implements Handler
             throw new DomainException("$property does not exist on $className");
         }
 
-        $value = $instance->obj($property);
-
-        if ($format && $value->hasMethod($format)) {
-            return $value->$format();
+        if ($format) {
+            $value = $instance->obj($property);
+            if ($value !== null && $value->hasMethod($format)) {
+                return (string) $value->$format();
+            }
         }
 
-        return $value;
+        return $instance->hasField($property)
+            ? $instance->getField($property)
+            : (string) $instance->obj($property)?->getValue();
     }
 }

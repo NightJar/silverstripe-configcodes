@@ -56,8 +56,14 @@ trait ShortcodablePlain
      */
     public function Full(): string
     {
+        $value = $this->getValue();
+        if (!is_string($value)) {
+            // Scalar non-string values (int, float, bool) can appear when this field type is used as default_cast.
+            // CMS 6's CastingService routes all template values through default_cast regardless of type.
+            return is_scalar($value) ? Convert::raw2xml((string) $value) : '';
+        }
         // shortcodes are not valid XML so should not be affected/escaped
-        $htmlSafeValue = Convert::raw2xml($this->getValue());
+        $htmlSafeValue = Convert::raw2xml($value);
         // line breaks are added after escaping as they should persist to the output as well
         // but they are inserted before parsing so they don't interfere with shortcode output
         $htmlSafeValue = nl2br($htmlSafeValue);
@@ -83,8 +89,13 @@ trait ShortcodablePlain
      */
     public function Parsed(): string
     {
+        $value = $this->getValue();
+        if (!is_string($value)) {
+            // See Full() for why scalar non-strings need handling
+            return is_scalar($value) ? Convert::raw2xml((string) $value) : '';
+        }
         // shortcodes are not valid XML so should not be affected/escaped
-        $htmlSafeValue = Convert::raw2xml($this->getValue());
+        $htmlSafeValue = Convert::raw2xml($value);
         return $this->parseShortcodes($htmlSafeValue);
     }
 }
