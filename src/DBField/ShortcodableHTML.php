@@ -29,7 +29,8 @@ trait ShortcodableHTML
     {
         $value = $this->getValue();
         if (!is_string($value)) {
-            return '';
+            // See ShortcodablePlain::Full() for why scalar non-strings need handling
+            return is_scalar($value) ? (string) $value : '';
         }
         return $this->parseShortcodes($value);
     }

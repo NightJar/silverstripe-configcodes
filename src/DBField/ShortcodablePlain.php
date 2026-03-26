@@ -58,7 +58,9 @@ trait ShortcodablePlain
     {
         $value = $this->getValue();
         if (!is_string($value)) {
-            return '';
+            // Scalar non-string values (int, float, bool) can appear when this field type is used as default_cast.
+            // CMS 6's CastingService routes all template values through default_cast regardless of type.
+            return is_scalar($value) ? Convert::raw2xml((string) $value) : '';
         }
         // shortcodes are not valid XML so should not be affected/escaped
         $htmlSafeValue = Convert::raw2xml($value);
@@ -89,7 +91,8 @@ trait ShortcodablePlain
     {
         $value = $this->getValue();
         if (!is_string($value)) {
-            return '';
+            // See Full() for why scalar non-strings need handling
+            return is_scalar($value) ? Convert::raw2xml((string) $value) : '';
         }
         // shortcodes are not valid XML so should not be affected/escaped
         $htmlSafeValue = Convert::raw2xml($value);
